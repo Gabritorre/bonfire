@@ -1,7 +1,10 @@
-from flask import Flask
+from api import api
+from flask import Flask, jsonify
 
 app = Flask(__name__)
+app.register_blueprint(api)
 
-@app.route("/")
-def hello_world():
-    return "<h1>Hello, World!</h1>"
+@app.route("/", defaults={"path": "index.html"})
+@app.route("/<path:path>")
+def root(path):
+	return f"<h1>Static content {path}</h1>"
