@@ -1,8 +1,11 @@
 import os
 from api import api
 from flask import Flask, render_template, send_from_directory
+from config import engine
+from dotenv import load_dotenv
 
 app = Flask(__name__)
+app.config["secret_key"] = os.getenv("DB_SECRET_KEY")
 app.register_blueprint(api)
 
 @app.route("/", defaults={"path": "explore.html"})
