@@ -8,7 +8,7 @@ app = Flask(__name__)
 app.config["secret_key"] = os.getenv("DB_SECRET_KEY")
 app.register_blueprint(api)
 
-@app.route("/", defaults={"path": "explore.html"})
+@app.route("/", defaults={"path": "index"})
 @app.route("/<path:path>")
 def root(path):
 	if not os.path.splitext(path)[1]:

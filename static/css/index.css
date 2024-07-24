@@ -1,0 +1,18 @@
+.card {
+	width: min(var(--post-width), 100%);
+}
+
+.card-img {
+	aspect-ratio: var(--post-media-ratio);
+	object-fit: cover;
+}
+
+.card-title > img {
+	width: var(--post-profile-size);
+	aspect-ratio: 1/1;
+	object-fit: cover;
+}
+
+input[type="search"] {
+	max-width: var(--search-width);
+}
