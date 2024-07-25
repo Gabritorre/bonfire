@@ -1,10 +1,11 @@
 import enum as py_enum
 from datetime import datetime
-from sqlalchemy import Boolean, Float, Integer, LargeBinary, String, DateTime, ForeignKey, Text, func
+from sqlalchemy import Boolean,Float, Integer, LargeBinary, String, DateTime, ForeignKey, Text, func
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 # TODO: 各フィールドの最大サイズを指定する
 
+# CREATE TYPE SexEnum AS ENUM ('male', 'female', 'other')
 class SexEnum(py_enum.Enum):
     MALE = "male"
     FEMALE = "female"
@@ -13,7 +14,6 @@ class SexEnum(py_enum.Enum):
 class RelationEnum(py_enum.Enum):
     FOLLOWER = 'follower'
     FOLLOWING = 'following'
-    # BLOCKED?
 
 class Base(DeclarativeBase):
     pass
@@ -24,7 +24,7 @@ class Profile(Base):
     id: Mapped[int] = mapped_column(Integer, autoincrement=True, primary_key=True)
 
     password: Mapped[str] = mapped_column(nullable=False)
-    email: Mapped[str] = mapped_column(nullable=True)
+    email: Mapped[str] = mapped_column(nullable=True, unique=True)
     creation_date: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
 
@@ -94,9 +94,9 @@ class User(Base):
     user_handle: Mapped[str] = mapped_column(String(30), nullable=False, unique=True)
     name: Mapped[str] = mapped_column(String(20), nullable=False)
     surname: Mapped[str] = mapped_column(String(20), nullable=False)
-    #sex: Mapped[SexEnum] = mapped_column(Enum, nullable=False) # TODO
+    sex: Mapped[SexEnum]
     pfp: Mapped[bytes] = mapped_column(LargeBinary, nullable=True)
-    banner: Mapped[bytes] = mapped_column(LargeBinary, nullable=False)
+    banner: Mapped[bytes] = mapped_column(LargeBinary, nullable=True)
     biography: Mapped[str] = mapped_column(Text, nullable=True)
     followers: Mapped[int] = mapped_column(Integer, nullable=False)
     following: Mapped[int] = mapped_column(Integer, nullable=False)
@@ -104,7 +104,7 @@ class User(Base):
 
 class Interest(Base):
     __tablename__ = "interests"
-    user: Mapped[int] = mapped_column(ForeignKey("users.id"), primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), primary_key=True)
     tag: Mapped[int] = mapped_column(ForeignKey("tags.id"), primary_key=True)
 
     interest: Mapped[float] = mapped_column(Float, nullable=False)
@@ -113,13 +113,12 @@ class Interest(Base):
 class Post(Base):
     __tablename__ = "posts"
     id: Mapped[int] = mapped_column(Integer, autoincrement=True, primary_key=True)
-    user: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"))
+    user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"))
 
     body: Mapped[str] = mapped_column(Text, nullable=True) # aggiungere vincolo (body || media)
     media: Mapped[bytes] = mapped_column(LargeBinary, nullable=True)
     date: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     likes: Mapped[int] = mapped_column(Integer, nullable=False)
-    dislikes: Mapped[int] = mapped_column(Integer, nullable=False)
 
 
 class PostTag(Base):
@@ -130,15 +129,14 @@ class PostTag(Base):
 
 class UserInteraction(Base):
     __tablename__ = "user_interactions"
-    user: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"), primary_key=True)
+    user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"), primary_key=True)
     post: Mapped[int] = mapped_column(Integer, ForeignKey("posts.id"), primary_key=True)
 
-    like: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
-    dislike: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    liked: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     comment: Mapped[str] = mapped_column(Text, nullable=True)
 
 class RelationShip(Base):
     __tablename__ = "relationships"
-    user1: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"), primary_key=True)
-    user2: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"), primary_key=True)
-    #relation: Mapped[RelationEnum] = mapped_column(Enum, nullable=False, name="relation") # TODO
+    user1_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"), primary_key=True)
+    user2_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"), primary_key=True)
+    relation: Mapped[RelationEnum]

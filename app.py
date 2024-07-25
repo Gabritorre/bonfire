@@ -3,6 +3,7 @@ from api import api
 from flask import Flask, render_template, send_from_directory
 from config import engine
 from dotenv import load_dotenv
+from models import *
 
 app = Flask(__name__)
 app.config["secret_key"] = os.getenv("DB_SECRET_KEY")
