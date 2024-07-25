@@ -110,6 +110,14 @@ class Interest(Base):
     interest: Mapped[float] = mapped_column(Float, nullable=False)
 
 
+class Cookie(Base):
+    __tablename__ = "cookies"
+    id: Mapped[str] = mapped_column(String(30), primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+
+    date: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
 class Post(Base):
     __tablename__ = "posts"
     id: Mapped[int] = mapped_column(Integer, autoincrement=True, primary_key=True)
