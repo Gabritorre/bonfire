@@ -5,10 +5,10 @@
 <link rel="stylesheet" href="/css/index.css" />
 {% endblock %}
 
-{% block body %}
+{% block view %}
 {{super()}}
-<div class="container">
-	<ul class="nav nav-underline justify-content-center mb-2">
+<div class="overflow-scroll">
+	<ul class="nav nav-underline justify-content-center mt-2 mb-3">
 		<li class="nav-item">
 			<button class="nav-link active">Explore</button>
 		</li>
@@ -17,8 +17,8 @@
 		</li>
 	</ul>
 
-	<div class="d-flex flex-column align-items-center">
-		<div class="card my-2">
+	<div class="container d-flex flex-column align-items-center">
+		<div class="card mb-3">
 			<div class="card-body">
 				<div class="card-title d-flex align-items-center mb-2">
 					<img class="rounded-circle me-2" src="https://www.rustacean.net/more-crabby-things/squishable-ferris.jpg" width="40" />
