@@ -1,0 +1,7 @@
+header input[type="search"] {
+	max-width: var(--search-width);
+}
+
+header .btn {
+	white-space: nowrap;
+}

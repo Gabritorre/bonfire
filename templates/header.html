@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block head %}
+{{super()}}
+<link rel="stylesheet" href="/css/header.css" />
+{% endblock %}
+
+{% block body %}
+{{super()}}
+<header class="bg-dark-subtle py-3 mb-2 border-bottom">
+	<div class="container d-flex align-items-center justify-content-center justify-content-md-between">
+		<div class="col-md-3">
+			<a class="d-inline-flex align-items-center text-reset text-decoration-none" href="/">
+				<img class="me-2" src="/favicon.png" width="40" />
+				<span class="d-none d-sm-inline fs-4 fw-bold">App</span>
+			</a>
+		</div>
+
+		<input class="form-control mx-4 rounded-pill" type="search" placeholder="Search..." />
+
+		<div class="d-flex justify-content-end gap-2 col-md-3">
+			<button class="btn btn-outline-light rounded-pill">Login</button>
+			<button class="btn btn-light rounded-pill">Sign up</button>
+		</div>
+	</div>
+</header>
+{% endblock %}

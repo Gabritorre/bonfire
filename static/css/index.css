@@ -12,11 +12,3 @@
 	aspect-ratio: 1/1;
 	object-fit: cover;
 }
-
-input[type="search"] {
-	max-width: var(--search-width);
-}
-
-header .btn {
-	white-space: nowrap;
-}

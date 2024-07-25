@@ -1,49 +1,35 @@
-{% extends "base.html" %}
+{% extends "header.html" %}
 
 {% block head %}
+{{super()}}
 <link rel="stylesheet" href="/css/index.css" />
 {% endblock %}
 
 {% block body %}
-<header class="bg-dark-subtle py-3 mb-2 border-bottom">
-	<div class="container d-flex align-items-center justify-content-center justify-content-md-between">
-		<div class="col-md-3">
-			<a class="d-inline-flex align-items-center text-reset text-decoration-none" href="/">
-				<img class="me-2" src="/favicon.png" width="40" />
-				<span class="d-none d-sm-inline fs-4 fw-bold">App</span>
-			</a>
-		</div>
+{{super()}}
+<div class="container">
+	<ul class="nav nav-underline justify-content-center mb-2">
+		<li class="nav-item">
+			<button class="nav-link active">Explore</button>
+		</li>
+		<li class="nav-item">
+			<button class="nav-link text-muted">Friends</button>
+		</li>
+	</ul>
 
-		<input class="form-control mx-4 rounded-pill" type="search" placeholder="Search..." />
-
-		<div class="d-flex justify-content-end gap-2 col-md-3">
-			<button class="btn btn-outline-light rounded-pill">Login</button>
-			<button class="btn btn-light rounded-pill">Sign up</button>
-		</div>
-	</div>
-</header>
-
-<ul class="nav nav-underline justify-content-center mb-2">
-	<li class="nav-item">
-		<button class="nav-link active">Explore</button>
-	</li>
-	<li class="nav-item">
-		<button class="nav-link text-muted">Friends</button>
-	</li>
-</ul>
-
-<div class="d-flex flex-column align-items-center mx-4">
-	<div class="card my-2">
-		<div class="card-body">
-			<div class="card-title d-flex align-items-center mb-2">
-				<img class="rounded-circle me-2" src="https://www.rustacean.net/more-crabby-things/squishable-ferris.jpg" width="40" />
-				<div>
-				<div class="fw-bold">Ferris the Crab</div>
-				<div class="text-secondary">01/01/1970</div>
+	<div class="d-flex flex-column align-items-center">
+		<div class="card my-2">
+			<div class="card-body">
+				<div class="card-title d-flex align-items-center mb-2">
+					<img class="rounded-circle me-2" src="https://www.rustacean.net/more-crabby-things/squishable-ferris.jpg" width="40" />
+					<div>
+					<div class="fw-bold">Ferris the Crab</div>
+					<div class="text-secondary">01/01/1970</div>
+					</div>
 				</div>
+				<p class="card-text">The Rules say there may exist either:<br>- one or more references<br>- exactly one mutable reference</p>
+				<img class="card-img" src="https://cat-milk.github.io/Anime-Girls-Holding-Programming-Books/static/f5bcf000a3399d76c369dffce060f941/72645/Tsukishima_Shijima_The_Rust_programming_language.png" />
 			</div>
-			<p class="card-text">The Rules say there may exist either:<br>- one or more references<br>- exactly one mutable reference</p>
-			<img class="card-img" src="https://cat-milk.github.io/Anime-Girls-Holding-Programming-Books/static/f5bcf000a3399d76c369dffce060f941/72645/Tsukishima_Shijima_The_Rust_programming_language.png" />
 		</div>
 	</div>
 </div>
