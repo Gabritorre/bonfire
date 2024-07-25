@@ -1,13 +1,19 @@
 import os
-from api import api
+from api.user import user
 from flask import Flask, render_template, send_from_directory
-from config import engine
+from config import engine, db, connection_string
 from dotenv import load_dotenv
 from models import *
 
 app = Flask(__name__)
 app.config["secret_key"] = os.getenv("DB_SECRET_KEY")
-app.register_blueprint(api)
+app.config["SQLALCHEMY_DATABASE_URI"] = connection_string
+
+app.register_blueprint(user)
+
+# db.init_app(app)
+
+Base.metadata.create_all(bind=engine)
 
 @app.route("/", defaults={"path": "index"})
 @app.route("/<path:path>")

@@ -1,4 +1,6 @@
 from sqlalchemy import URL, create_engine
+from sqlalchemy.orm import sessionmaker
+from flask_sqlalchemy import SQLAlchemy
 from dotenv import load_dotenv
 import os
 
@@ -14,3 +16,6 @@ connection_string = URL.create(
 )
 
 engine = create_engine(connection_string)
+local_session = sessionmaker(autocommit = False, autoflush = False, bind = engine)
+
+db = SQLAlchemy()
