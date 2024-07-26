@@ -8,8 +8,8 @@ A_LENGTH = 20
 B_LENGTH = 40
 C_LENGTH = 60
 
-# CREATE TYPE SexEnum AS ENUM ('male', 'female', 'other')
-class SexEnum(py_enum.Enum):
+# CREATE TYPE GenderEnum AS ENUM ('male', 'female', 'other')
+class GenderEnum(str, py_enum.Enum):
 	MALE = "male"
 	FEMALE = "female"
 	OTHER = "other"
@@ -105,10 +105,10 @@ class User(Base):
 	__tablename__ = "users"
 	id: Mapped[int] = mapped_column(ForeignKey("profiles.id", ondelete="cascade"), primary_key=True)
 
-	user_handle: Mapped[str] = mapped_column(String(30), nullable=False, unique=True)
-	name: Mapped[str] = mapped_column(String(20), nullable=False)
-	surname: Mapped[str] = mapped_column(String(20), nullable=False)
-	sex: Mapped[SexEnum]
+	user_handle: Mapped[str] = mapped_column(String(A_LENGTH), nullable=False, unique=True)
+	name: Mapped[str] = mapped_column(String(A_LENGTH), nullable=False)
+	surname: Mapped[str] = mapped_column(String(B_LENGTH), nullable=False)
+	gender: Mapped[GenderEnum]
 	pfp: Mapped[bytes] = mapped_column(LargeBinary, nullable=True)
 	banner: Mapped[bytes] = mapped_column(LargeBinary, nullable=True)
 	biography: Mapped[str] = mapped_column(Text, nullable=True)
