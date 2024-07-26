@@ -1,7 +1,9 @@
+from flask import Flask
 from sqlalchemy import URL, create_engine
-from sqlalchemy.orm import sessionmaker
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.orm import sessionmaker
 from dotenv import load_dotenv
+from flask_marshmallow import Marshmallow
 import os
 
 load_dotenv()
@@ -16,6 +18,10 @@ connection_string = URL.create(
 )
 
 engine = create_engine(connection_string)
-local_session = sessionmaker(autocommit = False, autoflush = False, bind = engine)
 
-db = SQLAlchemy()
+app = Flask(__name__)
+app.config["secret_key"] = os.getenv("DB_SECRET_KEY")
+app.config["SQLALCHEMY_DATABASE_URI"] = connection_string
+
+db = SQLAlchemy(app)
+ma = Marshmallow(app)

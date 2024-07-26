@@ -14,10 +14,6 @@ class SexEnum(py_enum.Enum):
 	FEMALE = "female"
 	OTHER = "other"
 
-class RelationEnum(py_enum.Enum):
-	FOLLOWER = 'follower'
-	FOLLOWING = 'following'
-
 class Base(DeclarativeBase):
 	pass
 
@@ -41,7 +37,7 @@ class Advertiser(Base):
 	name: Mapped[str] = mapped_column(String(A_LENGTH), nullable=False)
 	industry: Mapped[str] = mapped_column(String(A_LENGTH), nullable=False)
 
-	profile: Mapped[Profile] = relationship(backref="profiles", passive_deletes=True)
+	profile: Mapped[Profile] = relationship(backref="ad_profile", passive_deletes=True)
 
 
 
@@ -82,19 +78,7 @@ class DailyStat(Base):
 	readings: Mapped[int] = mapped_column(Integer)
 	clicks: Mapped[int] = mapped_column(Integer)
 
-	ad: Mapped[Ad] = relationship(backref="ads", passive_deletes=True)
-
-
-
-class TargettedTag(Base):
-	__tablename__ = "targetted_tags"
-	ad_id: Mapped[int] = mapped_column(ForeignKey("ads.id", ondelete="cascade"), primary_key=True)
-	tag_id: Mapped[int] = mapped_column(Integer, ForeignKey("tags.id", ondelete="cascade"), primary_key=True)
-
-	ad: Mapped[Ad] = relationship(backref="ads", passive_deletes=True)
-	tag: Mapped[Ad] = relationship(backref="tags", passive_deletes=True)
-# ------
-
+	ad: Mapped[Ad] = relationship(backref="ads_daily", passive_deletes=True)
 
 
 class Tag(Base):
@@ -102,6 +86,17 @@ class Tag(Base):
 	id: Mapped[int] = mapped_column(Integer, autoincrement=True, primary_key=True)
 
 	tag: Mapped[str] = mapped_column(String(A_LENGTH), unique=True, nullable=False)
+
+
+class TargetedTag(Base):
+	__tablename__ = "targeted_tags"
+	ad_id: Mapped[int] = mapped_column(ForeignKey("ads.id", ondelete="cascade"), primary_key=True)
+	tag_id: Mapped[int] = mapped_column(Integer, ForeignKey("tags.id", ondelete="cascade"), primary_key=True)
+
+	ad: Mapped[Ad] = relationship(backref="ads", passive_deletes=True)
+	tag: Mapped[Tag] = relationship(backref="tags_target", passive_deletes=True)
+
+# ------
 
 
 
@@ -117,10 +112,10 @@ class User(Base):
 	pfp: Mapped[bytes] = mapped_column(LargeBinary, nullable=True)
 	banner: Mapped[bytes] = mapped_column(LargeBinary, nullable=True)
 	biography: Mapped[str] = mapped_column(Text, nullable=True)
-	followers: Mapped[int] = mapped_column(Integer, nullable=False)
-	following: Mapped[int] = mapped_column(Integer, nullable=False)
+	followers: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+	following: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
 
-	profile: Mapped[Profile] = relationship(backref="profiles", passive_deletes=True)
+	profile: Mapped[Profile] = relationship(backref="user_profile", passive_deletes=True)
 
 
 
@@ -143,7 +138,7 @@ class AuthToken(Base):
 
 	expiration_date: Mapped[datetime] = mapped_column(DateTime(timezone=False))
 
-	user: Mapped[User] = relationship(backref="users", passive_deletes=True)
+	user: Mapped[User] = relationship(backref="users_token", passive_deletes=True)
 
 
 
@@ -157,7 +152,7 @@ class Post(Base):
 	date: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 	likes: Mapped[int] = mapped_column(Integer, nullable=False)
 
-	user: Mapped[User] = relationship(backref="users", passive_deletes=True)
+	user: Mapped[User] = relationship(backref="users_post", passive_deletes=True)
 
 
 
@@ -167,27 +162,27 @@ class PostTag(Base):
 	tag_id: Mapped[int] = mapped_column(ForeignKey("tags.id", ondelete="cascade"), primary_key=True)
 
 	post: Mapped[Post] = relationship(backref="posts", passive_deletes=True)
-	tag: Mapped[Tag] = relationship(backref="tags", passive_deletes=True)
+	tag: Mapped[Tag] = relationship(backref="tags_post", passive_deletes=True)
 
 
 
 class UserInteraction(Base):
 	__tablename__ = "user_interactions"
-	user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"), primary_key=True)
-	post_id: Mapped[int] = mapped_column(Integer, ForeignKey("posts.id"), primary_key=True)
+	user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id", ondelete="cascade"), primary_key=True)
+	post_id: Mapped[int] = mapped_column(Integer, ForeignKey("posts.id", ondelete="cascade"), primary_key=True)
 
 	liked: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
 	comment: Mapped[str] = mapped_column(Text, nullable=True)
 
-	user: Mapped[User] = relationship(backref="users", passive_deletes=True)
+	user: Mapped[User] = relationship(backref="users_interaction", passive_deletes=True)
 
 
 
-class RelationShip(Base):
-	__tablename__ = "relationships"
-	user1_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"), primary_key=True)
-	user2_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"), primary_key=True)
-	relation: Mapped[RelationEnum]
+class Follower(Base):
+	__tablename__ = "followers"
+	user1_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id", ondelete="cascade"), primary_key=True)
+	user2_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id", ondelete="cascade"), primary_key=True)
 
-	user1: Mapped[User] = relationship(backref="users", primaryjoin="user1_id == users.id", passive_deletes=True)
-	user2: Mapped[User] = relationship(backref="users", primaryjoin="user2_id == users.id", passive_deletes=True)
+	user1: Mapped[User] = relationship(backref="users1", primaryjoin="Follower.user1_id == User.id", passive_deletes=True)
+	user2: Mapped[User] = relationship(backref="users2", primaryjoin="Follower.user2_id == User.id", passive_deletes=True)
+
