@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block body %}
+<div class="d-flex align-items-center justify-content-center vh-100">
+	<div class="d-flex flex-column align-items-center bg-dark-subtle border rounded-4 p-5 gap-4">
+		<div class="d-flex flex-column align-items-center">
+			<img src="/favicon.png" width="70" />
+			<div class="fs-4 fw-bold">App</div>
+		</div>
+		<div class="d-flex flex-column gap-3">
+			<input class="form-control rounded-pill" type="text" placeholder="Username" />
+			<input class="form-control rounded-pill" type="password" placeholder="Password" />
+		</div>
+		<button class="btn btn-light rounded-pill w-100">Login</button>
+	</div>
+</div>
+{% endblock %}
