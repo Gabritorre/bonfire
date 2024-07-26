@@ -1,12 +1,10 @@
 import enum as py_enum
 from datetime import datetime
-from sqlalchemy import Boolean,Float, Integer, LargeBinary, String, DateTime, ForeignKey, Text, func
+from sqlalchemy import Boolean, Float, Integer, LargeBinary, String, DateTime, ForeignKey, Text, func
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
-# varchars lengths
-A_LENGTH = 20
-B_LENGTH = 40
-C_LENGTH = 60
+NAME_LENGTH = 20
+TOKEN_LENGTH = 40
 
 # CREATE TYPE GenderEnum AS ENUM ('male', 'female', 'other')
 class GenderEnum(str, py_enum.Enum):
@@ -33,9 +31,9 @@ class Advertiser(Base):
 	__tablename__ = "advertisers"
 	id: Mapped[int] = mapped_column(ForeignKey("profiles.id",  ondelete="cascade"), primary_key=True)
 
-	company_handle: Mapped[str] = mapped_column(String(A_LENGTH), nullable=False, unique=True)
-	name: Mapped[str] = mapped_column(String(A_LENGTH), nullable=False)
-	industry: Mapped[str] = mapped_column(String(A_LENGTH), nullable=False)
+	company_handle: Mapped[str] = mapped_column(String(NAME_LENGTH), nullable=False, unique=True)
+	name: Mapped[str] = mapped_column(String(NAME_LENGTH), nullable=False)
+	industry: Mapped[str] = mapped_column(String(NAME_LENGTH), nullable=False)
 
 	profile: Mapped[Profile] = relationship(backref="ad_profile", passive_deletes=True)
 
@@ -46,7 +44,7 @@ class AdCampaign(Base):
 	id: Mapped[int] = mapped_column(Integer, autoincrement=True, primary_key=True)
 	advertiser_id: Mapped[int] = mapped_column(ForeignKey("advertisers.id", ondelete="cascade"))
 
-	name: Mapped[str] = mapped_column(String(A_LENGTH), nullable=False)
+	name: Mapped[str] = mapped_column(String(NAME_LENGTH), nullable=False)
 	budget: Mapped[float] = mapped_column(Float, nullable=False)
 	start: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 	end: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
@@ -62,7 +60,7 @@ class Ad(Base):
 
 	body: Mapped[str] = mapped_column(Text, nullable=True) # aggiungere vincolo (body || media)
 	media: Mapped[bytes] = mapped_column(LargeBinary, nullable=True)
-	link: Mapped[str] = mapped_column(String(C_LENGTH), nullable=True)
+	link: Mapped[str] = mapped_column(Text, nullable=True)
 	probability: Mapped[float] = mapped_column(Float, nullable=False)
 
 	ad_campaign: Mapped[AdCampaign] = relationship(backref="ad_campaigns", passive_deletes=True)
@@ -85,13 +83,13 @@ class Tag(Base):
 	__tablename__ = "tags"
 	id: Mapped[int] = mapped_column(Integer, autoincrement=True, primary_key=True)
 
-	tag: Mapped[str] = mapped_column(String(A_LENGTH), unique=True, nullable=False)
+	tag: Mapped[str] = mapped_column(Text, unique=True, nullable=False)
 
 
 class TargetedTag(Base):
 	__tablename__ = "targeted_tags"
 	ad_id: Mapped[int] = mapped_column(ForeignKey("ads.id", ondelete="cascade"), primary_key=True)
-	tag_id: Mapped[int] = mapped_column(Integer, ForeignKey("tags.id", ondelete="cascade"), primary_key=True)
+	tag_id: Mapped[int] = mapped_column(ForeignKey("tags.id", ondelete="cascade"), primary_key=True)
 
 	ad: Mapped[Ad] = relationship(backref="ads", passive_deletes=True)
 	tag: Mapped[Tag] = relationship(backref="tags_target", passive_deletes=True)
@@ -105,9 +103,9 @@ class User(Base):
 	__tablename__ = "users"
 	id: Mapped[int] = mapped_column(ForeignKey("profiles.id", ondelete="cascade"), primary_key=True)
 
-	user_handle: Mapped[str] = mapped_column(String(A_LENGTH), nullable=False, unique=True)
-	name: Mapped[str] = mapped_column(String(A_LENGTH), nullable=False)
-	surname: Mapped[str] = mapped_column(String(B_LENGTH), nullable=False)
+	user_handle: Mapped[str] = mapped_column(String(NAME_LENGTH), nullable=False, unique=True)
+	name: Mapped[str] = mapped_column(String(NAME_LENGTH), nullable=False)
+	surname: Mapped[str] = mapped_column(String(NAME_LENGTH), nullable=False)
 	gender: Mapped[GenderEnum]
 	pfp: Mapped[bytes] = mapped_column(LargeBinary, nullable=True)
 	banner: Mapped[bytes] = mapped_column(LargeBinary, nullable=True)
@@ -133,7 +131,7 @@ class Interest(Base):
 
 class AuthToken(Base):
 	__tablename__ = "auth_tokens"
-	id: Mapped[str] = mapped_column(String(B_LENGTH), primary_key=True)
+	id: Mapped[str] = mapped_column(String(TOKEN_LENGTH), primary_key=True)
 	user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="cascade"))
 
 	expiration_date: Mapped[datetime] = mapped_column(DateTime(timezone=False))
@@ -145,7 +143,7 @@ class AuthToken(Base):
 class Post(Base):
 	__tablename__ = "posts"
 	id: Mapped[int] = mapped_column(Integer, autoincrement=True, primary_key=True)
-	user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id", ondelete="cascade"))
+	user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="cascade"))
 
 	body: Mapped[str] = mapped_column(Text, nullable=True) # aggiungere vincolo (body || media)
 	media: Mapped[bytes] = mapped_column(LargeBinary, nullable=True)
@@ -158,7 +156,7 @@ class Post(Base):
 
 class PostTag(Base):
 	__tablename__ = "post_tags"
-	post_id: Mapped[int] = mapped_column(Integer, ForeignKey("posts.id", ondelete="cascade"), primary_key=True)
+	post_id: Mapped[int] = mapped_column(ForeignKey("posts.id", ondelete="cascade"), primary_key=True)
 	tag_id: Mapped[int] = mapped_column(ForeignKey("tags.id", ondelete="cascade"), primary_key=True)
 
 	post: Mapped[Post] = relationship(backref="posts", passive_deletes=True)
@@ -168,8 +166,8 @@ class PostTag(Base):
 
 class UserInteraction(Base):
 	__tablename__ = "user_interactions"
-	user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id", ondelete="cascade"), primary_key=True)
-	post_id: Mapped[int] = mapped_column(Integer, ForeignKey("posts.id", ondelete="cascade"), primary_key=True)
+	user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="cascade"), primary_key=True)
+	post_id: Mapped[int] = mapped_column(ForeignKey("posts.id", ondelete="cascade"), primary_key=True)
 
 	liked: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
 	comment: Mapped[str] = mapped_column(Text, nullable=True)
@@ -180,8 +178,8 @@ class UserInteraction(Base):
 
 class Follower(Base):
 	__tablename__ = "followers"
-	user1_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id", ondelete="cascade"), primary_key=True)
-	user2_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id", ondelete="cascade"), primary_key=True)
+	user1_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="cascade"), primary_key=True)
+	user2_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="cascade"), primary_key=True)
 
 	user1: Mapped[User] = relationship(backref="users1", primaryjoin="Follower.user1_id == User.id", passive_deletes=True)
 	user2: Mapped[User] = relationship(backref="users2", primaryjoin="Follower.user2_id == User.id", passive_deletes=True)
