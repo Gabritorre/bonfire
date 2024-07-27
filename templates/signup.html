@@ -8,7 +8,11 @@
 <div class="d-flex flex-column gap-3">
 	<input class="form-control rounded-pill" type="text" placeholder="Username" />
 	<input class="form-control rounded-pill" type="password" placeholder="Password" />
+	<input class="form-control rounded-pill" type="password" placeholder="Repeat password" />
+	<div class="progress mx-1" role="progressbar" aria-valuenow="25" aria-valuemax="100" style="height: 8px">
+		<div class="progress-bar bg-danger" style="width: 25%"></div>
+	</div>
 </div>
-<button class="btn btn-light rounded-pill">Login</button>
-<span class="my-3">New around here? <a href="/signup">Sign up</a>.</span>
+<button class="btn btn-light rounded-pill">Sign up</button>
+<span class="my-3">Already a member? <a href="/login">Login</a>.</span>
 {% endblock %}

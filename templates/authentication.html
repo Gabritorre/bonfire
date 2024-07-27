@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block body %}
+<div class="d-flex align-items-center justify-content-center vh-100">
+	<div class="d-flex flex-column align-items-stretch bg-dark-subtle border rounded-4 px-5 py-4 gap-4">
+		{% block view %}
+		{% endblock view %}
+	</div>
+</div>
+{% endblock %}
