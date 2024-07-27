@@ -11,7 +11,7 @@ def get_user():
 	data = db.session.get(User, user_id)
 	if not data:
 		return {"error": "User not found", "data": None}
-	
+
 	return {"error": None, "data": user_schema.dump(data)}
 
 @api.route("/profile/picture", methods=["GET"])
@@ -20,17 +20,28 @@ def get_user_picture():
 	data = db.session.get(User, user_id)
 	if not data:
 		return {"error": "User not found", "data": None}
-	
+
 	return {"error": None, "data": {"pfp": user_schema.dump(data)["pfp"]}}
 
 @api.route("/search", methods=["GET"])
 def search_user():
 	user_handle = request.json["query"]
-	data = db.session.query(User).filter(User.user_handle.like("%{}%".format(user_handle))).all()
+	data = db.session.query(User).filter(User.profile.handle.like("%{}%".format(user_handle))).all()
 	if not data:
 		return {"error": "No users found", "data": None}
-	
+
 	return {"error": None, "data": id_username_schema.dump(data)}
+
+@api.route("/login", methods=["POST"])
+def login():
+	handle = request.json["username"]
+	password = request.json["password"]
+	if (db.session.query(Profile).filter(Profile.handle==handle) and db.session.query(Profile).filter(Profile.password==hash(password))):
+		# settare token
+		return {"error": None, "data": "ok"}
+	else:
+		return {"error": "User not found", "data": None}
+
 
 """
 @api.route("/create_user/<name>", methods=["GET"])

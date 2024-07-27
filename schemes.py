@@ -15,7 +15,6 @@ class UserIdUsernameSchema(ma.SQLAlchemySchema):
     class Meta:
         model = User
     id = ma.auto_field()
-    user_handle = ma.auto_field()
 
 profile_schema = ProfileSchema()
 user_schema = UserSchema()
