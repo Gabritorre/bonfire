@@ -1,20 +1,20 @@
 from config import ma
+from marshmallow import fields
 from models import *
 
 class ProfileSchema(ma.SQLAlchemyAutoSchema):
-    class Meta:
-        model = Profile
-        include_fk = True
+	class Meta:
+		model = Profile
 
 class UserSchema(ma.SQLAlchemyAutoSchema):
-    class Meta:
-        model = User
-        include_fk = True
+	class Meta:
+		model = User
+		include_fk = True
 
 class UserIdUsernameSchema(ma.SQLAlchemySchema):
-    class Meta:
-        model = User
-    id = ma.auto_field()
+	class Meta:
+		model = User
+		fields = ("id", "pfp", "profile.handle")
 
 profile_schema = ProfileSchema()
 user_schema = UserSchema()

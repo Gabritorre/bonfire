@@ -1,6 +1,6 @@
 import enum as py_enum
 from datetime import datetime
-from sqlalchemy import Boolean, Float, Integer, LargeBinary, String, DateTime, ForeignKey, Text, func
+from sqlalchemy import Boolean, Float, Integer, Text, String, DateTime, ForeignKey, Text, func
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 NAME_LENGTH = 20
@@ -59,7 +59,7 @@ class Ad(Base):
 	ad_campaign_id: Mapped[int] = mapped_column(ForeignKey("ad_campaigns.id", ondelete="cascade"))
 
 	body: Mapped[str] = mapped_column(Text, nullable=True) # aggiungere vincolo (body || media)
-	media: Mapped[bytes] = mapped_column(LargeBinary, nullable=True)
+	media: Mapped[bytes] = mapped_column(Text, nullable=True)
 	link: Mapped[str] = mapped_column(Text, nullable=True)
 	probability: Mapped[float] = mapped_column(Float, nullable=False)
 
@@ -106,13 +106,13 @@ class User(Base):
 	name: Mapped[str] = mapped_column(String(NAME_LENGTH), nullable=False)
 	surname: Mapped[str] = mapped_column(String(NAME_LENGTH), nullable=False)
 	gender: Mapped[GenderEnum]
-	pfp: Mapped[bytes] = mapped_column(LargeBinary, nullable=True)
-	banner: Mapped[bytes] = mapped_column(LargeBinary, nullable=True)
+	pfp: Mapped[bytes] = mapped_column(Text, nullable=True)
+	banner: Mapped[bytes] = mapped_column(Text, nullable=True)
 	biography: Mapped[str] = mapped_column(Text, nullable=True)
 	followers: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
 	following: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
 
-	profile: Mapped[Profile] = relationship(backref="user_profile", passive_deletes=True)
+	profile: Mapped[Profile] = relationship(backref="user_profile", passive_deletes=True, lazy='joined')
 
 
 
@@ -145,7 +145,7 @@ class Post(Base):
 	user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="cascade"))
 
 	body: Mapped[str] = mapped_column(Text, nullable=True) # aggiungere vincolo (body || media)
-	media: Mapped[bytes] = mapped_column(LargeBinary, nullable=True)
+	media: Mapped[bytes] = mapped_column(Text, nullable=True)
 	date: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 	likes: Mapped[int] = mapped_column(Integer, nullable=False)
 

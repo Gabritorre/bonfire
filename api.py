@@ -1,6 +1,6 @@
 from flask import Blueprint, request
 from config import db
-from schemes import *
+from schemas import *
 from models import *
 
 api = Blueprint("api", __name__, url_prefix="/api")
@@ -14,19 +14,14 @@ def get_user():
 
 	return {"error": None, "data": user_schema.dump(data)}
 
-@api.route("/profile/picture", methods=["GET"])
-def get_user_picture():
-	user_id = request.json["id"]
-	data = db.session.get(User, user_id)
-	if not data:
-		return {"error": "User not found", "data": None}
-
-	return {"error": None, "data": {"pfp": user_schema.dump(data)["pfp"]}}
-
 @api.route("/search", methods=["GET"])
 def search_user():
-	user_handle = request.json["query"]
-	data = db.session.query(User).filter(User.profile.handle.like("%{}%".format(user_handle))).all()
+	input_handle = request.json["query"]
+	data = (db.session.query(User)
+	.join(Profile)
+	.filter(Profile.handle.contains(input_handle, autoescape=True))
+	.all()
+	)
 	if not data:
 		return {"error": "No users found", "data": None}
 
@@ -43,11 +38,11 @@ def login():
 		return {"error": "User not found", "data": None}
 
 
-"""
+""""
 @api.route("/create_user/<name>", methods=["GET"])
 def create_user(name):
-	new_profile = Profile(password="1234", email="oloui@asdf.com")
-	new_user = User(user_handle="gigino", name=name, surname=name + "Fran", gender=GenderEnum.MALE, followers=0, following=0, profile=new_profile)
+	new_profile = Profile(handle=name, password="1234", email=name+"@asdf.com")
+	new_user = User(name=name, surname=name + "Fran", gender=GenderEnum.MALE, followers=0, following=0, profile=new_profile)
 	db.session.add(new_profile)
 	db.session.add(new_user)
 	db.session.commit()
