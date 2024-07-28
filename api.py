@@ -38,7 +38,7 @@ def login():
 		return {"error": "User not found", "data": None}
 
 
-""""
+"""
 @api.route("/create_user/<name>", methods=["GET"])
 def create_user(name):
 	new_profile = Profile(handle=name, password="1234", email=name+"@asdf.com")

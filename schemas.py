@@ -1,5 +1,4 @@
 from config import ma
-from marshmallow import fields
 from models import *
 
 class ProfileSchema(ma.SQLAlchemyAutoSchema):

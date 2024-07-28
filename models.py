@@ -1,6 +1,6 @@
 import enum as py_enum
 from datetime import datetime
-from sqlalchemy import Boolean, Float, Integer, Text, String, DateTime, ForeignKey, Text, func
+from sqlalchemy import Boolean, Float, Integer, String, DateTime, ForeignKey, Text, func
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 NAME_LENGTH = 20
