@@ -1,10 +1,7 @@
 {% extends "authentication.html" %}
 
 {% block view %}
-<div class="d-flex flex-column align-items-center m-4">
-	<img src="/favicon.png" width="70" />
-	<div class="fs-4 fw-bold">App</div>
-</div>
+{{super()}}
 <div class="d-flex flex-column gap-3">
 	<input class="form-control rounded-pill" type="text" placeholder="Username" />
 	<input class="form-control rounded-pill" type="password" placeholder="Password" />
