@@ -1,15 +1,15 @@
-from flask import Flask
-from sqlalchemy import URL, create_engine
-from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy.orm import sessionmaker
-from dotenv import load_dotenv
-from flask_marshmallow import Marshmallow
 import os
+from dotenv import load_dotenv
+from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
+from flask_marshmallow import Marshmallow
+from sqlalchemy import URL, create_engine
 
 load_dotenv()
 
+
 connection_string = URL.create(
-	os.getenv("DB_DRIVER_NAME"),
+	str(os.getenv("DB_DRIVER_NAME")),
 	username = os.getenv("DB_USERNAME"),
 	password = os.getenv("DB_PASSWORD"),
 	host = os.getenv("DB_HOST"),

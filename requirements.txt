@@ -6,3 +6,4 @@ Flask-Login==0.6.3
 psycopg2-binary==2.9.9
 flask-marshmallow==1.2.1
 marshmallow-sqlalchemy==1.0.0
+bcrypt==4.2.0
