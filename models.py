@@ -20,6 +20,7 @@ class Profile(Base):
 	__tablename__ = "profiles"
 	id: Mapped[int] = mapped_column(Integer, autoincrement=True, primary_key=True)
 
+	name: Mapped[str] = mapped_column(String(NAME_LENGTH), nullable=True)
 	handle: Mapped[str] = mapped_column(String(NAME_LENGTH), nullable=False, unique=True)
 	password: Mapped[str] = mapped_column(String(SECRET_LENGTH), nullable=False)
 	#email: Mapped[str] = mapped_column(nullable=True, unique=True)
@@ -32,7 +33,6 @@ class Advertiser(Base):
 	__tablename__ = "advertisers"
 	id: Mapped[int] = mapped_column(ForeignKey("profiles.id",  ondelete="cascade"), primary_key=True)
 
-	name: Mapped[str] = mapped_column(String(NAME_LENGTH), nullable=True)
 	industry: Mapped[str] = mapped_column(String(NAME_LENGTH), nullable=True)
 
 	profile: Mapped[Profile] = relationship(backref="ad_profile", passive_deletes=True)
@@ -103,7 +103,6 @@ class User(Base):
 	__tablename__ = "users"
 	id: Mapped[int] = mapped_column(ForeignKey("profiles.id", ondelete="cascade"), primary_key=True)
 
-	display_name: Mapped[str] = mapped_column(String(NAME_LENGTH), nullable=False)
 	gender: Mapped[GenderEnum] = mapped_column(Enum(GenderEnum), nullable=True)
 	pfp: Mapped[bytes] = mapped_column(Text, nullable=True)
 	banner: Mapped[bytes] = mapped_column(Text, nullable=True)
@@ -130,7 +129,7 @@ class Interest(Base):
 class AuthToken(Base):
 	__tablename__ = "auth_tokens"
 	value: Mapped[str] = mapped_column(String(SECRET_LENGTH), primary_key=True)
-	profile_id: Mapped[int] = mapped_column(ForeignKey("profiles.id", ondelete="cascade"))
+	profile_id: Mapped[int] = mapped_column(ForeignKey("profiles.id", ondelete="set null"), nullable=True)
 
 	expiration_date: Mapped[datetime] = mapped_column(DateTime(timezone=True))
 

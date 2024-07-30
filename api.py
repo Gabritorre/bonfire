@@ -3,8 +3,8 @@ import hashlib
 from secrets import token_hex
 from datetime import datetime, timedelta, timezone
 from flask import Blueprint, Response, jsonify, request
-from sqlalchemy import select
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy import select, update
+from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from config import db
 from schemas import *
 from models import *
@@ -78,14 +78,14 @@ def signup():
 		return jsonify({"error": "This username already exists", "data": None})
 	else:
 		if pwd == confirm_pwd:
-			new_profile = Profile(handle=handle, password=hash_secret(pwd))
+			new_profile = Profile(handle=handle, password=hash_secret(pwd), name=handle)
 			db.session.add(new_profile)
 			db.session.commit()
 			if is_adv:
 				new_advertiser = Advertiser(id=new_profile.id)
 				db.session.add(new_advertiser)
 			else:
-				new_user = User(id=new_profile.id, display_name=new_profile.handle)
+				new_user = User(id=new_profile.id)
 				db.session.add(new_user)
 			db.session.commit()
 			res = jsonify({"error": None, "data": "Ok"})
@@ -125,12 +125,47 @@ def login():
 @api.route("/self", methods=["GET"])
 def get_user_token():
 	if ("auth_token" in request.cookies):
-		valid_tokens = db.session.query(AuthToken).filter(AuthToken.expiration_date > datetime.now(timezone.utc)).all()
-		for token in valid_tokens:
-			if hash_md5(request.cookies.get("auth_token")) == token.value:
-				return jsonify({"error": None, "id": token.profile_id})
+		stmt = select(AuthToken).where(AuthToken.value == hash_md5(request.cookies.get("auth_token")), AuthToken.expiration_date > datetime.now(timezone.utc))
+		token = db.session.execute(stmt).scalar_one_or_none()
+		if token:
+			stmt = select(Advertiser).where(Advertiser.id == token.profile_id)
+			if db.session.execute(stmt).scalar_one_or_none():
+				return jsonify({"error": None, "id": token.profile_id, "is_adv": True})
+			return jsonify({"error": None, "id": token.profile_id, "is_adv": False})
 	return jsonify({"error": "Invalid token"})
 
+
+@api.route("/delete", methods=["POST"])
+def delete_user():
+	if ("auth_token" in request.cookies):
+		stmt = select(AuthToken).where(AuthToken.value == hash_md5(request.cookies.get("auth_token")), AuthToken.expiration_date > datetime.now(timezone.utc))
+		token = db.session.execute(stmt).scalar_one_or_none()
+		if token:
+			try:
+				user = db.session.get(User, token.profile_id)
+				if user:
+					db.session.delete(user)
+
+				advertiser = db.session.get(Advertiser, token.profile_id)
+				if advertiser:
+					db.session.delete(advertiser)
+
+				profile = db.session.get(Profile, token.profile_id)
+				if profile:
+					db.session.delete(profile)
+
+				stmt = update(AuthToken).where(AuthToken.value == hash_md5(request.cookies.get("auth_token"))).values(expiration_date=datetime.now(timezone.utc) - timedelta(days=2))
+				db.session.execute(stmt)
+			
+			except SQLAlchemyError as e:
+				print("Error on /delete api")
+				print(e)
+				db.session.rollback()
+				return jsonify({"error": "An error occured while deleting the user"})
+
+			db.session.commit()
+			return jsonify({"error": None})
+	return jsonify({"error": "Invalid token"})
 
 """
 @api.route("/create_user/<name>", methods=["GET"])
