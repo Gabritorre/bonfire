@@ -1,0 +1,41 @@
+:root {
+	--search-width: 500px;
+	--post-width: 600px;
+	--post-profile-size: 50px;
+	--post-media-ratio: 3/2;
+	--settings-profile-size: 200px;
+}
+
+.profile-picture {
+	background-color: var(--bs-dark-bg-subtle);
+	border-radius: 50%;
+	aspect-ratio: 1/1;
+	object-fit: cover;
+}
+
+.progress-password {
+	--bs-progress-height: 8px;
+}
+
+.btn.btn-tag {
+	position: relative;
+}
+
+.btn.btn-tag > * {
+	transition: opacity .15s ease-in-out;
+}
+
+.btn.btn-tag > :last-child {
+	display: flex;
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	justify-content: center;
+	align-items: center;
+}
+
+.btn.btn-tag:hover > :first-child, .btn.btn-tag:not(:hover) > :last-child {
+	opacity: 0;
+}
