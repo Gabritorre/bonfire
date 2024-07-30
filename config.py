@@ -22,6 +22,7 @@ engine = create_engine(connection_string)
 app = Flask(__name__)
 app.config["secret_key"] = os.getenv("DB_SECRET_KEY")
 app.config["SQLALCHEMY_DATABASE_URI"] = connection_string
+app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {"pool_pre_ping": True} 
 
 db = SQLAlchemy(app)
 ma = Marshmallow(app)

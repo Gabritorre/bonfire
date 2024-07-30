@@ -1,4 +1,5 @@
 import bcrypt
+import hashlib
 from secrets import token_hex
 from datetime import datetime, timedelta, timezone
 from flask import Blueprint, Response, jsonify, request
@@ -16,9 +17,12 @@ def hash_secret(pwd: str) -> str:
 def verify_secret(pwd: str, stored_pwd: str) -> bool:
 	return bcrypt.checkpw(pwd.encode("utf-8"), stored_pwd.encode("utf-8"))
 
+def hash_md5(string: str) -> str:
+	return hashlib.md5(string.encode('utf-8')).hexdigest()
+
 def set_auth_token(profile: Profile, res: Response) -> None:
 	token = token_hex(42)
-	hashed_token = hash_secret(token)
+	hashed_token = hash_md5(token)
 	expiration_date = datetime.now(timezone.utc) + timedelta(weeks=1)
 
 	while True:
@@ -28,7 +32,7 @@ def set_auth_token(profile: Profile, res: Response) -> None:
 		except IntegrityError:
 			db.session.rollback()
 		token = token_hex(42)
-		hashed_token = hash_secret(token)
+		hashed_token = hash_md5(token)
 
 	db.session.commit()
 
@@ -117,6 +121,15 @@ def login():
 	set_auth_token(profile, res)
 	return res
 
+
+@api.route("/self", methods=["GET"])
+def get_user_token():
+	if ("auth_token" in request.cookies):
+		valid_tokens = db.session.query(AuthToken).filter(AuthToken.expiration_date > datetime.now(timezone.utc)).all()
+		for token in valid_tokens:
+			if hash_md5(request.cookies.get("auth_token")) == token.value:
+				return jsonify({"error": None, "id": token.profile_id})
+	return jsonify({"error": "Invalid token"})
 
 
 """
