@@ -23,7 +23,6 @@ class Profile(Base):
 	name: Mapped[str] = mapped_column(String(NAME_LENGTH), nullable=True)
 	handle: Mapped[str] = mapped_column(String(NAME_LENGTH), nullable=False, unique=True)
 	password: Mapped[str] = mapped_column(String(SECRET_LENGTH), nullable=False)
-	#email: Mapped[str] = mapped_column(nullable=True, unique=True)
 	creation_date: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
 

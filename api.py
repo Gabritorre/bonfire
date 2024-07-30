@@ -4,8 +4,8 @@ from secrets import token_hex
 from datetime import datetime, timedelta, timezone
 from flask import Blueprint, Response, jsonify, request
 from sqlalchemy import select, update
-from sqlalchemy.exc import IntegrityError, SQLAlchemyError
-from config import db
+from sqlalchemy.exc import SQLAlchemyError
+from config import db, thread_lock, snowflakes
 from schemas import *
 from models import *
 
@@ -21,22 +21,24 @@ def hash_md5(string: str) -> str:
 	return hashlib.md5(string.encode('utf-8')).hexdigest()
 
 def set_auth_token(profile: Profile, res: Response) -> None:
-	token = token_hex(42)
-	hashed_token = hash_md5(token)
-	expiration_date = datetime.now(timezone.utc) + timedelta(weeks=1)
+	start_date = datetime(2024, 7, 1, tzinfo=timezone.utc)
+	current_date = datetime.now(timezone.utc)
+	time_diff = format(int((current_date - start_date).total_seconds() * 1000), "042b")
 
-	while True:
-		try:
-			db.session.add(AuthToken(value=hashed_token, profile_id=profile.id, expiration_date=expiration_date))
-			break
-		except IntegrityError:
-			db.session.rollback()
-		token = token_hex(42)
-		hashed_token = hash_md5(token)
+	with thread_lock:
+		if time_diff in snowflakes:
+			snowflakes[time_diff] = format(int(snowflakes[time_diff], 2) + 1, "012b")
+		else:
+			snowflakes[time_diff] = format(0, "012b")
+		snowflake = f"{time_diff}{snowflakes[time_diff]}{token_hex(5)}"
 
+	hashed_snowflake = hash_md5(f"{snowflake}")
+	expiration_date = current_date + timedelta(weeks=1)
+
+	db.session.add(AuthToken(value=hashed_snowflake, profile_id=profile.id, expiration_date=expiration_date))
 	db.session.commit()
 
-	res.set_cookie("auth_token", token, expires=expiration_date)
+	res.set_cookie("auth_token", snowflake, expires=expiration_date)
 
 @api.route("/profile", methods=["GET"])
 def get_user():
@@ -125,7 +127,7 @@ def login():
 @api.route("/self", methods=["GET"])
 def get_user_token():
 	if ("auth_token" in request.cookies):
-		stmt = select(AuthToken).where(AuthToken.value == hash_md5(request.cookies.get("auth_token")), AuthToken.expiration_date > datetime.now(timezone.utc))
+		stmt = select(AuthToken).where(AuthToken.value == hash_md5(str(request.cookies.get("auth_token"))), AuthToken.expiration_date > datetime.now(timezone.utc))
 		token = db.session.execute(stmt).scalar_one_or_none()
 		if token:
 			stmt = select(Advertiser).where(Advertiser.id == token.profile_id)
@@ -138,7 +140,7 @@ def get_user_token():
 @api.route("/delete", methods=["POST"])
 def delete_user():
 	if ("auth_token" in request.cookies):
-		stmt = select(AuthToken).where(AuthToken.value == hash_md5(request.cookies.get("auth_token")), AuthToken.expiration_date > datetime.now(timezone.utc))
+		stmt = select(AuthToken).where(AuthToken.value == hash_md5(str(request.cookies.get("auth_token"))), AuthToken.expiration_date > datetime.now(timezone.utc))
 		token = db.session.execute(stmt).scalar_one_or_none()
 		if token:
 			try:
@@ -154,9 +156,9 @@ def delete_user():
 				if profile:
 					db.session.delete(profile)
 
-				stmt = update(AuthToken).where(AuthToken.value == hash_md5(request.cookies.get("auth_token"))).values(expiration_date=datetime.now(timezone.utc) - timedelta(days=2))
+				stmt = update(AuthToken).where(AuthToken.value == hash_md5(str(request.cookies.get("auth_token")))).values(expiration_date=datetime.now(timezone.utc) - timedelta(days=2))
 				db.session.execute(stmt)
-			
+
 			except SQLAlchemyError as e:
 				print("Error on /delete api")
 				print(e)
