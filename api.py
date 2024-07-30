@@ -80,7 +80,7 @@ def signup():
 		if pwd == confirm_pwd:
 			new_profile = Profile(handle=handle, password=hash_secret(pwd), name=handle)
 			db.session.add(new_profile)
-			db.session.commit()
+			db.session.flush()
 			if is_adv:
 				new_advertiser = Advertiser(id=new_profile.id)
 				db.session.add(new_advertiser)
