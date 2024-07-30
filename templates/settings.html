@@ -1,0 +1,102 @@
+{% extends "layout/header.html" %}
+
+{% block head %}
+{{super()}}
+<link rel="stylesheet" href="/css/settings.css" />
+{% endblock %}
+
+{% block view %}
+<div class="container py-5">
+	<div class="row row-cols-1 row-cols-lg-3 gy-5">
+		<div class="col d-flex justify-content-center">
+			<div class="d-flex flex-column gap-3">
+				<div class="fw-bold">Profile picture</div>
+				<img class="profile-picture w-100" src="/favicon.png" />
+			</div>
+		</div>
+		<div class="col col-lg-8">
+			<div class="row row-cols-1 row-cols-sm-2 px-2 gy-4">
+				<div class="col">
+					<div class="d-flex flex-column gap-2">
+						<div class="fw-bold">Handle</div>
+						<input class="form-control" type="text" placeholder="username" disabled />
+					</div>
+				</div>
+				<div class="col">
+					<div class="d-flex flex-column gap-2">
+						<div class="fw-bold">Name</div>
+						<input class="form-control" type="text" placeholder="Display name" />
+					</div>
+				</div>
+				<div class="col">
+					<div class="d-flex flex-column gap-2">
+						<div class="fw-bold">Gender</div>
+						<select class="form-select">
+							<option selected hidden>Unspecified</option>
+							<option value="male">Male</option>
+							<option value="female">Female</option>
+							<option value="other">Other</option>
+						</select>
+					</div>
+				</div>
+				<div class="col">
+					<div class="d-flex flex-column gap-2">
+						<div class="fw-bold">Birthday</div>
+						<input class="form-control" type="date" />
+					</div>
+				</div>
+				<div class="col col-sm-12">
+					<div class="d-flex flex-column gap-2">
+						<div class="fw-bold">Bio</div>
+						<textarea class="form-control" rows="3"></textarea>
+					</div>
+				</div>
+				<div class="col col-sm-12">
+					<div class="accordion" id="section-danger">
+						<div class="accordion-item">
+							<div class="accordion-header">
+								<button class="accordion-button collapsed fw-bold" data-bs-toggle="collapse" data-bs-target="#section-danger-content">
+									Dangerous section
+								</button>
+							</div>
+							<div id="section-danger-content" class="accordion-collapse collapse" data-bs-parent="#section-danger">
+								<div class="accordion-body row row-cols-1 gy-4">
+									<div class="col">
+										<div class="d-flex flex-column gap-2">
+											<div class="fw-bold">Change password</div>
+											<div class="row row-cols-1 row-cols-sm-2 gy-3">
+												<div class="col">
+													<input class="form-control" type="password" placeholder="New password" />
+												</div>
+												<div class="col">
+													<input class="form-control" type="password" placeholder="Repeat new password" />
+												</div>
+												<div class="col col-sm-12">
+													<div class="progress progress-password" role="progressbar" title="Strength of the specified password">
+														<div class="progress-bar bg-danger" style="width: 25%"></div>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+									<div class="col">
+										<div class="d-flex flex-column gap-2">
+											<div class="fw-bold">Manage data</div>
+											<div>
+												<button class="btn btn-danger">Delete account</button>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="col col-sm-12 text-end">
+					<button class="btn btn-light rounded-pill">Save</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock %}

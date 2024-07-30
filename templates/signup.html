@@ -1,17 +1,12 @@
 {% extends "layout/auth.html" %}
 
-{% block head %}
-{{super()}}
-<link rel="stylesheet" href="/css/signup.css" />
-{% endblock %}
-
 {% block view %}
 {{super()}}
 <div class="d-flex flex-column gap-3">
 	<input class="form-control rounded-pill" type="text" placeholder="Username" />
 	<input class="form-control rounded-pill" type="password" placeholder="Password" />
 	<input class="form-control rounded-pill" type="password" placeholder="Repeat password" />
-	<div class="progress mx-1" role="progressbar" title="Strength of the specified password">
+	<div class="progress progress-password mx-1" role="progressbar" title="Strength of the specified password">
 		<div class="progress-bar bg-danger" style="width: 25%"></div>
 	</div>
 	<div class="form-check form-switch">

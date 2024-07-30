@@ -7,8 +7,6 @@
 	object-fit: cover;
 }
 
-.card-title > img {
+.card-title > .profile-picture {
 	width: var(--post-profile-size);
-	aspect-ratio: 1/1;
-	object-fit: cover;
 }

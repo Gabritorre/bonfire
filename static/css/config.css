@@ -3,4 +3,16 @@
 	--post-width: 600px;
 	--post-profile-size: 50px;
 	--post-media-ratio: 3/2;
+	--settings-profile-size: 200px;
+}
+
+.profile-picture {
+	background-color: var(--bs-dark-bg-subtle);
+	border-radius: 50%;
+	aspect-ratio: 1/1;
+	object-fit: cover;
+}
+
+.progress-password {
+	--bs-progress-height: 8px;
 }
