@@ -171,6 +171,12 @@ def delete_user():
 			return jsonify({"error": None})
 	return jsonify({"error": "Invalid token"})
 
+
+@api.route("/tags", methods=["GET"])
+def get_tags():
+	tags = db.session.query(Tag).all()
+	return jsonify({"error": None, "data": tags_schema.dump(tags)})
+
 """
 @api.route("/create_user/<name>", methods=["GET"])
 def create_user(name):

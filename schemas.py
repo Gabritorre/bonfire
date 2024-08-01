@@ -26,7 +26,12 @@ class UserIdUsernameSchema(ma.SQLAlchemySchema):
 		model = User
 		fields = ("id", "pfp", "profile.handle")
 
+class tagSchema(ma.SQLAlchemyAutoSchema):
+	class Meta:
+		model = Tag
+
 profile_schema = ProfileSchema()
 user_schema = UserSchema()
 users_schema = UserSchema(many=True)
 id_username_schema = UserIdUsernameSchema(many=True)
+tags_schema = tagSchema(many=True)
