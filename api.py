@@ -16,15 +16,15 @@ def hash_secret(pwd: str) -> str:
 def verify_secret(pwd: str, stored_pwd: str) -> bool:
 	return bcrypt.checkpw(pwd.encode("utf-8"), stored_pwd.encode("utf-8"))
 
-def hash_md5(string: str) -> str:
-	return hashlib.sha1(string.encode('utf-8')).hexdigest()
+def hash_sha1(string: str) -> str:
+	return hashlib.sha1(string.encode("utf-8")).hexdigest()
 
 def set_auth_token(profile: Profile, res: Response) -> None:
 	snowflake = Snowflake()
 
 	sf = snowflake.generate()
 
-	hashed_random_snowflake = hash_md5(f"{sf}")
+	hashed_random_snowflake = hash_sha1(f"{sf}")
 	expiration_date = snowflake.creation_date(sf) + timedelta(weeks=1)
 
 	db.session.add(AuthToken(value=hashed_random_snowflake, profile_id=profile.id, expiration_date=expiration_date))
@@ -40,7 +40,7 @@ def get_user():
 	user_id = req.get("id")
 	data = db.session.get(User, user_id)
 	if not data:
-		return jsonify({"error": "User not found", "data": None})
+		return jsonify({"error": "User not found"})
 	return jsonify({"error": None, "data": user_schema.dump(data)})
 
 
@@ -55,7 +55,7 @@ def search_user():
 		.all()
 	)
 	if not data:
-		return jsonify({"error": "No users found", "data": None})
+		return jsonify({"error": "No users found"})
 	return jsonify({"error": None, "data": id_username_schema.dump(data)})
 
 
@@ -71,7 +71,7 @@ def signup():
 	stmt = select(Profile).where(Profile.handle == handle)
 	profile = db.session.execute(stmt).scalar_one_or_none()
 	if profile:
-		return jsonify({"error": "This username already exists", "data": None})
+		return jsonify({"error": "This username already exists"})
 	else:
 		if pwd == confirm_pwd:
 			new_profile = Profile(handle=handle, password=hash_secret(pwd), name=handle)
@@ -84,12 +84,12 @@ def signup():
 				new_user = User(id=new_profile.id)
 				db.session.add(new_user)
 			db.session.commit()
-			res = jsonify({"error": None, "data": "Ok"})
+			res = jsonify({"error": None})
 			set_auth_token(new_profile, res)
 			return res
 
 		else:
-			return jsonify({"error": "Passwords do not match", "data": None})
+			return jsonify({"error": "Passwords do not match"})
 
 
 
@@ -105,23 +105,33 @@ def login():
 		if verify_secret(pwd, profile.password):
 			stmt = select(Advertiser).where(Advertiser.id == profile.id)
 			if db.session.execute(stmt).scalar_one_or_none():
-				res = jsonify({"error": None, "data": "Ok", "is_adv": True})
+				res = jsonify({"error": None, "is_adv": True})
 			else:
-				res = jsonify({"error": None, "data": "Ok", "is_adv": False})
+				res = jsonify({"error": None, "is_adv": False})
 		else:
-			return jsonify({"error": "Wrong password", "data": None, "is_adv": None})
+			return jsonify({"error": "Wrong password"})
 	else:
-		return jsonify({"error": "User not found", "data": None, "is_adv": None})
+		return jsonify({"error": "User not found"})
 
 
 	set_auth_token(profile, res)
 	return res
 
+@api.route("/logout", methods=["GET"])
+def logout():
+	if ("auth_token" in request.cookies):
+		stmt = update(AuthToken).where(AuthToken.value == hash_sha1(str(request.cookies.get("auth_token")))).values(expiration_date=datetime.now(timezone.utc) - timedelta(days=2))
+		db.session.execute(stmt)
+		db.session.commit()
+		res = jsonify({"error": None})
+		res.set_cookie("auth_token", "", expires=0)
+		return res
+	return jsonify({"error": "Invalid token"})
 
 @api.route("/self", methods=["GET"])
 def get_user_token():
 	if ("auth_token" in request.cookies):
-		stmt = select(AuthToken).where(AuthToken.value == hash_md5(str(request.cookies.get("auth_token"))), AuthToken.expiration_date > datetime.now(timezone.utc))
+		stmt = select(AuthToken).where(AuthToken.value == hash_sha1(str(request.cookies.get("auth_token"))), AuthToken.expiration_date > datetime.now(timezone.utc))
 		token = db.session.execute(stmt).scalar_one_or_none()
 		if token:
 			stmt = select(Advertiser).where(Advertiser.id == token.profile_id)
@@ -134,7 +144,7 @@ def get_user_token():
 @api.route("/delete", methods=["POST"])
 def delete_user():
 	if ("auth_token" in request.cookies):
-		stmt = select(AuthToken).where(AuthToken.value == hash_md5(str(request.cookies.get("auth_token"))), AuthToken.expiration_date > datetime.now(timezone.utc))
+		stmt = select(AuthToken).where(AuthToken.value == hash_sha1(str(request.cookies.get("auth_token"))), AuthToken.expiration_date > datetime.now(timezone.utc))
 		token = db.session.execute(stmt).scalar_one_or_none()
 		if token:
 			try:
@@ -150,7 +160,7 @@ def delete_user():
 				if profile:
 					db.session.delete(profile)
 
-				stmt = update(AuthToken).where(AuthToken.value == hash_md5(str(request.cookies.get("auth_token")))).values(expiration_date=datetime.now(timezone.utc) - timedelta(days=2))
+				stmt = update(AuthToken).where(AuthToken.value == hash_sha1(str(request.cookies.get("auth_token")))).values(expiration_date=datetime.now(timezone.utc) - timedelta(days=2))
 				db.session.execute(stmt)
 
 			except SQLAlchemyError as e:

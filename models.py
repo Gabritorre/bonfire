@@ -4,6 +4,7 @@ from sqlalchemy import Boolean, Enum, Float, Integer, String, DateTime, ForeignK
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 NAME_LENGTH = 20
+TOKEN_LENGTH = 40
 SECRET_LENGTH = 60
 
 # CREATE TYPE GenderEnum AS ENUM ('male', 'female', 'other')
@@ -125,7 +126,7 @@ class Interest(Base):
 
 class AuthToken(Base):
 	__tablename__ = "auth_tokens"
-	value: Mapped[str] = mapped_column(String(SECRET_LENGTH), primary_key=True)
+	value: Mapped[str] = mapped_column(String(TOKEN_LENGTH), primary_key=True)
 	profile_id: Mapped[int] = mapped_column(ForeignKey("profiles.id", ondelete="set null"), nullable=True)
 
 	expiration_date: Mapped[datetime] = mapped_column(DateTime(timezone=True))
