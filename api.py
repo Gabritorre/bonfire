@@ -1,11 +1,10 @@
 import bcrypt
 import hashlib
-from secrets import token_hex
 from datetime import datetime, timedelta, timezone
 from flask import Blueprint, Response, jsonify, request
 from sqlalchemy import select, update
 from sqlalchemy.exc import SQLAlchemyError
-from config import db, thread_lock, snowflakes
+from config import db, Snowflake
 from schemas import *
 from models import *
 
@@ -18,27 +17,22 @@ def verify_secret(pwd: str, stored_pwd: str) -> bool:
 	return bcrypt.checkpw(pwd.encode("utf-8"), stored_pwd.encode("utf-8"))
 
 def hash_md5(string: str) -> str:
-	return hashlib.md5(string.encode('utf-8')).hexdigest()
+	return hashlib.sha1(string.encode('utf-8')).hexdigest()
 
 def set_auth_token(profile: Profile, res: Response) -> None:
-	start_date = datetime(2024, 7, 1, tzinfo=timezone.utc)
-	current_date = datetime.now(timezone.utc)
-	time_diff = format(int((current_date - start_date).total_seconds() * 1000), "042b")
+	snowflake = Snowflake()
 
-	with thread_lock:
-		if time_diff in snowflakes:
-			snowflakes[time_diff] = format(int(snowflakes[time_diff], 2) + 1, "012b")
-		else:
-			snowflakes[time_diff] = format(0, "012b")
-		snowflake = f"{time_diff}{snowflakes[time_diff]}{token_hex(5)}"
+	sf = snowflake.generate()
 
-	hashed_snowflake = hash_md5(f"{snowflake}")
-	expiration_date = current_date + timedelta(weeks=1)
+	hashed_random_snowflake = hash_md5(f"{sf}")
+	expiration_date = snowflake.creation_date(sf) + timedelta(weeks=1)
 
-	db.session.add(AuthToken(value=hashed_snowflake, profile_id=profile.id, expiration_date=expiration_date))
+	db.session.add(AuthToken(value=hashed_random_snowflake, profile_id=profile.id, expiration_date=expiration_date))
 	db.session.commit()
 
-	res.set_cookie("auth_token", snowflake, expires=expiration_date)
+	res.set_cookie("auth_token", str(sf), expires=expiration_date)
+
+
 
 @api.route("/profile", methods=["GET"])
 def get_user():
