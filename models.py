@@ -106,11 +106,9 @@ class User(Base):
 	pfp: Mapped[bytes] = mapped_column(Text, nullable=True)
 	banner: Mapped[bytes] = mapped_column(Text, nullable=True)
 	biography: Mapped[str] = mapped_column(Text, nullable=True)
-	followers: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
-	following: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
-
+	birthday: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=True)
+	
 	profile: Mapped[Profile] = relationship(backref="user_profile", passive_deletes=True, lazy='joined')
-
 
 
 class Interest(Base):
@@ -172,11 +170,11 @@ class UserInteraction(Base):
 
 
 
-class Follower(Base):
-	__tablename__ = "followers"
-	user1_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="cascade"), primary_key=True)
-	user2_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="cascade"), primary_key=True)
+class Following(Base):
+	__tablename__ = "followings"
+	follower: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="cascade"), primary_key=True)
+	followed: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="cascade"), primary_key=True)
 
-	user1: Mapped[User] = relationship(backref="users1", primaryjoin="Follower.user1_id == User.id", passive_deletes=True)
-	user2: Mapped[User] = relationship(backref="users2", primaryjoin="Follower.user2_id == User.id", passive_deletes=True)
+	user1: Mapped[User] = relationship(backref="users1", primaryjoin="Following.follower == User.id", passive_deletes=True)
+	user2: Mapped[User] = relationship(backref="users2", primaryjoin="Following.followed == User.id", passive_deletes=True)
 

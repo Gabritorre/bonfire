@@ -1,5 +1,6 @@
-from config import ma
+from config import ma, db
 from models import *
+from marshmallow import fields
 
 class ProfileSchema(ma.SQLAlchemyAutoSchema):
 	class Meta:
@@ -8,7 +9,17 @@ class ProfileSchema(ma.SQLAlchemyAutoSchema):
 class UserSchema(ma.SQLAlchemyAutoSchema):
 	class Meta:
 		model = User
-		include_fk = True
+		fields = ("profile.handle", "profile.name", "gender", "pfp", "banner", "biography", "follower", "following")
+
+	follower = fields.Method("get_follower_count_field")
+	following = fields.Method("get_following_count_field")
+	#todo: add interests
+
+	def get_follower_count_field(self, user_instance):
+		return db.session.query(Following).filter(Following.followed == user_instance.id).count()
+
+	def get_following_count_field(self, user_instance):
+		return db.session.query(Following).filter(Following.follower == user_instance.id).count()
 
 class UserIdUsernameSchema(ma.SQLAlchemySchema):
 	class Meta:
