@@ -4,7 +4,7 @@ from datetime import datetime, timedelta, timezone
 from flask import Blueprint, Response, jsonify, request
 from sqlalchemy import select, update
 from sqlalchemy.exc import SQLAlchemyError
-from config import db, Snowflake
+from config import db, snowflake
 from schemas import *
 from models import *
 
@@ -20,14 +20,12 @@ def hash_sha1(string: str) -> str:
 	return hashlib.sha1(string.encode("utf-8")).hexdigest()
 
 def set_auth_token(profile: Profile, res: Response) -> None:
-	snowflake = Snowflake()
-
 	sf = snowflake.generate()
 
-	hashed_random_snowflake = hash_sha1(f"{sf}")
+	hashed_sf = hash_sha1(f"{sf}")
 	expiration_date = snowflake.creation_date(sf) + timedelta(weeks=1)
 
-	db.session.add(AuthToken(value=hashed_random_snowflake, profile_id=profile.id, expiration_date=expiration_date))
+	db.session.add(AuthToken(value=hashed_sf, profile_id=profile.id, expiration_date=expiration_date))
 	db.session.commit()
 
 	res.set_cookie("auth_token", str(sf), expires=expiration_date)
