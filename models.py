@@ -6,6 +6,7 @@ from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship,
 NAME_LENGTH = 20
 TOKEN_LENGTH = 40
 SECRET_LENGTH = 60
+DATE_FORMAT = "%Y-%m-%d"	#YYYY-MM-DD
 
 # CREATE TYPE GenderEnum AS ENUM ('male', 'female', 'other')
 class GenderEnum(str, py_enum.Enum):
