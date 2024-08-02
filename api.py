@@ -2,7 +2,7 @@ import bcrypt
 import hashlib
 from datetime import datetime, timedelta, timezone
 from flask import Blueprint, Response, jsonify, request
-from sqlalchemy import select, update
+from sqlalchemy import select, update, delete
 from sqlalchemy.exc import SQLAlchemyError
 from config import db, snowflake
 from schemas import *
@@ -118,7 +118,7 @@ def login():
 @api.route("/logout", methods=["GET"])
 def logout():
 	if ("auth_token" in request.cookies):
-		stmt = update(AuthToken).where(AuthToken.value == hash_sha1(str(request.cookies.get("auth_token")))).values(expiration_date=datetime.now(timezone.utc) - timedelta(days=2))
+		stmt = delete(AuthToken).where(AuthToken.value == hash_sha1(str(request.cookies.get("auth_token"))))
 		db.session.execute(stmt)
 		db.session.commit()
 		res = jsonify({"error": None})
@@ -146,19 +146,11 @@ def delete_user():
 		token = db.session.execute(stmt).scalar_one_or_none()
 		if token:
 			try:
-				user = db.session.get(User, token.profile_id)
-				if user:
-					db.session.delete(user)
-
-				advertiser = db.session.get(Advertiser, token.profile_id)
-				if advertiser:
-					db.session.delete(advertiser)
-
 				profile = db.session.get(Profile, token.profile_id)
 				if profile:
 					db.session.delete(profile)
 
-				stmt = update(AuthToken).where(AuthToken.value == hash_sha1(str(request.cookies.get("auth_token")))).values(expiration_date=datetime.now(timezone.utc) - timedelta(days=2))
+				stmt = delete(AuthToken).where(AuthToken.profile_id == token.profile_id)
 				db.session.execute(stmt)
 
 			except SQLAlchemyError as e:
@@ -168,7 +160,9 @@ def delete_user():
 				return jsonify({"error": "An error occured while deleting the user"})
 
 			db.session.commit()
-			return jsonify({"error": None})
+			res = jsonify({"error": None})
+			res.set_cookie("auth_token", "", expires=0)
+			return res
 	return jsonify({"error": "Invalid token"})
 
 

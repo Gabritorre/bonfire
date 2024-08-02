@@ -1,7 +1,7 @@
 import enum as py_enum
 from datetime import datetime
 from sqlalchemy import Boolean, Enum, Float, Integer, String, DateTime, ForeignKey, Text, func
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship, backref
 
 NAME_LENGTH = 20
 TOKEN_LENGTH = 40
@@ -109,7 +109,7 @@ class User(Base):
 	biography: Mapped[str] = mapped_column(Text, nullable=True)
 	birthday: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=True)
 	
-	profile: Mapped[Profile] = relationship(backref="user_profile", passive_deletes=True, lazy='joined')
+	profile: Mapped[Profile] = relationship(backref=backref("user_profile", cascade="all, delete"), passive_deletes=True, lazy='joined', single_parent=True)
 
 
 class Interest(Base):
@@ -127,11 +127,11 @@ class Interest(Base):
 class AuthToken(Base):
 	__tablename__ = "auth_tokens"
 	value: Mapped[str] = mapped_column(String(TOKEN_LENGTH), primary_key=True)
-	profile_id: Mapped[int] = mapped_column(ForeignKey("profiles.id", ondelete="set null"), nullable=True)
+	profile_id: Mapped[int] = mapped_column(ForeignKey("profiles.id", ondelete="cascade"), nullable=True)
 
 	expiration_date: Mapped[datetime] = mapped_column(DateTime(timezone=True))
 
-	profile: Mapped[Profile] = relationship(backref="profiles", primaryjoin="AuthToken.profile_id == Profile.id", passive_deletes=True)
+	profile: Mapped[Profile] = relationship(backref=backref("profile_token", cascade="all, delete"), primaryjoin="AuthToken.profile_id == Profile.id", passive_deletes=True)
 
 
 
@@ -176,6 +176,5 @@ class Following(Base):
 	follower: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="cascade"), primary_key=True)
 	followed: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="cascade"), primary_key=True)
 
-	user1: Mapped[User] = relationship(backref="users1", primaryjoin="Following.follower == User.id", passive_deletes=True)
-	user2: Mapped[User] = relationship(backref="users2", primaryjoin="Following.followed == User.id", passive_deletes=True)
-
+	user1: Mapped[User] = relationship(backref=backref("users1", cascade="all, delete"), primaryjoin="Following.follower == User.id", passive_deletes=True)
+	user2: Mapped[User] = relationship(backref=backref("users2", cascade="all, delete"), primaryjoin="Following.followed == User.id", passive_deletes=True)
