@@ -7,6 +7,33 @@
 	object-fit: cover;
 }
 
-.card-title > .profile-picture {
+#section-send .profile-picture {
+	width: var(--send-profile-size);
+}
+
+.card-title .profile-picture {
 	width: var(--post-profile-size);
+}
+
+#section-send button[data-bs-toggle="collapse"] {
+	position: relative;
+}
+
+#section-send button[data-bs-toggle="collapse"] > i:last-child {
+	position: absolute;
+	display: flex;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	justify-content: center;
+	align-items: center;
+}
+
+#section-send button[data-bs-toggle="collapse"] > i {
+	transition: opacity var(--transition);
+}
+
+#section-send button[data-bs-toggle="collapse"].collapsed > i:last-child, #section-send button[data-bs-toggle="collapse"]:not(.collapsed) > i:first-child {
+	opacity: 0;
 }

@@ -10,20 +10,61 @@
 <div class="overflow-scroll flex-grow-1">
 	<div class="container d-flex justify-content-center">
 		<div class="feed">
-			<div class="d-flex justify-content-center justify-content-md-between mt-2 mb-3">
-				<div class="col"></div>
-				<div class="col d-flex justify-content-center">
-					<ul class="nav nav-underline flex-nowrap">
-						<li class="nav-item">
-							<button class="nav-link active" title="See what the world is up to">Explore</button>
-						</li>
-						<li class="nav-item">
-							<button class="nav-link text-muted" title="See what your friends are up to">Friends</button>
-						</li>
-					</ul>
-				</div>
-				<div class="col d-flex justify-content-end">
-					<button class="btn btn-dark rounded-circle bi bi-pen" title="Share your thoughts"></button>
+			<div class="accordion accordion-flush mt-2 mb-3" id="section-send">
+				<div class="accordion-item">
+					<div class="accordion-header row">
+						<div class="col"></div>
+						<div class="col d-flex justify-content-center">
+							<ul class="nav nav-underline flex-nowrap">
+								<li class="nav-item">
+									<button class="nav-link active" title="See what the world is up to">Explore</button>
+								</li>
+								<li class="nav-item">
+									<button class="nav-link text-muted" title="See what your friends are up to">Friends</button>
+								</li>
+							</ul>
+						</div>
+						<div class="col d-flex justify-content-end">
+							<button class="btn btn-dark rounded-circle collapsed" title="Share your thoughts" data-bs-toggle="collapse" data-bs-target="#section-send-content">
+								<i class="bi bi-pen"></i>
+								<i class="bi bi-pen-fill"></i>
+							</button>
+						</div>
+					</div>
+					<div id="section-send-content" class="accordion-collapse collapse" data-bs-parent="#section-danger">
+						<div class="accordion-body row row-cols-1 row-cols-sm-2 gy-3">
+							<div class="col col-sm-12 d-flex align-items-center">
+								<img class="profile-picture me-2" src="https://www.rustacean.net/more-crabby-things/squishable-ferris.jpg" />
+								<div class="fw-bold">Ferris the Crab</div>
+							</div>
+							<div class="col col-sm-12">
+								<textarea class="form-control" rows="3"></textarea>
+							</div>
+							<div class="col col-sm-12">
+								<input class="form-control rounded-pill" type="file" />
+							</div>
+							<div class="col col-sm-10">
+								<div class="row g-2">
+									<div class="col-auto">
+										<button class="btn btn-success btn-tag rounded-pill position-relative">
+											<div>Assembly</div>
+											<i class="bi bi-trash-fill"></i>
+										</button>
+									</div>
+									<div class="col-auto">
+										<button class="btn btn-outline-success rounded-pill">
+											<i class="bi bi-plus fs-4"></i>
+										</button>
+									</div>
+								</div>
+							</div>
+							<div class="col col-sm-2 d-flex justify-content-end">
+								<div class="d-flex align-items-center">
+									<button class="btn btn-light rounded-pill">Send</button>
+								</div>
+							</div>
+						</div>
+					</div>
 				</div>
 			</div>
 
