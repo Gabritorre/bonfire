@@ -49,7 +49,7 @@ connection_string = URL.create(
 	password = getenv("DB_PASSWORD"),
 	host = getenv("DB_HOST"),
 	database = getenv("DB_DATABASE"),
-	query = {"sslmode":"require"}
+	query = {"sslmode": "require"}
 )
 
 engine = create_engine(connection_string)
@@ -57,7 +57,8 @@ engine = create_engine(connection_string)
 app = Flask(__name__)
 app.config["secret_key"] = getenv("DB_SECRET_KEY")
 app.config["SQLALCHEMY_DATABASE_URI"] = connection_string
-app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {"pool_pre_ping": True}
+app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {"pool_pre_ping": True}
+app.config["UPLOAD_FOLDER"] = "media"
 
 db = SQLAlchemy(app)
 ma = Marshmallow(app)
