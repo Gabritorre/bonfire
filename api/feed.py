@@ -1,8 +1,9 @@
 from datetime import timezone
 from flask import Blueprint, jsonify, request
 from sqlalchemy import select
-from .utils import *
 from config import db
+from schemas import posts_schema
+from .utils import *
 
 feed = Blueprint("feed", __name__, url_prefix="/feed")
 
