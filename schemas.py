@@ -52,7 +52,7 @@ class UserIdUsernameSchema(ma.SQLAlchemySchema):
 		model = User
 		fields = ("id", "pfp", "profile.handle")
 
-class tagSchema(ma.SQLAlchemyAutoSchema):
+class TagSchema(ma.SQLAlchemyAutoSchema):
 	class Meta:
 		model = Tag
 
@@ -69,7 +69,7 @@ class PostSchema(ma.SQLAlchemyAutoSchema):
 
 	def get_likes_count_field(self, post_instance):
 		return db.session.query(UserInteraction).filter(UserInteraction.post_id == post_instance.id, UserInteraction.liked == True).count()
-	
+
 	def get_comments_count_field(self, post_instance):
 		return db.session.query(UserInteraction).filter(UserInteraction.post_id == post_instance.id, UserInteraction.comment.isnot(None)).count()
 
@@ -77,6 +77,6 @@ profile_schema = ProfileSchema()
 user_schema = UserSchema()
 users_schema = UserSchema(many=True)
 id_username_schema = UserIdUsernameSchema(many=True)
-tags_schema = tagSchema(many=True)
+tags_schema = TagSchema(many=True)
 user_settings_schema = UserSettingsSchema()
 posts_schema = PostSchema(many = True)

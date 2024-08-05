@@ -1,16 +1,15 @@
-import bcrypt
-from hashlib import sha1
-from datetime import timedelta
 from flask import Response
 from config import db, snowflake
-from models import *
-
+from models import Profile, AuthToken
+from bcrypt import hashpw, gensalt, checkpw
+from hashlib import sha1
+from datetime import timedelta
 
 def hash_secret(pwd: str) -> str:
-	return bcrypt.hashpw(pwd.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+	return hashpw(pwd.encode("utf-8"), gensalt()).decode("utf-8")
 
 def verify_secret(pwd: str, stored_pwd: str) -> bool:
-	return bcrypt.checkpw(pwd.encode("utf-8"), stored_pwd.encode("utf-8"))
+	return checkpw(pwd.encode("utf-8"), stored_pwd.encode("utf-8"))
 
 def hash_sha1(string: str) -> str:
 	return sha1(string.encode("utf-8")).hexdigest()

@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify, request
 from config import db
-from schemas import *
+from models import Profile, User, Tag
+from schemas import tags_schema, id_username_schema
 from .settings import settings
 from .user import user
 from .profile import profile
@@ -18,7 +19,7 @@ def search_user():
 	input_handle = req.get("query")
 	data = (db.session.query(User)
 		.join(Profile)
-		.filter(Profile.handle.contains(input_handle, autoescape=True))
+		.where(Profile.handle.contains(input_handle, autoescape=True))
 		.all()
 	)
 	if not data:
