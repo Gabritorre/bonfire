@@ -1,8 +1,8 @@
 :root {
 	--search-width: 500px;
-	--post-width: 600px;
+	--post-width: 624px;
 	--post-profile-size: 50px;
-	--post-media-ratio: 3/2;
+	--post-media-ratio: 5/3;
 	--send-profile-size: 35px;
 	--settings-profile-size: 200px;
 	--transition: .15s ease-in-out;
@@ -19,8 +19,47 @@ textarea {
 	object-fit: cover;
 }
 
+.profile-picture-post {
+	width: var(--post-profile-size);
+}
+
+.profile-picture-send {
+	width: var(--send-profile-size);
+}
+
 .progress-password {
 	--bs-progress-height: 8px;
+}
+
+.post-separator {
+	margin-top: 1rem;
+	margin-bottom: 0;
+	border-top: var(--bs-border-width) dashed var(--bs-secondary-color);
+}
+
+/* Transitions on collapse buttons icons */
+
+.collapse-fade-icons {
+	position: relative;
+}
+
+.collapse-fade-icons > i:last-child {
+	position: absolute;
+	display: flex;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	justify-content: center;
+	align-items: center;
+}
+
+.collapse-fade-icons > i {
+	transition: opacity var(--transition);
+}
+
+button.collapsed .collapse-fade-icons > i:last-child, button:not(.collapsed) .collapse-fade-icons > i:first-child {
+	opacity: 0;
 }
 
 /* Transitions on trash icon for tags buttons */
