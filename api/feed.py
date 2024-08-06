@@ -7,18 +7,26 @@ from .utils import hash_sha1
 
 feed = Blueprint("feed", __name__, url_prefix="/feed")
 
+POSTS_PER_CHUNK = 2
+
 @feed.route("/explore", methods=["GET"])
 def explore():
-	#todo: adjust offset if a post is deleted or a new post is added
 	#todo: add an advertisement post every x posts
 	if ("auth_token" in request.cookies):
 		token = db.session.query(AuthToken).where(AuthToken.value == hash_sha1(str(request.cookies.get("auth_token"))), AuthToken.expiration_date > datetime.now(timezone.utc)).first()
 		if token:
 			req = request.get_json()
-			page = req.get("page", 1)
-			posts = db.session.query(Post).order_by(Post.date.desc()).limit(2).offset((page-1)*2)
+			last_post_id = req.get("last_post_id")
+			if last_post_id:
+				posts = db.session.query(Post).where(Post.id < last_post_id).order_by(Post.id.desc())
+			else:
+				posts = db.session.query(Post).order_by(Post.id.desc())
+			posts = posts.limit(POSTS_PER_CHUNK)
 			data = posts_schema.dump(posts)
+
+			# for each post check if the user liked it or not
 			for count, post in enumerate(posts):
 				data[count]['user_like'] = bool(db.session.query(UserInteraction).filter(UserInteraction.post_id == post.id, UserInteraction.user_id == token.profile_id, UserInteraction.liked == True).count())
+			
 			return jsonify({"error": None, "data": data})
 	return jsonify({"error": "Invalid token"})

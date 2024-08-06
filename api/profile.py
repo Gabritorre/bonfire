@@ -81,7 +81,7 @@ def get_token():
 
 
 @profile.route("/delete", methods=["POST"])
-def delete_profiles():
+def delete_profile():
 	if ("auth_token" in request.cookies):
 		token = db.session.query(AuthToken).where(AuthToken.value == hash_sha1(str(request.cookies.get("auth_token"))), AuthToken.expiration_date > datetime.now(timezone.utc)).first()
 		if token:
