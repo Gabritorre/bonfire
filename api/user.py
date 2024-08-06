@@ -1,94 +1,51 @@
 from flask import Blueprint, jsonify, request
 from config import db
-from models import Profile, User, Advertiser, AuthToken
+from models import Following, Profile, User, Tag, AuthToken
+from schemas import tags_schema, id_username_schema
 from datetime import datetime, timezone
-from .utils import hash_sha1, hash_secret, set_auth_token, verify_secret
+from .utils import hash_sha1
 
 user = Blueprint("user", __name__, url_prefix="/user")
 
-@user.route("/signup", methods=["POST"])
-def signup():
+@user.route("/search", methods=["GET"])
+def search_user():
 	req = request.get_json()
-	handle = req.get("handle")
-	pwd = req.get("password")
-	is_adv = req.get("is_adv")
-	profile = db.session.query(Profile).where(Profile.handle == handle).first()
-
-	if profile:
-		return jsonify({"error": "This username already exists"})
-	else:
-		new_profile = Profile(handle=handle, password=hash_secret(pwd), name=handle)
-		db.session.add(new_profile)
-		db.session.flush()
-		if is_adv:
-			new_advertiser = Advertiser(id=new_profile.id)
-			db.session.add(new_advertiser)
-		else:
-			new_user = User(id=new_profile.id)
-			db.session.add(new_user)
-		db.session.commit()
-		res = jsonify({"error": None})
-		set_auth_token(new_profile, res)
-		return res
+	input_handle = req.get("query")
+	data = (db.session.query(User)
+		.join(Profile)
+		.where(Profile.handle.contains(input_handle, autoescape=True))
+		.all()
+	)
+	if not data:
+		return jsonify({"error": "No users found"})
+	return jsonify({"error": None, "data": id_username_schema.dump(data)})
 
 
 
-@user.route("/login", methods=["POST"])
-def login():
-	req = request.get_json()
-	handle = req.get("handle")
-	pwd = req.get("password")
-	profile = db.session.query(Profile).where(Profile.handle == handle).first()
+@user.route("/tags", methods=["GET"])
+def get_all_tags():
+	tags = db.session.query(Tag).all()
+	return jsonify({"error": None, "data": tags_schema.dump(tags)})
 
-	if profile:
-		if verify_secret(pwd, profile.password):
-			if db.session.query(Advertiser).where(Advertiser.id == profile.id).first():
-				res = jsonify({"error": None, "is_adv": True})
+
+
+@user.route("/follow", methods=["POST"])
+def follow():
+	if ("auth_token" in request.cookies):
+		token = db.session.query(AuthToken).where(AuthToken.value == hash_sha1(str(request.cookies.get("auth_token"))), AuthToken.expiration_date > datetime.now(timezone.utc)).first()
+		if token:
+			req = request.get_json()
+			to_follow_id = req.get("id")
+			if db.session.get(User, to_follow_id):
+				user = db.session.query(User).where(User.id == token.profile_id).first()
+				if user:
+					following_relationship = db.session.query(Following).where(Following.follower==user.id, Following.followed==to_follow_id).first()
+					if following_relationship: # unfollow
+						db.session.delete(following_relationship)
+					else:
+						db.session.add(Following(follower=user.id, followed=to_follow_id)) # follow
+					db.session.commit()
+				return jsonify({"error": None})
 			else:
-				res = jsonify({"error": None, "is_adv": False})
-		else:
-			return jsonify({"error": "Wrong password"})
-	else:
-		return jsonify({"error": "User not found"})
-	set_auth_token(profile, res)
-	return res
-
-
-
-@user.route("/logout", methods=["GET"])
-def logout():
-	if ("auth_token" in request.cookies):
-		db.session.query(AuthToken).where(AuthToken.value == hash_sha1(str(request.cookies.get("auth_token")))).delete()
-		db.session.commit()
-		res = jsonify({"error": None})
-		res.set_cookie("auth_token", "", expires=0)
-		return res
-	return jsonify({"error": "Invalid token"})
-
-
-
-@user.route("/", methods=["GET"])
-def get_user_token():
-	if ("auth_token" in request.cookies):
-		token = db.session.query(AuthToken).where(AuthToken.value == hash_sha1(str(request.cookies.get("auth_token"))), AuthToken.expiration_date > datetime.now(timezone.utc)).first()
-		if token:
-			if db.session.query(Advertiser).where(Advertiser.id == token.profile_id).first():
-				return jsonify({"error": None, "id": token.profile_id, "is_adv": True})
-			return jsonify({"id": token.profile_id, "is_adv": False, "error": None})
-	return jsonify({"error": "Invalid token"})
-
-
-
-@user.route("/delete", methods=["POST"])
-def delete_user():
-	if ("auth_token" in request.cookies):
-		token = db.session.query(AuthToken).where(AuthToken.value == hash_sha1(str(request.cookies.get("auth_token"))), AuthToken.expiration_date > datetime.now(timezone.utc)).first()
-		if token:
-			profile = db.session.get(Profile, token.profile_id)
-			if profile:
-				db.session.query(Profile).where(Profile.id == token.profile_id).delete()
-				db.session.commit()
-			res = jsonify({"error": None})
-			res.set_cookie("auth_token", "", expires=0)
-			return res
+				return jsonify({"error": "User does not exist"})
 	return jsonify({"error": "Invalid token"})
