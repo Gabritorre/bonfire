@@ -9,7 +9,7 @@
 {{super()}}
 <div class="overflow-scroll flex-grow-1">
 	<div class="container d-flex justify-content-center">
-		<div class="feed row row-cols-1 gy-3 mb-3">
+		<div class="feed row row-cols-1 gy-3 gx-0 mb-3">
 			<div class="col pt-2">
 				<div class="accordion accordion-flush">
 					<div class="accordion-item">
@@ -35,23 +35,25 @@
 							</div>
 						</div>
 						<div id="section-send-content" class="accordion-collapse collapse" data-bs-parent="#section-danger">
-							<div class="accordion-body row row-cols-2 pb-2">
-								<div class="col-10 d-flex align-items-center">
-									<img class="profile-picture profile-picture-send me-2" src="http://web.archive.org/web/20240409133415if_/https://rustacean.net/more-crabby-things/squishable-ferris.jpg" />
-									<div class="fw-bold">Ferris the Crab</div>
-								</div>
-								<div class="col-2 d-flex justify-content-end">
-									<div class="d-flex align-items-center">
-										<button class="btn btn-light rounded-pill">Post</button>
+							<div class="accordion-body row row-cols-1 pb-2">
+								<div class="col">
+									<div class="row">
+										<div class="col d-flex align-items-center">
+											<img class="profile-picture profile-picture-send me-2" src="http://web.archive.org/web/20240409133415if_/https://rustacean.net/more-crabby-things/squishable-ferris.jpg" />
+											<div class="fw-bold">Ferris the Crab</div>
+										</div>
+										<div class="col-auto">
+											<button class="btn btn-light rounded-pill">Post</button>
+										</div>
 									</div>
 								</div>
-								<div class="col-12 mt-3">
+								<div class="col mt-3">
 									<textarea class="form-control" rows="3"></textarea>
 								</div>
-								<div class="col-12 mt-3">
+								<div class="col mt-3">
 									<input class="form-control" type="file" />
 								</div>
-								<div class="col-12 mt-3">
+								<div class="col mt-3">
 									<div class="row g-2">
 										<div class="col-auto">
 											<button class="btn btn-success btn-tag rounded-pill position-relative">
@@ -112,15 +114,19 @@
 							<div class="card-header">Comments</div>
 							<ul class="list-group list-group-flush overflow-scroll">
 								<li class="list-group-item p-4 pt-3">
-									<div class="row row-cols-2 gy-3">
-										<div class="col-10 d-flex align-items-center">
-											<img class="profile-picture profile-picture-send me-2" src="http://web.archive.org/web/20240409133415if_/https://rustacean.net/more-crabby-things/squishable-ferris.jpg" />
-											<div class="fw-bold">Ferris the Crab</div>
+									<div class="row row-cols-1 gy-3">
+										<div class="col">
+											<div class="row">
+												<div class="col d-flex align-items-center">
+													<img class="profile-picture profile-picture-send me-2" src="http://web.archive.org/web/20240409133415if_/https://rustacean.net/more-crabby-things/squishable-ferris.jpg" />
+													<div class="fw-bold">Ferris the Crab</div>
+												</div>
+												<div class="col-auto">
+													<button class="btn btn-outline-light rounded-pill">Send</button>
+												</div>
+											</div>
 										</div>
-										<div class="col-2 text-end">
-											<button class="btn btn-outline-light rounded-pill">Send</button>
-										</div>
-										<div class="col-12">
+										<div class="col">
 											<textarea class="form-control" rows="2"></textarea>
 										</div>
 									</div>
