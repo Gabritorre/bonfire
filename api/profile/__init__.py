@@ -4,9 +4,11 @@ from models import Profile, User, Advertiser, AuthToken
 from datetime import datetime, timezone
 from api.utils import hash_sha1, hash_secret, set_auth_token, verify_secret
 from .user import user
+from .adv import adv
 
 profile = Blueprint("profile", __name__, url_prefix="/profile")
 profile.register_blueprint(user)
+profile.register_blueprint(adv)
 
 @profile.route("/signup", methods=["POST"])
 def signup():

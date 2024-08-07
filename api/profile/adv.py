@@ -2,7 +2,7 @@ from flask import Blueprint, jsonify, request
 from config import db
 from models import DATE_FORMAT, AdCampaign, Advertiser, AuthToken
 from datetime import datetime, timezone
-from .utils import hash_sha1
+from api.utils import hash_sha1
 
 adv = Blueprint("adv", __name__, url_prefix="/adv")
 
@@ -16,7 +16,7 @@ def create_campaign():
 				req = request.get_json()
 				name = req.get("name")
 				budget = req.get("budget")
-				start = req.get("start")
+				start = req.get("start")	# TODO: Check that date parameters are valid, otherwise return error
 				end = req.get("end")
 				if name and budget and start and end:
 					if datetime.strptime(start, DATE_FORMAT) > datetime.now() and end > start:
