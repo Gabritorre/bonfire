@@ -1,3 +1,0 @@
-.col > div:has(> .profile-picture) {
-	width: min(var(--settings-profile-size), 100%);
-}

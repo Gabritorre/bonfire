@@ -1,10 +1,11 @@
 :root {
 	--search-width: 500px;
 	--post-width: 600px;
-	--post-profile-size: 50px;
 	--post-media-ratio: 5/3;
-	--send-profile-size: 35px;
-	--settings-profile-size: 200px;
+	--profile-picture-1: 35px;
+	--profile-picture-2: 50px;
+	--profile-picture-3: 150px;
+	--profile-picture-4: 225px;
 	--transition: .15s ease-in-out;
 }
 
@@ -19,12 +20,20 @@ textarea {
 	object-fit: cover;
 }
 
-.profile-picture-post {
-	width: var(--post-profile-size);
+.profile-picture-1 {
+	width: var(--profile-picture-1);
 }
 
-.profile-picture-send {
-	width: var(--send-profile-size);
+.profile-picture-2 {
+	width: var(--profile-picture-2);
+}
+
+.profile-picture-3 {
+	width: var(--profile-picture-3)
+}
+
+.profile-picture-4 {
+	width: var(--profile-picture-4);
 }
 
 .progress-password {
