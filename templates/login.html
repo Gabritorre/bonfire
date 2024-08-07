@@ -1,11 +1,22 @@
 {% extends "layout/auth.html" %}
 
+{% block head %}
+{{super()}}
+<script src="/js/login.js"></script>
+{% endblock %}
+
 {% block view %}
 {{super()}}
-<div class="d-flex flex-column gap-3">
-	<input class="form-control rounded-pill" type="text" placeholder="Username" />
-	<input class="form-control rounded-pill" type="password" placeholder="Password" />
-</div>
-<button class="btn btn-light rounded-pill">Login</button>
+<form class="d-flex flex-column gap-3 my-0" x-data="{handle: '', password: '', error: false}" @submit.prevent="login.submit($data)">
+	<div class="d-flex flex-column">
+		<input class="form-control rounded-pill mb-3" type="text" placeholder="Username" x-model="handle" required />
+		<input class="form-control rounded-pill mb-2" type="password" placeholder="Password" x-model="password" required />
+		<div class="text-danger" x-show="error">
+			<i class="bi bi-x"></i>
+			Invalid credentials
+		</div>
+	</div>
+	<button class="btn btn-light rounded-pill" type="submit">Login</button>
+</form>
 <span class="my-3">New around here? <a href="/signup">Sign up</a>.</span>
 {% endblock %}
