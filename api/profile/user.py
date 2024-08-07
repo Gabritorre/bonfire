@@ -1,11 +1,23 @@
 from flask import Blueprint, jsonify, request
 from config import db
-from models import Following, Profile, User, Tag, AuthToken
-from schemas import tags_schema, id_username_schema
+from models import User, AuthToken, Profile
+from schemas import user_schema, id_username_schema
 from datetime import datetime, timezone
-from .utils import hash_sha1
+from api.utils import hash_sha1
 
 user = Blueprint("user", __name__, url_prefix="/user")
+
+@user.route("/", methods=["GET"])
+def get_user():
+	req = request.get_json()
+	user_id = req.get("id")
+	data = db.session.get(User, user_id)
+
+	if not data:
+		return jsonify({"error": "User not found"})
+	return jsonify({"error": None, "data": user_schema.dump(data)})
+
+
 
 @user.route("/search", methods=["GET"])
 def search_user():
@@ -22,17 +34,11 @@ def search_user():
 
 
 
-@user.route("/tags", methods=["GET"])
-def get_all_tags():
-	tags = db.session.query(Tag).all()
-	return jsonify({"error": None, "data": tags_schema.dump(tags)})
-
-
-
 @user.route("/follow", methods=["POST"])
 def follow():
 	if ("auth_token" in request.cookies):
 		token = db.session.query(AuthToken).where(AuthToken.value == hash_sha1(str(request.cookies.get("auth_token"))), AuthToken.expiration_date > datetime.now(timezone.utc)).first()
+		print(request.cookies.get("auth_token"), token)
 		if token:
 			req = request.get_json()
 			to_follow_id = req.get("id")

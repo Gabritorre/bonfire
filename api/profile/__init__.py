@@ -1,11 +1,12 @@
 from flask import Blueprint, jsonify, request
 from config import db
 from models import Profile, User, Advertiser, AuthToken
-from schemas import user_schema
 from datetime import datetime, timezone
-from .utils import hash_sha1, hash_secret, set_auth_token, verify_secret
+from api.utils import hash_sha1, hash_secret, set_auth_token, verify_secret
+from .user import user
 
 profile = Blueprint("profile", __name__, url_prefix="/profile")
+profile.register_blueprint(user)
 
 @profile.route("/signup", methods=["POST"])
 def signup():
@@ -93,15 +94,3 @@ def delete_profile():
 			res.set_cookie("auth_token", "", expires=0)
 			return res
 	return jsonify({"error": "Invalid token"})
-
-
-
-@profile.route("/user", methods=["GET"])
-def user():
-	req = request.get_json()
-	user_id = req.get("id")
-	data = db.session.get(User, user_id)
-
-	if not data:
-		return jsonify({"error": "User not found"})
-	return jsonify({"error": None, "data": user_schema.dump(data)})
