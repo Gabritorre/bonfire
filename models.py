@@ -158,16 +158,30 @@ class PostTag(Base):
 
 
 
-class UserInteraction(Base):
-	__tablename__ = "user_interactions"
+class Comment(Base):
+	__tablename__ = "comments"
+	id: Mapped[int] = mapped_column(Integer, autoincrement=True, primary_key=True)
+	user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="cascade"))
+	post_id: Mapped[int] = mapped_column(ForeignKey("posts.id", ondelete="cascade"))
+
+	body: Mapped[str] = mapped_column(String(420), nullable=True)
+	date: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+	user: Mapped[User] = relationship(backref=backref("users_comment", cascade="all, delete"), passive_deletes=True)
+	post: Mapped[Post] = relationship(backref=backref("posts_comment", cascade="all, delete"), passive_deletes=True)
+
+
+
+class Like(Base):
+	__tablename__ = "likes"
 	user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="cascade"), primary_key=True)
 	post_id: Mapped[int] = mapped_column(ForeignKey("posts.id", ondelete="cascade"), primary_key=True)
 
 	liked: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
-	comment: Mapped[str] = mapped_column(String(420), nullable=True)
+	date: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
-	user: Mapped[User] = relationship(backref=backref("users_interaction", cascade="all, delete"), passive_deletes=True)
-	post: Mapped[Post] = relationship(backref=backref("posts_interaction", cascade="all, delete"), passive_deletes=True)
+	user: Mapped[User] = relationship(backref=backref("users_like", cascade="all, delete"), passive_deletes=True)
+	post: Mapped[Post] = relationship(backref=backref("posts_like", cascade="all, delete"), passive_deletes=True)
 
 
 

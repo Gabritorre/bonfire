@@ -19,15 +19,15 @@ class UserSchema(ma.SQLAlchemyAutoSchema):
 	interests = fields.Method("get_interests_list")
 
 	def get_follower_count_field(self, user_instance):
-		return db.session.query(Following).filter(Following.followed == user_instance.id).count()
+		return db.session.query(Following).where(Following.followed == user_instance.id).count()
 
 	def get_following_count_field(self, user_instance):
-		return db.session.query(Following).filter(Following.follower == user_instance.id).count()
+		return db.session.query(Following).where(Following.follower == user_instance.id).count()
 
 	def get_interests_list(self, user_instance):
 		interests_list = (db.session.query(Tag.id, Tag.tag)
 						.join(Interest)
-						.filter(Interest.user_id == user_instance.id)
+						.where(Interest.user_id == user_instance.id)
 						.all())
 		return [{"id": tag_id, "tag": tag_name} for tag_id, tag_name in interests_list]
 
@@ -43,7 +43,7 @@ class UserSettingsSchema(ma.SQLAlchemyAutoSchema):
 	def get_interests_list(self, user_instance):
 		interests_list = (db.session.query(Tag.id, Tag.tag)
 						.join(Interest)
-						.filter(Interest.user_id == user_instance.id)
+						.where(Interest.user_id == user_instance.id)
 						.all())
 		return [{"id": tag_id, "tag": tag_name} for tag_id, tag_name in interests_list]
 
@@ -68,10 +68,10 @@ class PostSchema(ma.SQLAlchemyAutoSchema):
 	user_like = fields.Boolean()
 
 	def get_likes_count_field(self, post_instance):
-		return db.session.query(UserInteraction).filter(UserInteraction.post_id == post_instance.id, UserInteraction.liked == True).count()
+		return db.session.query(Like).where(Like.post_id == post_instance.id, Like.liked == True).count()
 
 	def get_comments_count_field(self, post_instance):
-		return db.session.query(UserInteraction).filter(UserInteraction.post_id == post_instance.id, UserInteraction.comment.isnot(None)).count()
+		return db.session.query(Comment).where(Comment.post_id == post_instance.id, Comment.body.isnot(None)).count()
 
 profile_schema = ProfileSchema()
 user_schema = UserSchema()
