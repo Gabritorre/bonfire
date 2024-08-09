@@ -6,7 +6,7 @@ from .utils import hash_sha1
 
 post = Blueprint("post", __name__, url_prefix="/post")
 
-@post.route("/like", methods=["POST"])
+@post.route("/like", methods=["PUT"])
 @safeguard
 def like():
 	if ("auth_token" in request.cookies):
@@ -29,7 +29,7 @@ def like():
 
 
 
-@post.route("/comment", methods=["POST"])
+@post.route("/comment", methods=["PUT"])
 @safeguard
 def add_comment():
 	if ("auth_token" in request.cookies):

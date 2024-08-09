@@ -9,7 +9,7 @@ feed = Blueprint("feed", __name__, url_prefix="/feed")
 
 POSTS_PER_CHUNK = 2
 
-@feed.route("/explore", methods=["GET"])
+@feed.route("/explore", methods=["POST"])
 @safeguard
 def explore():
 	#todo: add an advertisement post every x posts
@@ -33,7 +33,7 @@ def explore():
 	return jsonify({"error": "Invalid token"})
 
 
-@feed.route("/friends", methods=["GET"])
+@feed.route("/friends", methods=["POST"])
 @safeguard
 def friends_posts():
 	if ("auth_token" in request.cookies):

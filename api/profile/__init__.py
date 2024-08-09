@@ -10,7 +10,7 @@ profile = Blueprint("profile", __name__, url_prefix="/profile")
 profile.register_blueprint(user)
 profile.register_blueprint(adv)
 
-@profile.route("/signup", methods=["POST"])
+@profile.route("/signup", methods=["PUT"])
 @safeguard
 def signup():
 	req = request.get_json()
@@ -87,7 +87,7 @@ def get_token():
 
 
 
-@profile.route("/delete", methods=["POST"])
+@profile.route("/", methods=["DELETE"])
 @safeguard
 def delete_profile():
 	if ("auth_token" in request.cookies):

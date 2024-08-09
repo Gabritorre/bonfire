@@ -48,7 +48,7 @@ def safeguard(func):
 	@wraps(func)
 	def wrapper():
 		try:
-			func()
+			return func()
 		except Exception as e:
 			print("-"*50 + f"\n\033[0;31mError on \033[4m{func.__name__}\033[0m: {e}\033[0m\n" + "-"*50)
 			db.session.rollback()

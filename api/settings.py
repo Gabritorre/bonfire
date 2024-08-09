@@ -20,7 +20,7 @@ def get_user_settings():
 
 
 
-@settings.route("/user", methods=["POST"])
+@settings.route("/user", methods=["PUT"])
 @safeguard
 def set_user_settings():
 	if ("auth_token" in request.cookies):

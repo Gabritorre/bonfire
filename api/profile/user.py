@@ -7,7 +7,7 @@ from api.utils import hash_sha1
 
 user = Blueprint("user", __name__, url_prefix="/user")
 
-@user.route("/", methods=["GET"])
+@user.route("/", methods=["POSt"])
 @safeguard
 def get_user():
 	req = request.get_json()
@@ -20,7 +20,7 @@ def get_user():
 
 
 
-@user.route("/search", methods=["GET"])
+@user.route("/search", methods=["POST"])
 @safeguard
 def search_user():
 	req = request.get_json()
@@ -36,7 +36,7 @@ def search_user():
 
 
 
-@user.route("/follow", methods=["POST"])
+@user.route("/follow", methods=["PUT"])
 @safeguard
 def follow():
 	if ("auth_token" in request.cookies):
