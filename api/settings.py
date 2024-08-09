@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request
-from config import db
+from config import db, safeguard
 from models import Profile, User, Interest, AuthToken, DATE_FORMAT
 from schemas import user_settings_schema
 from datetime import datetime, timezone
@@ -8,6 +8,7 @@ from .utils import hash_sha1, hash_secret
 settings = Blueprint("settings", __name__, url_prefix="/settings")
 
 @settings.route("/user", methods=["GET"])
+@safeguard
 def get_user_settings():
 	if ("auth_token" in request.cookies):
 		token = db.session.query(AuthToken).where(AuthToken.value == hash_sha1(str(request.cookies.get("auth_token"))), AuthToken.expiration_date > datetime.now(timezone.utc)).first()
@@ -20,6 +21,7 @@ def get_user_settings():
 
 
 @settings.route("/user", methods=["POST"])
+@safeguard
 def set_user_settings():
 	if ("auth_token" in request.cookies):
 		token = db.session.query(AuthToken).where(AuthToken.value == hash_sha1(str(request.cookies.get("auth_token"))), AuthToken.expiration_date > datetime.now(timezone.utc)).first()

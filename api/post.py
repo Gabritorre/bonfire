@@ -1,12 +1,13 @@
 from flask import Blueprint, jsonify, request
-from config import db
-from models import Comment, Profile, User, Post, AuthToken, Like
+from config import db, safeguard
+from models import Comment, Profile, User, AuthToken, Like
 from datetime import datetime, timezone
 from .utils import hash_sha1
 
 post = Blueprint("post", __name__, url_prefix="/post")
 
 @post.route("/like", methods=["POST"])
+@safeguard
 def like():
 	if ("auth_token" in request.cookies):
 		req = request.get_json()
@@ -29,6 +30,7 @@ def like():
 
 
 @post.route("/comment", methods=["POST"])
+@safeguard
 def add_comment():
 	if ("auth_token" in request.cookies):
 		req = request.get_json()
@@ -46,6 +48,7 @@ def add_comment():
 
 
 @post.route("/comments", methods=["POST"])
+@safeguard
 def get_post_comments():
 	if ("auth_token" in request.cookies):
 		req = request.get_json()

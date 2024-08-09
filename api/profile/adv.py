@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request
-from config import db
+from config import db, safeguard
 from models import DATE_FORMAT, AdCampaign, Advertiser, AuthToken
 from datetime import datetime, timezone
 from api.utils import hash_sha1
@@ -7,6 +7,7 @@ from api.utils import hash_sha1
 adv = Blueprint("adv", __name__, url_prefix="/adv")
 
 @adv.route("/create_campaign", methods=["POST"])
+@safeguard
 def create_campaign():
 	if ("auth_token" in request.cookies):
 		token = db.session.query(AuthToken).where(AuthToken.value == hash_sha1(str(request.cookies.get("auth_token"))), AuthToken.expiration_date > datetime.now(timezone.utc)).first()

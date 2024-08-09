@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request
-from config import db
+from config import db, safeguard
 from models import Post, AuthToken, Following, Like
 from schemas import posts_schema
 from datetime import timezone, datetime
@@ -10,6 +10,7 @@ feed = Blueprint("feed", __name__, url_prefix="/feed")
 POSTS_PER_CHUNK = 2
 
 @feed.route("/explore", methods=["GET"])
+@safeguard
 def explore():
 	#todo: add an advertisement post every x posts
 	if ("auth_token" in request.cookies):
@@ -33,6 +34,7 @@ def explore():
 
 
 @feed.route("/friends", methods=["GET"])
+@safeguard
 def friends_posts():
 	if ("auth_token" in request.cookies):
 		token = db.session.query(AuthToken).where(AuthToken.value == hash_sha1(str(request.cookies.get("auth_token"))), AuthToken.expiration_date > datetime.now(timezone.utc)).first()
@@ -51,7 +53,7 @@ def friends_posts():
 
 			# for each post check if the user liked it or not
 			for count, post in enumerate(posts):
-				data[count]['user_like'] = bool(db.session.query(UserInteraction).filter(UserInteraction.post_id == post.id, UserInteraction.user_id == token.profile_id, UserInteraction.liked == True).count())
+				data[count]['user_like'] = bool(db.session.query(Like).where(Like.post_id == post.id, Like.user_id == token.profile_id, Like.liked == True).count())
 
 			return jsonify({"error": None, "data": data})
 	return jsonify({"error": "Invalid token"})

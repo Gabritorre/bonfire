@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request
-from config import db
-from models import User, AuthToken, Profile
+from config import db, safeguard
+from models import Following, User, AuthToken, Profile
 from schemas import user_schema, id_username_schema
 from datetime import datetime, timezone
 from api.utils import hash_sha1
@@ -8,6 +8,7 @@ from api.utils import hash_sha1
 user = Blueprint("user", __name__, url_prefix="/user")
 
 @user.route("/", methods=["GET"])
+@safeguard
 def get_user():
 	req = request.get_json()
 	user_id = req.get("id")
@@ -20,6 +21,7 @@ def get_user():
 
 
 @user.route("/search", methods=["GET"])
+@safeguard
 def search_user():
 	req = request.get_json()
 	input_handle = req.get("query")
@@ -35,6 +37,7 @@ def search_user():
 
 
 @user.route("/follow", methods=["POST"])
+@safeguard
 def follow():
 	if ("auth_token" in request.cookies):
 		token = db.session.query(AuthToken).where(AuthToken.value == hash_sha1(str(request.cookies.get("auth_token"))), AuthToken.expiration_date > datetime.now(timezone.utc)).first()

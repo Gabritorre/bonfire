@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request
-from config import db
+from config import db, safeguard
 from models import Profile, User, Advertiser, AuthToken
 from datetime import datetime, timezone
 from api.utils import hash_sha1, hash_secret, set_auth_token, verify_secret
@@ -11,6 +11,7 @@ profile.register_blueprint(user)
 profile.register_blueprint(adv)
 
 @profile.route("/signup", methods=["POST"])
+@safeguard
 def signup():
 	req = request.get_json()
 	handle = req.get("handle")
@@ -38,6 +39,7 @@ def signup():
 
 
 @profile.route("/login", methods=["POST"])
+@safeguard
 def login():
 	req = request.get_json()
 	handle = req.get("handle")
@@ -60,6 +62,7 @@ def login():
 
 
 @profile.route("/logout", methods=["GET"])
+@safeguard
 def logout():
 	if ("auth_token" in request.cookies):
 		db.session.query(AuthToken).where(AuthToken.value == hash_sha1(str(request.cookies.get("auth_token")))).delete()
@@ -72,6 +75,7 @@ def logout():
 
 
 @profile.route("/", methods=["GET"])
+@safeguard
 def get_token():
 	if ("auth_token" in request.cookies):
 		token = db.session.query(AuthToken).where(AuthToken.value == hash_sha1(str(request.cookies.get("auth_token"))), AuthToken.expiration_date > datetime.now(timezone.utc)).first()
@@ -84,6 +88,7 @@ def get_token():
 
 
 @profile.route("/delete", methods=["POST"])
+@safeguard
 def delete_profile():
 	if ("auth_token" in request.cookies):
 		token = db.session.query(AuthToken).where(AuthToken.value == hash_sha1(str(request.cookies.get("auth_token"))), AuthToken.expiration_date > datetime.now(timezone.utc)).first()

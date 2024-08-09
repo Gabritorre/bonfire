@@ -3,10 +3,11 @@ from threading import Lock, get_native_id
 from random import randint
 from datetime import datetime, timezone
 from dotenv import load_dotenv
-from flask import Flask
+from flask import Flask, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
 from sqlalchemy import URL, create_engine
+from functools import wraps
 
 load_dotenv()
 
@@ -42,6 +43,17 @@ class Snowflake:
 		return datetime.fromtimestamp((extracted_time_diff+self.__epoch)/1000, tz=timezone.utc)
 
 snowflake = Snowflake()
+
+def safeguard(func):
+	@wraps(func)
+	def wrapper():
+		try:
+			func()
+		except Exception as e:
+			print("-"*50 + f"\n\033[0;31mError on \033[4m{func.__name__}\033[0m: {e}\033[0m\n" + "-"*50)
+			db.session.rollback()
+			return jsonify({"error": "something went wrong"})
+	return wrapper
 
 connection_string = URL.create(
 	str(getenv("DB_DRIVER_NAME")),
