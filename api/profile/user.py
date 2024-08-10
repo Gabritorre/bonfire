@@ -7,7 +7,7 @@ from api.utils import hash_sha1
 
 user = Blueprint("user", __name__, url_prefix="/user")
 
-@user.route("/", methods=["POSt"])
+@user.route("/", methods=["POST"])
 @safeguard
 def get_user():
 	req = request.get_json()
@@ -41,20 +41,37 @@ def search_user():
 def follow():
 	if ("auth_token" in request.cookies):
 		token = db.session.query(AuthToken).where(AuthToken.value == hash_sha1(str(request.cookies.get("auth_token"))), AuthToken.expiration_date > datetime.now(timezone.utc)).first()
-		print(request.cookies.get("auth_token"), token)
 		if token:
 			req = request.get_json()
 			to_follow_id = req.get("id")
 			if db.session.get(User, to_follow_id):
 				user = db.session.query(User).where(User.id == token.profile_id).first()
-				if user:
-					following_relationship = db.session.query(Following).where(Following.follower==user.id, Following.followed==to_follow_id).first()
-					if following_relationship: # unfollow
-						db.session.delete(following_relationship)
-					else:
-						db.session.add(Following(follower=user.id, followed=to_follow_id)) # follow
+				if user and user.id != to_follow_id:
+					db.session.add(Following(follower=user.id, followed=to_follow_id))
 					db.session.commit()
-				return jsonify({"error": None})
+					return jsonify({"error": None})
+				else:
+					return jsonify({"error": "Cannot self follow"})
+			else:
+				return jsonify({"error": "User does not exist"})
+	return jsonify({"error": "Invalid token"})
+
+
+
+@user.route("/unfollow", methods=["DELETE"])
+@safeguard
+def unfollow():
+	if ("auth_token" in request.cookies):
+		token = db.session.query(AuthToken).where(AuthToken.value == hash_sha1(str(request.cookies.get("auth_token"))), AuthToken.expiration_date > datetime.now(timezone.utc)).first()
+		if token:
+			req = request.get_json()
+			to_unfollow_id = req.get("id")
+			if db.session.get(User, to_unfollow_id):
+				user = db.session.query(User).where(User.id == token.profile_id).first()
+				if user:
+					db.session.query(Following).where(Following.follower==user.id, Following.followed==to_unfollow_id).delete()
+					db.session.commit()
+					return jsonify({"error": None})
 			else:
 				return jsonify({"error": "User does not exist"})
 	return jsonify({"error": "Invalid token"})

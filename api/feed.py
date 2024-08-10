@@ -33,6 +33,7 @@ def explore():
 	return jsonify({"error": "Invalid token"})
 
 
+
 @feed.route("/friends", methods=["POST"])
 @safeguard
 def friends_posts():
