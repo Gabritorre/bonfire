@@ -5,7 +5,7 @@ const login = {
 			password: ctx.password
 		}).then((res) => {
 			if (!res.error) {
-				window.location.pathname = "/settings";
+				window.location.pathname = "/";
 				return;
 			}
 			ctx.error = true;

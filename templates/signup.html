@@ -1,21 +1,34 @@
 {% extends "layout/auth.html" %}
 
+{% block head %}
+{{super()}}
+<script src="/js/signup.js"></script>
+{% endblock %}
+
 {% block view %}
 {{super()}}
-<div class="d-flex flex-column gap-3">
-	<input class="form-control rounded-pill" type="text" placeholder="Username" />
-	<input class="form-control rounded-pill" type="password" placeholder="Password" />
-	<input class="form-control rounded-pill" type="password" placeholder="Repeat password" />
-	<div class="progress progress-password mx-1" role="progressbar" title="Strength of the specified password">
-		<div class="progress-bar bg-danger" style="width: 25%"></div>
+<form class="d-flex flex-column gap-3 my-0" x-data="signup" @submit.prevent="submit">
+	<div class="d-flex flex-column">
+		<input class="form-control rounded-pill mb-3" type="text" placeholder="Username" x-model="handle" required />
+		<input class="form-control rounded-pill mb-3" type="password" placeholder="Password" x-model="password" required />
+		<div class="collapse" x-ref="repeat">
+			<input class="form-control rounded-pill mb-3" type="password" placeholder="Repeat password" x-model="password_repeated" required />
+			<div class="progress progress-password mx-1 mb-3" role="progressbar" title="Strength of the specified password">
+				<div class="progress-bar" :style="score"></div>
+			</div>
+		</div>
+		<div class="form-check form-switch mb-2">
+			<label class="form-check-label">
+				<input class="form-check-input" type="checkbox" role="switch" x-model="is_adv">
+				Advertiser account
+			</label>
+		</div>
+		<div class="text-danger" x-show="error">
+			<i class="bi bi-x"></i>
+			<span x-text="error"></span>
+		</div>
 	</div>
-	<div class="form-check form-switch">
-		<label class="form-check-label">
-			<input class="form-check-input" type="checkbox" role="switch">
-			Advertiser account
-		</label>
-	</div>
-</div>
-<button class="btn btn-light rounded-pill">Sign up</button>
+	<button class="btn btn-light rounded-pill" type="submit">Sign up</button>
+</form>
 <span class="my-3">Already a member? <a href="/login">Login</a>.</span>
 {% endblock %}

@@ -20,7 +20,7 @@ def signup():
 	profile = db.session.query(Profile).where(Profile.handle == handle).first()
 
 	if profile:
-		return jsonify({"error": "This username already exists"})
+		return jsonify({"error": "Username already taken"})
 	else:
 		new_profile = Profile(handle=handle, password=hash_secret(pwd), name=handle)
 		db.session.add(new_profile)
