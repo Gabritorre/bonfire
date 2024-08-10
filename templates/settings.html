@@ -1,13 +1,18 @@
 {% extends "layout/header.html" %}
 
+{% block head %}
+{{super()}}
+<script src="/js/settings.js"></script>
+{% endblock %}
+
 {% block view %}
 <div class="overflow-scroll flex-grow-1">
 	<div class="container py-5">
-		<div class="row row-cols-1 row-cols-lg-3 gy-5">
+		<form class="row row-cols-1 row-cols-lg-3 gy-5" x-data="settings" x-show="handle" @submit.prevent="submit">
 			<div class="col d-flex justify-content-center">
 				<div class="profile-picture-4 d-flex flex-column gap-3">
 					<div class="fw-bold">Profile picture</div>
-					<img class="profile-picture w-100" src="http://web.archive.org/web/20240409133415if_/https://rustacean.net/more-crabby-things/squishable-ferris.jpg" />
+					<img class="profile-picture w-100" :src="pfp" />
 				</div>
 			</div>
 			<div class="col col-lg-8">
@@ -15,19 +20,19 @@
 					<div class="col">
 						<div class="d-flex flex-column gap-2">
 							<div class="fw-bold">Handle</div>
-							<input class="form-control" type="text" placeholder="username" disabled />
+							<input class="form-control" type="text" x-model="handle" disabled />
 						</div>
 					</div>
 					<div class="col">
 						<div class="d-flex flex-column gap-2">
 							<div class="fw-bold">Name</div>
-							<input class="form-control" type="text" placeholder="Display name" />
+							<input class="form-control" type="text" placeholder="Display name" x-model="name" />
 						</div>
 					</div>
 					<div class="col">
 						<div class="d-flex flex-column gap-2">
 							<div class="fw-bold">Gender</div>
-							<select class="form-select">
+							<select class="form-select" x-model="gender">
 								<option selected hidden>Not specified</option>
 								<option value="male">Male</option>
 								<option value="female">Female</option>
@@ -38,13 +43,13 @@
 					<div class="col">
 						<div class="d-flex flex-column gap-2">
 							<div class="fw-bold">Birthday</div>
-							<input class="form-control" type="date" />
+							<input class="form-control" type="date" :value="birthday" />
 						</div>
 					</div>
 					<div class="col col-sm-12">
 						<div class="d-flex flex-column gap-2">
 							<div class="fw-bold">Bio</div>
-							<textarea class="form-control" rows="3"></textarea>
+							<textarea class="form-control" rows="3" x-model="biography"></textarea>
 						</div>
 					</div>
 					<div class="col col-sm-12">
@@ -97,7 +102,7 @@
 											<div class="d-flex flex-column gap-2">
 												<div class="fw-bold">Manage data</div>
 												<div>
-													<button class="btn btn-danger">Delete account</button>
+													<button class="btn btn-danger" @click="nuke" x-html="warn">Delete account</button>
 												</div>
 											</div>
 										</div>
@@ -107,10 +112,10 @@
 						</div>
 					</div>
 					<div class="col col-sm-12 text-end">
-						<button class="btn btn-light rounded-pill">Save</button>
+						<button class="btn btn-light rounded-pill" type="submit">Save</button>
 					</div>
 				</div>
-			</div>
+			</form>
 		</div>
 	</div>
 </div>

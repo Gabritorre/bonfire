@@ -13,9 +13,10 @@ def get_user_settings():
 	if ("auth_token" in request.cookies):
 		token = db.session.query(AuthToken).where(AuthToken.value == hash_sha1(str(request.cookies.get("auth_token"))), AuthToken.expiration_date > datetime.now(timezone.utc)).first()
 		if token:
-			profile = db.session.query(User).where(User.id == token.profile_id).first()
-			if profile:
-				return jsonify({"error": None, "data": user_settings_schema.dump(profile)})
+			user = db.session.query(User).where(User.id == token.profile_id).first()
+			if user:
+				return jsonify({"error": None, "user": user_settings_schema.dump(user)})
+			return jsonify({"error": "User profile not found"})
 	return jsonify({"error": "Invalid token"})
 
 

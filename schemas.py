@@ -34,7 +34,7 @@ class UserSchema(ma.SQLAlchemyAutoSchema):
 class UserSettingsSchema(ma.SQLAlchemyAutoSchema):
 	class Meta:
 		model = User
-		fields = ("display_name", "username", "gender", "biography", "birthday", "interests")
+		fields = ("display_name", "username", "pfp", "gender", "biography", "birthday", "interests")
 
 	interests = fields.Method("get_interests_list")
 	username = fields.String(attribute="profile.handle", data_key="username")
