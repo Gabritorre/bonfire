@@ -7,13 +7,13 @@
 
 {% block view %}
 {{super()}}
-<form class="d-flex flex-column gap-3 my-0" x-data="{handle: '', password: '', error: false}" @submit.prevent="login.submit($data)">
+<form class="d-flex flex-column gap-3 my-0" x-data="login" @submit.prevent="submit">
 	<div class="d-flex flex-column">
 		<input class="form-control rounded-pill mb-3" type="text" placeholder="Username" x-model="handle" required />
 		<input class="form-control rounded-pill mb-2" type="password" placeholder="Password" x-model="password" required />
 		<div class="text-danger" x-show="error">
 			<i class="bi bi-x"></i>
-			Invalid credentials
+			<span x-text="error"></span>
 		</div>
 	</div>
 	<button class="btn btn-light rounded-pill" type="submit">Login</button>

@@ -46,18 +46,11 @@ def login():
 	pwd = req.get("password")
 	profile = db.session.query(Profile).where(Profile.handle == handle).first()
 
-	if profile:
-		if verify_secret(pwd, profile.password):
-			if db.session.query(Advertiser).where(Advertiser.id == profile.id).first():
-				res = jsonify({"error": None, "is_adv": True})
-			else:
-				res = jsonify({"error": None, "is_adv": False})
-		else:
-			return jsonify({"error": "Wrong password"})
-	else:
-		return jsonify({"error": "User not found"})
-	set_auth_token(profile, res)
-	return res
+	if profile and verify_secret(pwd, profile.password):
+		res = jsonify({"error": None})
+		set_auth_token(profile, res)
+		return res
+	return jsonify({"error": "Invalid credentials"})
 
 
 
