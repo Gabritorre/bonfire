@@ -1,14 +1,15 @@
 import enum as py_enum
 from datetime import datetime
-from sqlalchemy import Boolean, Enum, Float, Integer, String, DateTime, ForeignKey, Text, func
+from sqlalchemy import Boolean, Enum, Float, Integer, String, DateTime, ForeignKey, Text, func, CheckConstraint, Index
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship, backref
 
 NAME_LENGTH = 20
 TOKEN_LENGTH = 40
 SECRET_LENGTH = 60
+BODY_LENGTH = 420
 DATE_FORMAT = "%Y-%m-%d"	#YYYY-MM-DD
 
-# CREATE TYPE GenderEnum AS ENUM ('male', 'female', 'other')
+# CREATE TYPE GenderEnum AS ENUM ("male", "female", "other")
 class GenderEnum(str, py_enum.Enum):
 	MALE = "male"
 	FEMALE = "female"
@@ -47,11 +48,14 @@ class AdCampaign(Base):
 
 	name: Mapped[str] = mapped_column(String(NAME_LENGTH), nullable=False)
 	budget: Mapped[float] = mapped_column(Float, nullable=False)
-	start: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
-	end: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+	start_date: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+	end_date: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
 	advertiser: Mapped[Advertiser] = relationship(backref=backref("advertisers", cascade="all, delete"), passive_deletes=True)
 
+	__table_args__ = (
+		CheckConstraint("start_date < end_date", name="check_start_before_end"),
+	)
 
 
 class Ad(Base):
@@ -65,6 +69,9 @@ class Ad(Base):
 
 	ad_campaign: Mapped[AdCampaign] = relationship(backref=backref("ad_campaigns", cascade="all, delete"), passive_deletes=True)
 
+	__table_args__ = (
+		CheckConstraint("probability >= 0 AND probability <= 1", name="check_probability_range"),
+	)
 
 
 class DailyStat(Base):
@@ -106,10 +113,10 @@ class User(Base):
 	gender: Mapped[GenderEnum] = mapped_column(Enum(GenderEnum), nullable=True)
 	pfp: Mapped[str] = mapped_column(Text, nullable=True)
 	banner: Mapped[str] = mapped_column(Text, nullable=True)
-	biography: Mapped[str] = mapped_column(String(420), nullable=True)
+	biography: Mapped[str] = mapped_column(String(BODY_LENGTH), nullable=True)
 	birthday: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=True)
 
-	profile: Mapped[Profile] = relationship(backref=backref("user_profile", cascade="all, delete"), passive_deletes=True, lazy='joined', single_parent=True)
+	profile: Mapped[Profile] = relationship(backref=backref("user_profile", cascade="all, delete"), passive_deletes=True, lazy="joined", single_parent=True)
 
 
 class Interest(Base):
@@ -122,6 +129,9 @@ class Interest(Base):
 	user: Mapped[User] = relationship(backref=backref("users", cascade="all, delete"), passive_deletes=True)
 	tag: Mapped[Tag] = relationship(backref=backref("tags", cascade="all, delete"), passive_deletes=True)
 
+	__table_args__ = (
+		CheckConstraint("interest >= 0", name="check_interest_range"),
+	)
 
 
 class AuthToken(Base):
@@ -137,20 +147,23 @@ class AuthToken(Base):
 
 class Post(Base):
 	__tablename__ = "posts"
-	id: Mapped[int] = mapped_column(Integer, autoincrement=True, primary_key=True)
+	id: Mapped[int] = mapped_column(Integer, autoincrement=True, primary_key=True, index=True)
 	user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="cascade"))
 
-	body: Mapped[str] = mapped_column(String(420), nullable=True) # aggiungere vincolo (body || media)
+	body: Mapped[str] = mapped_column(String(BODY_LENGTH), nullable=True)
 	media: Mapped[str] = mapped_column(Text, nullable=True)
 	date: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
 	user: Mapped[User] = relationship(backref=backref("users_post", cascade="all, delete"), passive_deletes=True)
 
+	__table_args__ = (
+		CheckConstraint("body IS NOT NULL OR media IS NOT NULL", name="check_body_or_media"),
+	)
 
 
 class PostTag(Base):
 	__tablename__ = "post_tags"
-	post_id: Mapped[int] = mapped_column(ForeignKey("posts.id", ondelete="cascade"), primary_key=True)
+	post_id: Mapped[int] = mapped_column(ForeignKey("posts.id", ondelete="cascade"), primary_key=True, index=True)
 	tag_id: Mapped[int] = mapped_column(ForeignKey("tags.id", ondelete="cascade"), primary_key=True)
 
 	post: Mapped[Post] = relationship(backref=backref("posts", cascade="all, delete"), passive_deletes=True)
@@ -162,9 +175,9 @@ class Comment(Base):
 	__tablename__ = "comments"
 	id: Mapped[int] = mapped_column(Integer, autoincrement=True, primary_key=True)
 	user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="cascade"))
-	post_id: Mapped[int] = mapped_column(ForeignKey("posts.id", ondelete="cascade"))
+	post_id: Mapped[int] = mapped_column(ForeignKey("posts.id", ondelete="cascade"), index=True)
 
-	body: Mapped[str] = mapped_column(String(420), nullable=True)
+	body: Mapped[str] = mapped_column(String(BODY_LENGTH), nullable=True)
 	date: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
 	user: Mapped[User] = relationship(backref=backref("users_comment", cascade="all, delete"), passive_deletes=True)
@@ -175,9 +188,8 @@ class Comment(Base):
 class Like(Base):
 	__tablename__ = "likes"
 	user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="cascade"), primary_key=True)
-	post_id: Mapped[int] = mapped_column(ForeignKey("posts.id", ondelete="cascade"), primary_key=True)
+	post_id: Mapped[int] = mapped_column(ForeignKey("posts.id", ondelete="cascade"), primary_key=True, index=True)
 
-	liked: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
 	date: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
 	user: Mapped[User] = relationship(backref=backref("users_like", cascade="all, delete"), passive_deletes=True)
@@ -192,3 +204,9 @@ class Following(Base):
 
 	user1: Mapped[User] = relationship(backref=backref("users1", cascade="all, delete"), primaryjoin="Following.follower == User.id", passive_deletes=True)
 	user2: Mapped[User] = relationship(backref=backref("users2", cascade="all, delete"), primaryjoin="Following.followed == User.id", passive_deletes=True)
+
+	__table_args__ = (
+		Index("index_follower_followed", "follower", "followed"),
+		Index("indexx_followed_follower", "followed", "follower"),
+		CheckConstraint("follower <> followed", name="check_self_follow"),
+	)
