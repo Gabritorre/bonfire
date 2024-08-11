@@ -3,9 +3,10 @@
 	--post-width: 600px;
 	--post-media-ratio: 5/3;
 	--profile-picture-1: 35px;
-	--profile-picture-2: 50px;
-	--profile-picture-3: 150px;
-	--profile-picture-4: 225px;
+	--profile-picture-2: 40px;
+	--profile-picture-3: 50px;
+	--profile-picture-4: 150px;
+	--profile-picture-5: 225px;
 	--transition: .15s ease-in-out;
 }
 
@@ -29,11 +30,15 @@ textarea {
 }
 
 .profile-picture-3 {
-	width: var(--profile-picture-3)
+	width: var(--profile-picture-3);
 }
 
 .profile-picture-4 {
-	width: var(--profile-picture-4);
+	width: var(--profile-picture-4)
+}
+
+.profile-picture-5 {
+	width: var(--profile-picture-5);
 }
 
 .progress-password {

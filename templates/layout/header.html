@@ -3,25 +3,46 @@
 {% block head %}
 {{super()}}
 <link rel="stylesheet" href="/css/header.css" />
+<script src="/js/header.js"></script>
 {% endblock %}
 
 {% block body %}
 {{super()}}
 <div class="d-flex flex-column vh-100">
-	<header class="bg-dark-subtle py-3 border-bottom">
+	<header class="bg-dark-subtle py-3 border-bottom" x-data="header">
 		<div class="container d-flex align-items-center justify-content-center justify-content-md-between">
-			<div class="col-md-3">
-				<a class="d-inline-flex align-items-center text-reset text-decoration-none gap-2" href="/">
-					<img src="/favicon.png" width="40" />
-					<span class="d-none d-sm-inline fs-5 fw-bold">App</span>
-				</a>
-			</div>
+			<a class="col-md-3 d-inline-flex align-items-center text-reset text-decoration-none gap-2" href="/">
+				<img class="profile-picture profile-picture-2" src="/favicon.png" />
+				<span class="d-none d-sm-inline fs-5 fw-bold">App</span>
+			</a>
 
-			<input class="form-control mx-2 mx-sm-4 rounded-pill" type="search" placeholder="Search..." title="Search for your friends" />
+			<input class="form-control mx-3 mx-sm-4 rounded-pill" type="search" placeholder="Search..." title="Search for your friends" />
 
-			<div class="col-md-3 d-flex justify-content-end gap-2">
-				<a class="btn btn-outline-light rounded-pill" href="/login">Login</a>
-				<a class="btn btn-light rounded-pill" href="/signup">Sign up</a>
+			<div class="col-md-3 d-flex justify-content-end">
+				<div class="d-flex flex-nowrap gap-2" x-show.important="logged === false">
+					<a class="btn btn-outline-light rounded-pill" href="/login">Login</a>
+					<a class="btn btn-light rounded-pill" href="/signup">Sign up</a>
+				</div>
+				<div x-show="logged === true">
+					<button class="btn border border-0 dropdown-toggle p-0" data-bs-toggle="dropdown" title="Open profile menu">
+						<img class="profile-picture profile-picture-2 border" :src="pfp" x-show="!is_adv" />
+						<i class="bi bi-card-heading fs-4" x-show="is_adv"></i>
+					</button>
+					<ul class="dropdown-menu dropdown-menu-end">
+						<li x-show="!is_adv">
+							<a class="dropdown-item btn btn-dark" :href="'/profile?id=' + id">Profile</a>
+						</li>
+						<li x-show="is_adv">
+							<a class="dropdown-item btn btn-dark" href="/dashboard">Dashboard</a>
+						</li>
+						<li>
+							<a class="dropdown-item btn btn-dark" href="/settings">Settings</a>
+						</li>
+						<li>
+							<button class="dropdown-item btn btn-dark" @click="logout">Logout</button>
+						</li>
+					</ul>
+				</div>
 			</div>
 		</div>
 	</header>

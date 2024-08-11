@@ -5,7 +5,7 @@ document.addEventListener("alpine:init", () => {
 		handle: "",
 		name: "",
 		gender: "",
-		pfp: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxIiBoZWlnaHQ9IjEiLz4K",
+		pfp: EMPTY_PFP,
 		birthday: "",
 		biography: "",
 		warn: DELETE_WARNINGS[0],

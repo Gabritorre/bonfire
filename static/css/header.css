@@ -5,3 +5,11 @@ header input[type="search"] {
 header .btn {
 	white-space: nowrap;
 }
+
+header .dropdown-toggle::after {
+	vertical-align: .4em;
+}
+
+header .dropdown-toggle:has(i[style^="display"])::after {
+	vertical-align: 0;
+}

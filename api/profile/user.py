@@ -11,11 +11,11 @@ user = Blueprint("user", __name__, url_prefix="/user")
 def get_user():
 	req = request.get_json()
 	user_id = req["id"]
-	data = db.session.get(User, user_id)
+	user = db.session.get(User, user_id)
 
-	if not data:
+	if not user:
 		return jsonify({"error": "User not found"})
-	return jsonify({"error": None, "data": user_schema.dump(data)})
+	return jsonify({"error": None, "user": user_schema.dump(user)})
 
 
 
