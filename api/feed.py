@@ -12,6 +12,7 @@ POSTS_PER_CHUNK = 2
 @safeguard
 def explore():
 	#todo: add an advertisement post every x posts
+	token = get_auth_token(request.cookies)
 	req = request.get_json()
 	last_post_id = req["last_post_id"]
 	if last_post_id:
@@ -22,8 +23,9 @@ def explore():
 	data = posts_schema.dump(posts)
 
 	# for each post check if the user liked it or not
-	for count, post in enumerate(posts):
-		data[count]['user_like'] = bool(db.session.query(Like).where(Like.post_id == post.id, Like.liked == True).count())
+	if token:
+		for count, post in enumerate(posts):
+			data[count]['user_like'] = bool(db.session.query(Like).where(Like.post_id == post.id, Like.user_id == token.profile_id).count())
 
 	return jsonify({"error": None, "data": data})
 

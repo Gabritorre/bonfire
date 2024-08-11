@@ -23,7 +23,7 @@ def create_campaign():
 		start = datetime.strptime(start, DATE_FORMAT)
 		end = datetime.strptime(end, DATE_FORMAT)
 		if start > datetime.now() and end > start:
-			db.session.add(AdCampaign(advertiser_id=adv.id, name=name, budget=budget, start=start, end=end))
+			db.session.add(AdCampaign(advertiser_id=adv.id, name=name, budget=budget, start_date=start, end_date=end))
 			db.session.commit()
 			return jsonify({"error": None})
 		else:

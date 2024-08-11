@@ -20,20 +20,21 @@ def signup():
 
 	if profile:
 		return jsonify({"error": "Username already taken"})
+	if len(pwd) < 8:
+		return jsonify({"error": "Password too short"})
+	new_profile = Profile(handle=handle, password=hash_secret(pwd), name=handle)
+	db.session.add(new_profile)
+	db.session.flush()
+	if is_adv:
+		new_advertiser = Advertiser(id=new_profile.id)
+		db.session.add(new_advertiser)
 	else:
-		new_profile = Profile(handle=handle, password=hash_secret(pwd), name=handle)
-		db.session.add(new_profile)
-		db.session.flush()
-		if is_adv:
-			new_advertiser = Advertiser(id=new_profile.id)
-			db.session.add(new_advertiser)
-		else:
-			new_user = User(id=new_profile.id)
-			db.session.add(new_user)
-		db.session.commit()
-		res = jsonify({"error": None})
-		set_auth_token(new_profile, res)
-		return res
+		new_user = User(id=new_profile.id)
+		db.session.add(new_user)
+	db.session.commit()
+	res = jsonify({"error": None})
+	set_auth_token(new_profile, res)
+	return res
 
 
 
