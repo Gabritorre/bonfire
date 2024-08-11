@@ -2,8 +2,9 @@ from flask import Response
 from config import db, snowflake
 from models import Profile, AuthToken
 from bcrypt import hashpw, gensalt, checkpw
+from werkzeug.datastructures import ImmutableMultiDict
 from hashlib import sha1
-from datetime import timedelta
+from datetime import datetime, timedelta, timezone
 
 def hash_secret(pwd: str) -> str:
 	return hashpw(pwd.encode("utf-8"), gensalt()).decode("utf-8")
@@ -24,3 +25,10 @@ def set_auth_token(profile: Profile, res: Response) -> None:
 	db.session.commit()
 
 	res.set_cookie("auth_token", str(sf), expires=expiration_date)
+
+def get_auth_token(cookies: ImmutableMultiDict[str, str]) -> AuthToken | None:
+	token = "auth_token" in cookies and db.session.query(AuthToken).where(AuthToken.value == hash_sha1(str(cookies.get("auth_token"))), AuthToken.expiration_date > datetime.now(timezone.utc)).first()
+	if token:
+		return token
+	else:
+		return None

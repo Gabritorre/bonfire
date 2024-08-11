@@ -1,30 +1,32 @@
 from flask import Blueprint, jsonify, request
 from config import db, safeguard
-from models import DATE_FORMAT, AdCampaign, Advertiser, AuthToken
-from datetime import datetime, timezone
-from api.utils import hash_sha1
+from models import DATE_FORMAT, AdCampaign, Advertiser
+from datetime import datetime
+from api.utils import get_auth_token
 
 adv = Blueprint("adv", __name__, url_prefix="/adv")
 
 @adv.route("/campaign", methods=["PUT"])
 @safeguard
 def create_campaign():
-	if ("auth_token" in request.cookies):
-		token = db.session.query(AuthToken).where(AuthToken.value == hash_sha1(str(request.cookies.get("auth_token"))), AuthToken.expiration_date > datetime.now(timezone.utc)).first()
-		if token:
-			adv = db.session.query(Advertiser).where(Advertiser.id == token.profile_id).first()
-			if adv:
-				req = request.get_json()
-				name = req.get("name")
-				budget = req.get("budget")
-				start = req.get("start")
-				end = req.get("end")
-				if name and budget and start and end:
-					start = datetime.strptime(start, DATE_FORMAT)
-					end = datetime.strptime(end, DATE_FORMAT)
-					if start > datetime.now() and end > start:
-						db.session.add(AdCampaign(advertiser_id=adv.id, name=name, budget=budget, start=start, end=end))
-						db.session.commit()
-						return jsonify({"error": None})
-				return jsonify({"error": "Invalid Json content"})
-	return jsonify({"error": "Invalid token"})
+	token = get_auth_token(request.cookies)
+	if not token:
+		return jsonify({"error": "Invalid token"})
+
+	req = request.get_json()
+	name = req["name"]
+	budget = req["budget"]
+	start = req["start"]
+	end = req["end"]
+	adv = db.session.query(Advertiser).where(Advertiser.id == token.profile_id).first()
+	if adv:
+		start = datetime.strptime(start, DATE_FORMAT)
+		end = datetime.strptime(end, DATE_FORMAT)
+		if start > datetime.now() and end > start:
+			db.session.add(AdCampaign(advertiser_id=adv.id, name=name, budget=budget, start=start, end=end))
+			db.session.commit()
+			return jsonify({"error": None})
+		else:
+			return jsonify({"error": "End date is previous to start date"})
+	else:
+		return jsonify({"error": "Advertiser not found"})
