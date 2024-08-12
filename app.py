@@ -1,12 +1,11 @@
 import os
 from api import api
 from flask import render_template, send_from_directory
-from config import app, engine, db, ma
+from config import app
 from models import *
 
 app.register_blueprint(api)
 
-Base.metadata.create_all(bind=engine)
 
 @app.route("/", defaults={"path": "index"})
 @app.route("/<path:path>")

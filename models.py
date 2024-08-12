@@ -1,6 +1,6 @@
 import enum as py_enum
 from datetime import datetime
-from sqlalchemy import Boolean, Enum, Float, Integer, String, DateTime, ForeignKey, Text, func, CheckConstraint, Index
+from sqlalchemy import Enum, Float, Integer, Numeric, String, DateTime, ForeignKey, Text, func, CheckConstraint, Index
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship, backref
 
 NAME_LENGTH = 20
@@ -47,7 +47,7 @@ class AdCampaign(Base):
 	advertiser_id: Mapped[int] = mapped_column(ForeignKey("advertisers.id", ondelete="cascade"))
 
 	name: Mapped[str] = mapped_column(String(NAME_LENGTH), nullable=False)
-	budget: Mapped[float] = mapped_column(Float, nullable=False)
+	budget: Mapped[float] = mapped_column(Numeric(12, 2), nullable=False)
 	start_date: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 	end_date: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
@@ -55,6 +55,7 @@ class AdCampaign(Base):
 
 	__table_args__ = (
 		CheckConstraint("start_date < end_date", name="check_start_before_end"),
+		CheckConstraint("budget >= 0", name="check_budget_positive"),
 	)
 
 
