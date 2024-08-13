@@ -1,10 +1,13 @@
+import os
 from flask import Response
-from config import db, snowflake
+from config import db, snowflake, app
 from models import Interest, PostTag, Profile, AuthToken
 from bcrypt import hashpw, gensalt, checkpw
 from werkzeug.datastructures import ImmutableMultiDict
 from hashlib import sha1
 from datetime import datetime, timedelta, timezone
+
+ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif"}
 
 def hash_secret(pwd: str) -> str:
 	return hashpw(pwd.encode("utf-8"), gensalt()).decode("utf-8")
@@ -46,3 +49,17 @@ def update_interests(user_id: int, post_id: int, inc: float, dec: float) -> None
 
 	decreasing_interests = interests - increasing_interests
 	db.session.query(Interest).where(Interest.tag_id.in_(decreasing_interests)).update({Interest.interest: Interest.interest - dec})
+
+
+def save_file(file) -> str:
+	original_filename = file.filename
+	if '.' in original_filename:
+		extension = original_filename.rsplit('.', 1)[1].lower()
+		if extension in ALLOWED_EXTENSIONS:
+			sf = snowflake.generate()
+			hashed_sf = hash_sha1(f"{sf}")
+			new_filename = hashed_sf + "." + extension
+			file.save(os.path.join(app.config['UPLOAD_FOLDER'], new_filename))
+			return new_filename
+	raise ValueError("Invalid file extension")
+

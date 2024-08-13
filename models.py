@@ -8,6 +8,7 @@ TOKEN_LENGTH = 40
 SECRET_LENGTH = 60
 BODY_LENGTH = 420
 DATE_FORMAT = "%Y-%m-%d"	#YYYY-MM-DD
+DATE_TIME_FORMAT = "%Y-%m-%d %H:%M:%S"	#YYYY-MM-DD HH:MM:SS
 
 # CREATE TYPE GenderEnum AS ENUM ("male", "female", "other")
 class GenderEnum(str, py_enum.Enum):

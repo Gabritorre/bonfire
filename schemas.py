@@ -59,6 +59,17 @@ class TagSchema(ma.SQLAlchemyAutoSchema):
 	class Meta:
 		model = Tag
 
+class SimplePostSchema(ma.SQLAlchemyAutoSchema):
+	class Meta:
+		model = Post
+		fields = ("id", "body", "media", "date", "tags")
+
+	tags = fields.Method("get_tags_list")
+
+	def get_tags_list(self, post_instance):
+		tags_list = db.session.query(Tag).join(PostTag).where(PostTag.post_id == post_instance.id).all()
+		return [{"id": tag.id, "tag": tag.tag} for tag in tags_list]
+
 class PostSchema(ma.SQLAlchemyAutoSchema):
 	class Meta:
 		model = Post
@@ -100,6 +111,7 @@ users_schema = UserSchema(many=True)
 id_username_schema = UserIdUsernameSchema(many=True)
 tags_schema = TagSchema(many=True)
 user_settings_schema = UserSettingsSchema()
+post_schema = SimplePostSchema()
 posts_schema = PostSchema(many = True)
 ads_schema = AdsSchema(many = True)
 ad_schema = AdSchema()
