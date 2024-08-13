@@ -6,10 +6,15 @@ const api = {
 			method: method,
 			headers: {
 				"Accept": "application/json",
-				"Content-Type": "application/json"
 			},
-			body: body ? JSON.stringify(body) : null
+			body: body
 		};
+
+		if (body?.constructor?.name === "Object") {
+			options.headers["Content-Type"] = "application/json";
+			options.body = JSON.stringify(body);
+		}
+
 		return fetch(url, options).then((res) => {
 			if (res.headers.get("content-type") != "application/json") {
 				return null;

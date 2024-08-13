@@ -1,28 +1,34 @@
 document.addEventListener("alpine:init", () => {
 	Alpine.data("header", () => ({
-		id: null,
-		pfp: EMPTY_PFP,
-		is_adv: false,
-		logged: null,
+		authenticated: null,
+		account: {
+			id: null,
+			handle: null,
+			name: null,
+			pfp: EMPTY_PFP,
+			is_adv: false
+		},
 
 		init() {
 			api.fetch("GET", "/api/profile").then((res) => {
-				this.logged = res.error == null;
+				this.authenticated = res.error == null;
 				if (res.error) {
 					return;
 				}
 
-				this.id = res.id;
-				this.is_adv = res.is_adv ?? this.is_adv;
-				if (this.is_adv) {
+				this.account.id = res.id;
+				this.account.is_adv = res.is_adv;
+				if (this.account.is_adv) {
 					return null;
 				}
-				return api.fetch("POST", "/api/profile/user", {id: res.id});
+				return api.fetch("POST", "/api/profile/user", {id: this.account.id});
 			}).then((res) => {
 				if (!res || res.error) {
 					return;
 				}
-				this.pfp = res.user.pfp ?? this.pfp;
+				this.account.pfp = res.user.pfp ?? this.account.pfp;
+				this.account.handle = res.user.username;
+				this.account.name = res.user.display_name;
 			});
 		},
 

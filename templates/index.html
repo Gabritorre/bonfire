@@ -3,11 +3,12 @@
 {% block head %}
 {{super()}}
 <link rel="stylesheet" href="/css/index.css" />
+<script src="/js/index.js"></script>
 {% endblock %}
 
 {% block view %}
 {{super()}}
-<div class="overflow-scroll flex-grow-1">
+<div class="overflow-scroll flex-grow-1" x-data="index">
 	<div class="container d-flex justify-content-center">
 		<div class="feed row row-cols-1 gy-3 gx-0 mb-3">
 			<div class="col pt-2">
@@ -21,12 +22,12 @@
 										<button class="nav-link active" title="See what the world is up to">Explore</button>
 									</li>
 									<li class="nav-item">
-										<button class="nav-link text-muted" title="See what your friends are up to">Friends</button>
+										<button class="nav-link text-muted" title="See what your friends are up to" :disabled="!authenticated || account.is_adv">Friends</button>
 									</li>
 								</ul>
 							</div>
 							<div class="col d-flex justify-content-end">
-								<button class="btn btn-dark rounded-circle collapsed" title="Share your thoughts" data-bs-toggle="collapse" data-bs-target="#section-send-content">
+								<button class="btn btn-dark rounded-circle collapsed" title="Share your thoughts" data-bs-toggle="collapse" data-bs-target="#section-send-content" x-show="authenticated && !account.is_adv">
 									<div class="collapse-fade-icons">
 										<i class="bi bi-pen"></i>
 										<i class="bi bi-pen-fill"></i>
@@ -39,19 +40,19 @@
 								<div class="col">
 									<div class="row">
 										<div class="col d-flex align-items-center">
-											<img class="profile-picture profile-picture-1 me-2" src="http://web.archive.org/web/20240409133415if_/https://rustacean.net/more-crabby-things/squishable-ferris.jpg" />
-											<div class="fw-bold">Ferris the Crab</div>
+											<img class="profile-picture profile-picture-1 me-2" :src="account.pfp" />
+											<div class="fw-bold" x-text="account.name ?? account.handle"></div>
 										</div>
 										<div class="col-auto">
-											<button class="btn btn-light rounded-pill">Post</button>
+											<button class="btn btn-light rounded-pill" @click="post">Post</button>
 										</div>
 									</div>
 								</div>
 								<div class="col mt-3">
-									<textarea class="form-control" rows="3"></textarea>
+									<textarea class="form-control" rows="3" x-model="draft.body"></textarea>
 								</div>
 								<div class="col mt-3">
-									<input class="form-control" type="file" />
+									<input class="form-control" type="file" x-ref="media" />
 								</div>
 								<div class="col mt-3">
 									<div class="row g-2">

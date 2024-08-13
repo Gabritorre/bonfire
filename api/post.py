@@ -1,6 +1,7 @@
+import json
 from flask import Blueprint, jsonify, request
 from config import db, safeguard
-from models import Comment, Post, PostTag, Profile, User,Like
+from models import BODY_LENGTH, Comment, Post, PostTag, Profile, User, Like
 from datetime import timezone
 from .utils import get_auth_token, update_interests
 
@@ -13,11 +14,11 @@ def create_post():
 	if not token:
 		return jsonify({"error": "Invalid token"})
 
-	req = request.get_json()
+	req = json.loads(request.form["json"])
 	body = req["body"]
 	tags = req["tags"]
-	# TODO: media = req["media"]
-	if len(body) > 420:
+	media = request.files["media"]	# TODO: Save media in app.config["UPLOAD_FOLDER"] and set url
+	if len(body) > BODY_LENGTH:
 		return jsonify({"error": "Post body is too long"})
 
 	post = Post(user_id=token.profile_id, body=body)
@@ -26,7 +27,7 @@ def create_post():
 	for tag in tags:
 		db.session.add(PostTag(post_id=post.id, tag_id=tag))
 	db.session.commit()
-	return jsonify({"error": None})
+	return jsonify({"error": None})	# TODO: Return post data
 
 
 

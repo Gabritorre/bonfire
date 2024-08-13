@@ -10,7 +10,7 @@
 <form class="d-flex flex-column gap-3 my-0" x-data="signup" @submit.prevent="submit">
 	<div class="d-flex flex-column">
 		<input class="form-control rounded-pill mb-3" type="text" placeholder="Username" x-model="handle" required />
-		<input class="form-control rounded-pill mb-3" type="password" placeholder="Password" x-model="password" required />
+		<input class="form-control rounded-pill mb-3" type="password" minlength="8" placeholder="Password" x-model="password" required />
 		<div class="collapse" x-ref="repeat">
 			<input class="form-control rounded-pill mb-3" type="password" placeholder="Repeat password" x-model="password_repeated" required />
 			<div class="progress progress-password mx-1 mb-3" role="progressbar" title="Strength of the specified password">

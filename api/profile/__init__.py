@@ -22,7 +22,7 @@ def signup():
 		return jsonify({"error": "Username already taken"})
 	if len(pwd) < 8:
 		return jsonify({"error": "Password too short"})
-	new_profile = Profile(handle=handle, password=hash_secret(pwd), name=handle)
+	new_profile = Profile(handle=handle, password=hash_secret(pwd))
 	db.session.add(new_profile)
 	db.session.flush()
 	if is_adv:
