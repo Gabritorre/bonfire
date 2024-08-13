@@ -32,8 +32,6 @@ def create_campaign():
 	else:
 		return jsonify({"error": "Advertiser not found"})
 
-#-------------------------------------------------
-	
 
 @adv.route("/ads", methods=["POST"])
 @safeguard
@@ -67,7 +65,7 @@ def get_ad():
 	adv = db.session.query(Advertiser).where(Advertiser.id == token.profile_id).first()
 	if not adv:
 		return jsonify({"error": "Not an advertiser profile"})
-	
+
 	ad = db.session.query(Ad).where(Ad.id == ad_id).first()
 	if not ad:
 		return jsonify({"error": "Ad doesn't exist"})
@@ -77,7 +75,6 @@ def get_ad():
 
 	return jsonify({"error": None, "ad": ad_schema.dump(ad)})
 
-		
 
 @adv.route("/ad", methods=["DELETE"])
 @safeguard

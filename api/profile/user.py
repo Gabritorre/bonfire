@@ -84,17 +84,10 @@ def unfollow():
 def get_followers():
 	req = request.get_json()
 	user_id = req["id"]
+	
+	followers = db.session.query(User).join(Following, Following.follower == User.id).where(Following.followed == user_id).all()
 
-	followers = (db.session.query(Following.follower.label("follower_id"), Profile.handle, Profile.name, User.pfp)
-			  .join(User, Following.follower == User.id).join(Profile, Profile.id == User.id)
-			  .where(Following.followed==user_id)
-			  .all())
-
-	return jsonify({
-		"followers": [{"id": follower.follower_id, "handle": follower.handle, "name": follower.name, "pfp": follower.pfp} for follower in followers],
-		"error": None
-	})
-
+	return jsonify({"followers" : id_username_schema.dump(followers), "error": None})
 
 
 @user.route("/followed", methods=["POST"])
@@ -102,13 +95,7 @@ def get_followers():
 def get_followed():
 	req = request.get_json()
 	user_id = req["id"]
+	
+	followed = db.session.query(User).join(Following, Following.followed == User.id).where(Following.follower == user_id).all()
 
-	followed = (db.session.query(Following.followed.label("followed_id"), Profile.handle, Profile.name, User.pfp)
-			  .join(User, Following.followed == User.id).join(Profile, Profile.id == User.id)
-			  .where(Following.follower==user_id)
-			  .all())
-
-	return jsonify({
-		"followed": [{"id": followed_user.followed_id, "handle": followed_user.handle, "name": followed_user.name, "pfp": followed_user.pfp} for followed_user in followed],
-		"error": None
-	})
+	return jsonify({"followed": id_username_schema.dump(followed), "error": None})

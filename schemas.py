@@ -10,9 +10,9 @@ class ProfileSchema(ma.SQLAlchemyAutoSchema):
 class UserSchema(ma.SQLAlchemyAutoSchema):
 	class Meta:
 		model = User
-		fields = ("username", "display_name", "gender", "pfp", "banner", "biography", "birthday", "follower", "following", "interests")
+		fields = ("handle", "display_name", "gender", "pfp", "banner", "biography", "birthday", "follower", "following", "interests")
 
-	username = fields.String(attribute="profile.handle", data_key="username")
+	handle = fields.String(attribute="profile.handle", data_key="handle")
 	display_name = fields.String(attribute="profile.name", data_key="display_name")
 	follower = fields.Method("get_follower_count_field")
 	following = fields.Method("get_following_count_field")
@@ -34,10 +34,10 @@ class UserSchema(ma.SQLAlchemyAutoSchema):
 class UserSettingsSchema(ma.SQLAlchemyAutoSchema):
 	class Meta:
 		model = User
-		fields = ("display_name", "username", "pfp", "gender", "biography", "birthday", "interests")
+		fields = ("display_name", "handle", "pfp", "gender", "biography", "birthday", "interests")
 
 	interests = fields.Method("get_interests_list")
-	username = fields.String(attribute="profile.handle", data_key="username")
+	handle = fields.String(attribute="profile.handle", data_key="handle")
 	display_name = fields.String(attribute="profile.name", data_key="display_name")
 
 	def get_interests_list(self, user_instance):
@@ -50,7 +50,10 @@ class UserSettingsSchema(ma.SQLAlchemyAutoSchema):
 class UserIdUsernameSchema(ma.SQLAlchemySchema):
 	class Meta:
 		model = User
-		fields = ("id", "pfp", "profile.handle")
+		fields = ("id", "pfp", "handle", "display_name")
+
+	handle = fields.String(attribute="profile.handle", data_key="handle")
+	display_name = fields.String(attribute="profile.name", data_key="display_name")
 
 class TagSchema(ma.SQLAlchemyAutoSchema):
 	class Meta:
@@ -83,14 +86,14 @@ class AdSchema(ma.SQLAlchemyAutoSchema):
 	class Meta:
 		model = Ad
 		fields = ("id", "ad_campaign_id", "name", "media", "link", "probability", "date", "daily_stats")
-	
+
 	daily_stats = fields.Method("get_daily_stats_list")
 
 	def get_daily_stats_list(self, ad_instance):
 		daily_stats_list = db.session.query(DailyStat).where(DailyStat.ad_id == ad_instance.id).all()
 		return [{"date": ds.date.strftime(DATE_FORMAT), "impressions": ds.impressions, "readings": ds.readings, "clicks": ds.clicks} for ds in daily_stats_list]
 
-	
+
 profile_schema = ProfileSchema()
 user_schema = UserSchema()
 users_schema = UserSchema(many=True)
