@@ -3,12 +3,11 @@
 {% block head %}
 {{super()}}
 <link rel="stylesheet" href="/css/header.css" />
-<script src="/js/header.js"></script>
 {% endblock %}
 
 {% block body %}
 {{super()}}
-<div class="d-flex flex-column vh-100" x-data="header">
+<div class="d-flex flex-column vh-100">
 	<header class="bg-dark-subtle py-3 border-bottom">
 		<div class="container d-flex align-items-center justify-content-center justify-content-md-between">
 			<a class="col-md-3 d-inline-flex align-items-center text-reset text-decoration-none gap-2" href="/">

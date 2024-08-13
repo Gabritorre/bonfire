@@ -39,7 +39,7 @@ document.addEventListener("alpine:init", () => {
 				return;
 			}
 
-			api.fetch("PUT", "/api/profile/signup", {
+			this.fetch("PUT", "/api/profile/signup", {
 				handle: this.handle,
 				password: this.password,
 				is_adv: this.is_adv

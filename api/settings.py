@@ -32,17 +32,24 @@ def set_user_settings():
 	new_display_name = req["display_name"]
 	new_gender = req["gender"]
 	new_biography = req["biography"]
-	new_birthdate = req["birthday"]
+	new_birthday = req["birthday"]
 	new_password = req["password"]
 	new_interests = req["interests"]
-	if new_display_name:
-		db.session.query(Profile).where(Profile.id == token.profile_id).update({"name": new_display_name})
+
+	db.session.query(Profile).where(Profile.id == token.profile_id).update({"name": new_display_name or None})
+	db.session.query(User).where(User.id == token.profile_id).update({"biography": new_biography or None})
+
+	date = None
+	if new_birthday:
+		if datetime.strptime(new_birthday, DATE_FORMAT) < datetime.now():
+			date = datetime.strptime(new_birthday, DATE_FORMAT)
+		else:
+			return jsonify({"error": "Invalid birthday date"})
+
+	db.session.query(User).where(User.id == token.profile_id).update({"birthday": date})
+
 	if new_gender in ["male", "female", "other"]:
 		db.session.query(User).where(User.id == token.profile_id).update({"gender": new_gender})
-	if new_biography:
-		db.session.query(User).where(User.id == token.profile_id).update({"biography":new_biography})
-	if new_birthdate and datetime.strptime(new_birthdate, DATE_FORMAT) < datetime.now():
-		db.session.query(User).where(User.id == token.profile_id).update({"birthday": datetime.strptime(new_birthdate, DATE_FORMAT)})
 	if new_password:
 		db.session.query(Profile).where(Profile.id == token.profile_id).update({"password": hash_secret(new_password)})
 	if new_interests:
@@ -56,5 +63,6 @@ def set_user_settings():
 		if interests_to_add:
 			for interest in interests_to_add:
 				db.session.add(Interest(user_id=token.profile_id, tag_id=interest, interest=1.0))
+
 	db.session.commit()
 	return jsonify({"error": None})

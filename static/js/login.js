@@ -5,7 +5,7 @@ document.addEventListener("alpine:init", () => {
 		error: "",
 
 		submit() {
-			api.fetch("POST", "/api/profile/login", {
+			this.fetch("POST", "/api/profile/login", {
 				handle: this.handle,
 				password: this.password
 			}).then((res) => {

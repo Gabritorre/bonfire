@@ -2,16 +2,19 @@ const DELETE_WARNINGS = ["Delete account", "Are you sure?", "Are you <strong>rea
 
 document.addEventListener("alpine:init", () => {
 	Alpine.data("settings", () => ({
-		handle: "",
-		name: "",
-		gender: "",
+		handle: null,
+		name: null,
+		gender: null,
 		pfp: EMPTY_PFP,
-		birthday: "",
-		biography: "",
+		birthday: null,
+		biography: null,
+		password: null,
+		tags: [],
 		warn: DELETE_WARNINGS[0],
+		error: null,
 
 		init() {
-			api.fetch("GET", "/api/settings/user").then((res) => {
+			this.fetch("GET", "/api/settings/user").then((res) => {
 				const user = res.user;
 				this.handle = user.username;
 				this.name = user.display_name;
@@ -24,19 +27,32 @@ document.addEventListener("alpine:init", () => {
 			});
 		},
 
+		submit() {
+			this.fetch("PUT", "/api/settings/user", {
+				display_name: this.name,
+				gender: this.gender,
+				biography: this.biography,
+				birthday: this.birthday,
+				password: this.password,	// TODO
+				interests: this.tags
+			}).then((res) => {
+				if (!res.error) {
+					window.location.reload();
+					return;
+				}
+				this.error = res.error;
+			});
+		},
+
 		nuke() {
 			let i = DELETE_WARNINGS.indexOf(this.warn)+1;
 			if (i >= DELETE_WARNINGS.length) {
-				api.fetch("DELETE", "/api/profile").then((res) => {
+				this.fetch("DELETE", "/api/profile").then((res) => {
 					window.location.pathname = "/";
 				});
 			} else {
 				this.warn = DELETE_WARNINGS[i];
 			}
-		},
-
-		submit() {
-			// TODO
 		},
 	}));
 });

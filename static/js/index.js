@@ -14,7 +14,7 @@ document.addEventListener("alpine:init", () => {
 			}));
 			form.append("media", this.$refs.media.files[0]);
 
-			api.fetch("PUT", "/api/post", form).then((res) => {
+			this.fetch("PUT", "/api/post", form).then((res) => {
 				console.log(res);
 			});
 		}
