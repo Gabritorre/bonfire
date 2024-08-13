@@ -1,6 +1,6 @@
 from flask import Response
 from config import db, snowflake
-from models import Profile, AuthToken
+from models import Interest, PostTag, Profile, AuthToken
 from bcrypt import hashpw, gensalt, checkpw
 from werkzeug.datastructures import ImmutableMultiDict
 from hashlib import sha1
@@ -32,3 +32,17 @@ def get_auth_token(cookies: ImmutableMultiDict[str, str]) -> AuthToken | None:
 		return token
 	else:
 		return None
+
+def update_interests(user_id: int, post_id: int, inc: float, dec: float) -> None:
+	post_tags = {tag.tag_id for tag in db.session.query(PostTag).where(PostTag.post_id == post_id).all()}
+	interests = {interest.tag_id for interest in db.session.query(Interest).where(Interest.user_id == user_id).all()}
+
+	new_interests = post_tags - interests
+	for tag in new_interests:
+		db.session.add(Interest(user_id=user_id, tag_id=tag, interest=1.0))
+
+	increasing_interests = post_tags - new_interests
+	db.session.query(Interest).where(Interest.tag_id.in_(increasing_interests)).update({Interest.interest: Interest.interest + inc})
+
+	decreasing_interests = interests - increasing_interests
+	db.session.query(Interest).where(Interest.tag_id.in_(decreasing_interests)).update({Interest.interest: Interest.interest - dec})

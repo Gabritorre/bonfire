@@ -1,10 +1,49 @@
 from flask import Blueprint, jsonify, request
 from config import db, safeguard
-from models import Comment, Profile, User,Like
+from models import Comment, Post, PostTag, Profile, User,Like
 from datetime import timezone
-from .utils import get_auth_token
+from .utils import get_auth_token, update_interests
 
 post = Blueprint("post", __name__, url_prefix="/post")
+
+@post.route("/", methods=["PUT"])
+@safeguard
+def create_post():
+	token = get_auth_token(request.cookies)
+	if not token:
+		return jsonify({"error": "Invalid token"})
+
+	req = request.get_json()
+	body = req["body"]
+	tags = req["tags"]
+	# TODO: media = req["media"]
+	if len(body) > 420:
+		return jsonify({"error": "Post body is too long"})
+
+	post = Post(user_id=token.profile_id, body=body)
+	db.session.add(post)
+	db.session.flush()
+	for tag in tags:
+		db.session.add(PostTag(post_id=post.id, tag_id=tag))
+	db.session.commit()
+	return jsonify({"error": None})
+
+
+
+@post.route("/", methods=["DELETE"])
+@safeguard
+def delete_post():
+	token = get_auth_token(request.cookies)
+	if not token:
+		return jsonify({"error": "Invalid token"})
+
+	req = request.get_json()
+	post_id = req["id"]
+	db.session.query(Post).where(Post.id==post_id, Post.user_id==token.profile_id).delete()
+	db.session.commit()
+	return jsonify({"error": None})
+
+
 
 @post.route("/like", methods=["PUT"])
 @safeguard
@@ -18,6 +57,7 @@ def like():
 	user = db.session.query(User).where(User.id == token.profile_id).first()
 	if user:
 		db.session.add(Like(user_id=user.id, post_id=post_id))
+		update_interests(token.profile_id, post_id, 0.2, 0.1)
 		db.session.commit()
 		return jsonify({"error": None})
 	else:
@@ -57,6 +97,7 @@ def add_comment():
 	user = db.session.query(User).where(User.id == token.profile_id).first()
 	if user:
 		db.session.add(Comment(user_id=user.id, post_id=post_id, body=comment_body))
+		update_interests(token.profile_id, post_id, 0.4, 0.1)
 		db.session.commit()
 		return jsonify({"error": None})
 	else:
