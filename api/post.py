@@ -4,7 +4,7 @@ from config import db, safeguard
 from models import BODY_LENGTH, Comment, Post, PostTag, Profile, User, Like
 from schemas import post_schema
 from datetime import timezone
-from .utils import get_auth_token, update_interests, save_file
+from .utils import delete_file, get_auth_token, update_interests, save_file
 
 post = Blueprint("post", __name__, url_prefix="/post")
 
@@ -14,7 +14,7 @@ def create_post():
 	token = get_auth_token(request.cookies)
 	if not token:
 		return jsonify({"error": "Invalid token"})
-	
+
 	req = json.loads(request.form["json"])
 	body = req["body"]
 	tags = req["tags"]
@@ -22,15 +22,20 @@ def create_post():
 
 	if len(body) > BODY_LENGTH:
 		return jsonify({"error": "Post body is too long"})
-	filename = save_file(media)
-	post = Post(user_id=token.profile_id, body=body, media=filename)
-	db.session.add(post)
-	db.session.flush()
-	for tag in tags:
-		db.session.add(PostTag(post_id=post.id, tag_id=tag))
-	db.session.commit()
 
-	db.session.query(Post).where(Post.id == post.id).first()
+	filename = save_file(media)
+
+	try:
+		post = Post(user_id=token.profile_id, body=body, media=filename)
+		db.session.add(post)
+		db.session.flush()
+		for tag in tags:
+			db.session.add(PostTag(post_id=post.id, tag_id=tag))
+		db.session.commit()
+	except:
+		delete_file(filename)
+		raise
+
 	return jsonify({"error": None, "post": post_schema.dump(post)})
 
 
@@ -44,7 +49,11 @@ def delete_post():
 
 	req = request.get_json()
 	post_id = req["id"]
-	db.session.query(Post).where(Post.id==post_id, Post.user_id==token.profile_id).delete()
+	post = db.session.query(Post).where(Post.id==post_id, Post.user_id==token.profile_id).first()
+	if not post:
+		return jsonify({"error": "Post not found"})
+	db.session.delete(post)
+	delete_file(post.media)
 	db.session.commit()
 	return jsonify({"error": None})
 

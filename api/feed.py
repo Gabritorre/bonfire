@@ -27,7 +27,7 @@ def explore():
 		for count, post in enumerate(posts):
 			data[count]['user_like'] = bool(db.session.query(Like).where(Like.post_id == post.id, Like.user_id == token.profile_id).count())
 
-	return jsonify({"error": None, "data": data})
+	return jsonify({"error": None, "posts": data})
 
 
 
@@ -52,6 +52,6 @@ def friends_posts():
 
 	# for each post check if the user liked it or not
 	for count, post in enumerate(posts):
-		data[count]['user_like'] = bool(db.session.query(Like).where(Like.post_id == post.id, Like.user_id == token.profile_id, Like.liked == True).count())
+		data[count]['user_like'] = bool(db.session.query(Like).where(Like.post_id == post.id, Like.user_id == token.profile_id).count())
 
 	return jsonify({"error": None, "data": data})

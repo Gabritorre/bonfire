@@ -63,7 +63,7 @@ class AdCampaign(Base):
 class Ad(Base):
 	__tablename__ = "ads"
 	id: Mapped[int] = mapped_column(Integer, autoincrement=True, primary_key=True)
-	ad_campaign_id: Mapped[int] = mapped_column(ForeignKey("ad_campaigns.id", ondelete="cascade"))
+	campaign_id: Mapped[int] = mapped_column(ForeignKey("ad_campaigns.id", ondelete="cascade"))
 
 	name: Mapped[str] = mapped_column(String(NAME_LENGTH), nullable=False)
 	media: Mapped[str] = mapped_column(Text, nullable=True)
@@ -97,8 +97,8 @@ class Tag(Base):
 	tag: Mapped[str] = mapped_column(Text, unique=True, nullable=False)
 
 
-class TargetedTag(Base):
-	__tablename__ = "targeted_tags"
+class AdTag(Base):
+	__tablename__ = "ad_tags"
 	ad_id: Mapped[int] = mapped_column(ForeignKey("ads.id", ondelete="cascade"), primary_key=True)
 	tag_id: Mapped[int] = mapped_column(ForeignKey("tags.id", ondelete="cascade"), primary_key=True)
 

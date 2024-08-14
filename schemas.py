@@ -82,7 +82,7 @@ class PostSchema(ma.SQLAlchemyAutoSchema):
 	user_like = fields.Boolean()
 
 	def get_likes_count_field(self, post_instance):
-		return db.session.query(Like).where(Like.post_id == post_instance.id, Like.liked == True).count()
+		return db.session.query(Like).where(Like.post_id == post_instance.id).count()
 
 	def get_comments_count_field(self, post_instance):
 		return db.session.query(Comment).where(Comment.post_id == post_instance.id, Comment.body.isnot(None)).count()
@@ -96,7 +96,7 @@ class AdsSchema(ma.SQLAlchemyAutoSchema):
 class AdSchema(ma.SQLAlchemyAutoSchema):
 	class Meta:
 		model = Ad
-		fields = ("id", "ad_campaign_id", "name", "media", "link", "probability", "date", "daily_stats")
+		fields = ("id", "campaign_id", "name", "media", "link", "probability", "date", "daily_stats")
 
 	daily_stats = fields.Method("get_daily_stats_list")
 

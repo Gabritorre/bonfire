@@ -1,9 +1,9 @@
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, json, jsonify, request
 from config import db, safeguard
-from models import DATE_FORMAT, AdCampaign, Advertiser, Ad
+from models import DATE_FORMAT, AdCampaign, AdTag, Advertiser, Ad
 from schemas import ads_schema, ad_schema
 from datetime import datetime
-from api.utils import get_auth_token
+from api.utils import get_auth_token, save_file, delete_file
 
 adv = Blueprint("adv", __name__, url_prefix="/adv")
 
@@ -63,14 +63,14 @@ def get_ads():
 		return jsonify({"error": "Invalid token"})
 
 	req = request.get_json()
-	campaign_id = req["campaign_id"]
+	campaign_id = req["id"]
 	adv = db.session.query(Advertiser).where(Advertiser.id == token.profile_id).first()
 	if not adv:
 		return jsonify({"error": "Not an advertiser profile"})
 	campaign = db.session.query(AdCampaign).where(AdCampaign.advertiser_id == adv.id, AdCampaign.id == campaign_id).first()
 	if not campaign:
 		return jsonify({"error": "Campaign doesn't belong to this advertiser or doesn't exist"})
-	ads = db.session.query(Ad).where(Ad.ad_campaign_id == campaign_id).all()
+	ads = db.session.query(Ad).where(Ad.campaign_id == campaign_id).all()
 	return jsonify({"error": None, "ads": ads_schema.dump(ads)})
 
 
@@ -91,11 +91,44 @@ def get_ad():
 	ad = db.session.query(Ad).where(Ad.id == ad_id).first()
 	if not ad:
 		return jsonify({"error": "Ad doesn't exist"})
-	campaign = db.session.query(AdCampaign).where(AdCampaign.id == ad.ad_campaign_id).first()
+	campaign = db.session.query(AdCampaign).where(AdCampaign.id == ad.campaign_id).first()
 	if not campaign or campaign.advertiser_id != adv.id:
 		return jsonify({"error": "Ad doesn't belong to this advertiser"})
 
 	return jsonify({"error": None, "ad": ad_schema.dump(ad)})
+
+
+
+@adv.route("/ad", methods=["PUT"])
+@safeguard
+def create_ad():
+	token = get_auth_token(request.cookies)
+	if not token:
+		return jsonify({"error": "Invalid token"})
+
+	req = json.loads(request.form["json"])
+	campaign_id = req["id"]
+	name = req["name"]
+	link = req["link"]
+	prob = req["probability"]
+	tags = req["tags"]
+	media = request.files["media"]
+
+	filename = save_file(media)
+
+	try:
+		ad = Ad(campaign_id=campaign_id, name=name, media=filename, link=link, probability=prob)
+		db.session.add(ad)
+		db.session.flush()
+		for tag in tags:
+			db.session.add(AdTag(ad_id=ad.id, tag_id=tag))
+		db.session.commit()
+	except:
+		delete_file(filename)
+		raise
+
+	return jsonify({"error": None})
+
 
 
 @adv.route("/ad", methods=["DELETE"])
@@ -113,9 +146,10 @@ def delete_ad():
 	ad = db.session.query(Ad).where(Ad.id == ad_id).first()
 	if not ad:
 		return jsonify({"error": "Ad doesn't exist"})
-	campaign = db.session.query(AdCampaign).where(AdCampaign.id == ad.ad_campaign_id).first()
+	campaign = db.session.query(AdCampaign).where(AdCampaign.id == ad.campaign_id).first()
 	if not campaign or campaign.advertiser_id != adv.id:
 		return jsonify({"error": "Ad doesn't belong to this advertiser"})
 	db.session.delete(ad)
+	delete_file(ad.media)
 	db.session.commit()
 	return jsonify({"error": None})

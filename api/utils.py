@@ -54,12 +54,16 @@ def update_interests(user_id: int, post_id: int, inc: float, dec: float) -> None
 def save_file(file) -> str:
 	original_filename = file.filename
 	if '.' in original_filename:
-		extension = original_filename.rsplit('.', 1)[1].lower()
+		extension = original_filename.rsplit(".", 1)[1].lower()
 		if extension in ALLOWED_EXTENSIONS:
 			sf = snowflake.generate()
 			hashed_sf = hash_sha1(f"{sf}")
 			new_filename = hashed_sf + "." + extension
-			file.save(os.path.join(app.config['UPLOAD_FOLDER'], new_filename))
+			file.save(os.path.join(app.config["UPLOAD_FOLDER"], new_filename))
 			return new_filename
 	raise ValueError("Invalid file extension")
 
+def delete_file(filename) -> None:
+	file_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
+	if os.path.exists(file_path):
+		os.remove(file_path)
