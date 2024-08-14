@@ -33,6 +33,28 @@ def create_campaign():
 		return jsonify({"error": "Advertiser not found"})
 
 
+
+@adv.route("/campaign", methods=["DELETE"])
+@safeguard
+def delete_campaign():
+	token = get_auth_token(request.cookies)
+	if not token:
+		return jsonify({"error": "Invalid token"})
+
+	req = request.get_json()
+	campaign_id = req["id"]
+	adv = db.session.query(Advertiser).where(Advertiser.id == token.profile_id).first()
+	if not adv:
+		return jsonify({"error": "Not an advertiser profile"})
+	campaign = db.session.query(AdCampaign).where(AdCampaign.id == campaign_id, AdCampaign.advertiser_id == adv.id).first()
+	if not campaign:
+		return jsonify({"error": "Campaign doesn't belong to this advertiser or doesn't exist"})
+	db.session.delete(campaign)
+	db.session.commit()
+	return jsonify({"error": None})
+
+
+
 @adv.route("/ads", methods=["POST"])
 @safeguard
 def get_ads():
@@ -50,7 +72,7 @@ def get_ads():
 		return jsonify({"error": "Campaign doesn't belong to this advertiser or doesn't exist"})
 	ads = db.session.query(Ad).where(Ad.ad_campaign_id == campaign_id).all()
 	return jsonify({"error": None, "ads": ads_schema.dump(ads)})
-		
+
 
 
 @adv.route("/ad", methods=["POST"])
@@ -70,7 +92,7 @@ def get_ad():
 	if not ad:
 		return jsonify({"error": "Ad doesn't exist"})
 	campaign = db.session.query(AdCampaign).where(AdCampaign.id == ad.ad_campaign_id).first()
-	if campaign.advertiser_id != adv.id:
+	if not campaign or campaign.advertiser_id != adv.id:
 		return jsonify({"error": "Ad doesn't belong to this advertiser"})
 
 	return jsonify({"error": None, "ad": ad_schema.dump(ad)})
@@ -92,7 +114,7 @@ def delete_ad():
 	if not ad:
 		return jsonify({"error": "Ad doesn't exist"})
 	campaign = db.session.query(AdCampaign).where(AdCampaign.id == ad.ad_campaign_id).first()
-	if campaign.advertiser_id != adv.id:
+	if not campaign or campaign.advertiser_id != adv.id:
 		return jsonify({"error": "Ad doesn't belong to this advertiser"})
 	db.session.delete(ad)
 	db.session.commit()
