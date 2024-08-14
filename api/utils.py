@@ -12,11 +12,10 @@ ALLOWED_MIME_TYPES = {
 	"image/jpeg": {"jpg", "jpeg"},
 	"image/png": {"png"},
 	"image/gif": {"gif"},
-	"image/svg+xml": {"svg"},
+	"image/webp": {"webp"},
 	"video/mp4": {"mp4"},
-	"video/x-msvideo": {"avi"},
-	"video/quicktime": {"mov"},
-	"video/x-matroska": {"mkv"},
+	"video/ogg": {"ogg", "ogv"},
+	"video/webm": {"webm"},
 }
 
 def hash_secret(pwd: str) -> str:

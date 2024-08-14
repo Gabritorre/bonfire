@@ -1,12 +1,12 @@
 from flask import Blueprint, jsonify, request
 from config import db, safeguard
-from models import Post, Following, Like
+from models import Post, Following, Like, User
 from schemas import posts_schema
 from .utils import get_auth_token
 
 feed = Blueprint("feed", __name__, url_prefix="/feed")
 
-POSTS_PER_CHUNK = 2
+POSTS_PER_CHUNK = 6
 
 @feed.route("/explore", methods=["POST"])
 @safeguard
@@ -54,4 +54,24 @@ def friends_posts():
 	for count, post in enumerate(posts):
 		data[count]['user_like'] = bool(db.session.query(Like).where(Like.post_id == post.id, Like.user_id == token.profile_id).count())
 
-	return jsonify({"error": None, "data": data})
+	return jsonify({"error": None, "posts": data})
+
+
+@feed.route("/user", methods=["POST"])
+@safeguard
+def user_posts():
+	token = get_auth_token(request.cookies)
+	req = request.get_json()
+	user_id = req["id"]
+
+	if not db.session.query(User).where(User.id == user_id).first():
+		return jsonify({"error": "User not found"})
+	posts = db.session.query(Post).where(Post.user_id == user_id).order_by(Post.id.desc()).all()
+	data = posts_schema.dump(posts)
+
+	# for each post check if the user liked it or not
+	if token:
+		for count, post in enumerate(posts):
+			data[count]['user_like'] = bool(db.session.query(Like).where(Like.post_id == post.id, Like.user_id == token.profile_id).count())
+
+	return jsonify({"error": None, "posts": data})
