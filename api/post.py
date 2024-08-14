@@ -1,9 +1,8 @@
 import json
 from flask import Blueprint, jsonify, request
 from config import db, safeguard
-from models import BODY_LENGTH, Comment, Post, PostTag, Profile, User, Like
-from schemas import post_schema
-from datetime import timezone
+from models import BODY_LENGTH, Comment, Post, PostTag, User, Like
+from schemas import post_schema, comments_schema
 from .utils import delete_file, get_auth_token, update_interests, save_file
 
 post = Blueprint("post", __name__, url_prefix="/post")
@@ -124,12 +123,9 @@ def add_comment():
 def get_post_comments():
 	req = request.get_json()
 	post_id = req["id"]
-	comments = (db.session.query(Comment.id.label("comment_id"), User.id.label("user_id"), Profile.handle, Profile.name, User.pfp, Comment.date, Comment.body)
-				.join(User, Comment.user_id == User.id).join(Profile, Profile.id == User.id)
-				.where(Comment.post_id == post_id)
-				.order_by(Comment.date)
-				.all())
-	return jsonify({
-		"comments": [{"id": comment.comment_id, "user_id": comment.user_id, "handle": comment.handle, "name": comment.name, "pfp": comment.pfp, "date": comment.date.astimezone(timezone.utc).isoformat(), "body": comment.body} for comment in comments],
-		"error": None
-	})
+
+	if not db.session.query(Post).where(Post.id == post_id).first():
+		return jsonify({"error": "Post not found"})
+
+	comments = db.session.query(Comment).where(Comment.post_id == post_id).order_by(Comment.date).all()
+	return jsonify({"comments": comments_schema.dump(comments), "error": None})

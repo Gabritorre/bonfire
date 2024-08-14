@@ -10,10 +10,10 @@ class ProfileSchema(ma.SQLAlchemyAutoSchema):
 class UserSchema(ma.SQLAlchemyAutoSchema):
 	class Meta:
 		model = User
-		fields = ("handle", "display_name", "gender", "pfp", "banner", "biography", "birthday", "follower", "following", "interests")
+		fields = ("handle", "name", "gender", "pfp", "banner", "biography", "birthday", "follower", "following", "interests")
 
 	handle = fields.String(attribute="profile.handle", data_key="handle")
-	display_name = fields.String(attribute="profile.name", data_key="display_name")
+	name = fields.String(attribute="profile.name", data_key="name")
 	follower = fields.Method("get_follower_count_field")
 	following = fields.Method("get_following_count_field")
 	interests = fields.Method("get_interests_list")
@@ -34,11 +34,11 @@ class UserSchema(ma.SQLAlchemyAutoSchema):
 class UserSettingsSchema(ma.SQLAlchemyAutoSchema):
 	class Meta:
 		model = User
-		fields = ("display_name", "handle", "pfp", "gender", "biography", "birthday", "interests")
+		fields = ("name", "handle", "pfp", "gender", "biography", "birthday", "interests")
 
 	interests = fields.Method("get_interests_list")
 	handle = fields.String(attribute="profile.handle", data_key="handle")
-	display_name = fields.String(attribute="profile.name", data_key="display_name")
+	name = fields.String(attribute="profile.name", data_key="name")
 
 	def get_interests_list(self, user_instance):
 		interests_list = (db.session.query(Tag.id, Tag.tag)
@@ -50,10 +50,10 @@ class UserSettingsSchema(ma.SQLAlchemyAutoSchema):
 class UserIdUsernameSchema(ma.SQLAlchemySchema):
 	class Meta:
 		model = User
-		fields = ("id", "pfp", "handle", "display_name")
+		fields = ("id", "pfp", "handle", "name")
 
 	handle = fields.String(attribute="profile.handle", data_key="handle")
-	display_name = fields.String(attribute="profile.name", data_key="display_name")
+	name = fields.String(attribute="profile.name", data_key="name")
 
 class TagSchema(ma.SQLAlchemyAutoSchema):
 	class Meta:
@@ -64,6 +64,8 @@ class SimplePostSchema(ma.SQLAlchemyAutoSchema):
 		model = Post
 		fields = ("id", "body", "media", "date", "tags")
 
+	date = fields.DateTime(format=DATE_TIME_FORMAT)
+
 	tags = fields.Method("get_tags_list")
 
 	def get_tags_list(self, post_instance):
@@ -73,13 +75,15 @@ class SimplePostSchema(ma.SQLAlchemyAutoSchema):
 class PostSchema(ma.SQLAlchemyAutoSchema):
 	class Meta:
 		model = Post
-		fields = ("id", "user_id", "user_display_name", "user_pfp", "body", "media", "date", "likes", "comments", "user_like")
+		fields = ("id", "user_id", "user_handle", "user_name", "user_pfp", "body", "media", "date", "likes", "comments", "user_like")
 
-	user_display_name = fields.String(attribute="user.profile.name", data_key="display_name")
+	user_handle = fields.String(attribute="user.profile.handle", data_key="user_handle")
+	user_name = fields.String(attribute="user.profile.name", data_key="user_name")
 	user_pfp = fields.String(attribute="user.pfp", data_key="user_pfp")
 	likes = fields.Method("get_likes_count_field")
 	comments = fields.Method("get_comments_count_field")
 	user_like = fields.Boolean()
+	date = fields.DateTime(format=DATE_TIME_FORMAT)
 
 	def get_likes_count_field(self, post_instance):
 		return db.session.query(Like).where(Like.post_id == post_instance.id).count()
@@ -93,17 +97,29 @@ class AdsSchema(ma.SQLAlchemyAutoSchema):
 		model = Ad
 		fields = ("id", "name", "media", "date")
 
+	date = fields.DateTime(format=DATE_TIME_FORMAT)
+
 class AdSchema(ma.SQLAlchemyAutoSchema):
 	class Meta:
 		model = Ad
 		fields = ("id", "campaign_id", "name", "media", "link", "probability", "date", "daily_stats")
 
 	daily_stats = fields.Method("get_daily_stats_list")
+	date = fields.DateTime(format=DATE_TIME_FORMAT)
 
 	def get_daily_stats_list(self, ad_instance):
 		daily_stats_list = db.session.query(DailyStat).where(DailyStat.ad_id == ad_instance.id).all()
 		return [{"date": ds.date.strftime(DATE_FORMAT), "impressions": ds.impressions, "readings": ds.readings, "clicks": ds.clicks} for ds in daily_stats_list]
 
+class CommentSchema(ma.SQLAlchemyAutoSchema):
+	class Meta:
+		model = Comment
+		fields = ("id", "user_id", "user_handle", "user_name", "user_pfp", "body", "date")
+
+	date = fields.DateTime(format=DATE_TIME_FORMAT)
+	user_handle = fields.String(attribute="user.profile.handle", data_key="user_handle")
+	user_name = fields.String(attribute="user.profile.name", data_key="user_name")
+	user_pfp = fields.String(attribute="user.pfp", data_key="user_pfp")
 
 profile_schema = ProfileSchema()
 user_schema = UserSchema()
@@ -115,3 +131,4 @@ post_schema = SimplePostSchema()
 posts_schema = PostSchema(many = True)
 ads_schema = AdsSchema(many = True)
 ad_schema = AdSchema()
+comments_schema = CommentSchema(many = True)

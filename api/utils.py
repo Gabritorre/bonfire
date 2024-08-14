@@ -1,4 +1,5 @@
 import os
+import magic
 from flask import Response
 from config import db, snowflake, app
 from models import Interest, PostTag, Profile, AuthToken
@@ -7,7 +8,16 @@ from werkzeug.datastructures import ImmutableMultiDict
 from hashlib import sha1
 from datetime import datetime, timedelta, timezone
 
-ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif"}
+ALLOWED_MIME_TYPES = {
+	"image/jpeg": {"jpg", "jpeg"},
+	"image/png": {"png"},
+	"image/gif": {"gif"},
+	"image/svg+xml": {"svg"},
+	"video/mp4": {"mp4"},
+	"video/x-msvideo": {"avi"},
+	"video/quicktime": {"mov"},
+	"video/x-matroska": {"mkv"},
+}
 
 def hash_secret(pwd: str) -> str:
 	return hashpw(pwd.encode("utf-8"), gensalt()).decode("utf-8")
@@ -52,13 +62,16 @@ def update_interests(user_id: int, post_id: int, inc: float, dec: float) -> None
 
 
 def save_file(file) -> str:
-	original_filename = file.filename
-	if '.' in original_filename:
-		extension = original_filename.rsplit(".", 1)[1].lower()
-		if extension in ALLOWED_EXTENSIONS:
+
+	mime = magic.Magic(mime=True)
+	mime_type = mime.from_buffer(file.read(2048))
+	file.seek(0)
+	if mime_type in ALLOWED_MIME_TYPES:
+		extension = file.filename.rsplit('.', 1)[1].lower() if '.' in file.filename else ''
+		if extension in ALLOWED_MIME_TYPES[mime_type]:
 			sf = snowflake.generate()
 			hashed_sf = hash_sha1(f"{sf}")
-			new_filename = hashed_sf + "." + extension
+			new_filename = f"{hashed_sf}.{extension}"
 			file.save(os.path.join(app.config["UPLOAD_FOLDER"], new_filename))
 			return new_filename
 	raise ValueError("Invalid file extension")
