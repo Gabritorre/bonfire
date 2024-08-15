@@ -97,12 +97,12 @@ class Tag(Base):
 	tag: Mapped[str] = mapped_column(Text, unique=True, nullable=False)
 
 
-class AdTag(Base):
-	__tablename__ = "ad_tags"
-	ad_id: Mapped[int] = mapped_column(ForeignKey("ads.id", ondelete="cascade"), primary_key=True)
+class CampaignTag(Base):
+	__tablename__ = "campaign_tags"
+	campaign_id: Mapped[int] = mapped_column(ForeignKey("ad_campaigns.id", ondelete="cascade"), primary_key=True)
 	tag_id: Mapped[int] = mapped_column(ForeignKey("tags.id", ondelete="cascade"), primary_key=True)
 
-	ad: Mapped[Ad] = relationship(backref=backref("ads", cascade="all, delete"), passive_deletes=True)
+	campaign: Mapped[AdCampaign] = relationship(backref=backref("campaign", cascade="all, delete"), passive_deletes=True)
 	tag: Mapped[Tag] = relationship(backref=backref("tags_target", cascade="all, delete"), passive_deletes=True)
 
 # ------

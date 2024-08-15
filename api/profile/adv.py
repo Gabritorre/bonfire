@@ -1,6 +1,6 @@
 from flask import Blueprint, json, jsonify, request
 from config import db, safeguard
-from models import DATE_FORMAT, AdCampaign, AdTag, Advertiser, Ad
+from models import DATE_FORMAT, AdCampaign, Advertiser, Ad, CampaignTag
 from schemas import ads_schema, ad_schema
 from datetime import datetime
 from api.utils import get_auth_token, save_file, delete_file
@@ -19,12 +19,17 @@ def create_campaign():
 	budget = req["budget"]
 	start = req["start"]
 	end = req["end"]
+	tags = req["tags"]
 	adv = db.session.query(Advertiser).where(Advertiser.id == token.profile_id).first()
 	if adv:
 		start = datetime.strptime(start, DATE_FORMAT)
 		end = datetime.strptime(end, DATE_FORMAT)
 		if start > datetime.now() and end > start:
-			db.session.add(AdCampaign(advertiser_id=adv.id, name=name, budget=budget, start_date=start, end_date=end))
+			ad_campaign = AdCampaign(advertiser_id=adv.id, name=name, budget=budget, start_date=start, end_date=end)
+			db.session.add(ad_campaign)
+			db.session.flush()
+			for tag in tags:
+				db.session.add(CampaignTag(campaign_id=ad_campaign.id, tag_id=tag))
 			db.session.commit()
 			return jsonify({"error": None})
 		else:
@@ -111,7 +116,6 @@ def create_ad():
 	name = req["name"]
 	link = req["link"]
 	prob = req["probability"]
-	tags = req["tags"]
 	media = request.files["media"]
 
 	filename = save_file(media)
@@ -119,9 +123,6 @@ def create_ad():
 	try:
 		ad = Ad(campaign_id=campaign_id, name=name, media=filename, link=link, probability=prob)
 		db.session.add(ad)
-		db.session.flush()
-		for tag in tags:
-			db.session.add(AdTag(ad_id=ad.id, tag_id=tag))
 		db.session.commit()
 	except:
 		delete_file(filename)

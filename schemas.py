@@ -92,13 +92,6 @@ class PostSchema(ma.SQLAlchemyAutoSchema):
 		return db.session.query(Comment).where(Comment.post_id == post_instance.id, Comment.body.isnot(None)).count()
 
 
-class AdsSchema(ma.SQLAlchemyAutoSchema):
-	class Meta:
-		model = Ad
-		fields = ("id", "name", "media", "date")
-
-	date = fields.DateTime(format=DATE_TIME_FORMAT)
-
 class AdSchema(ma.SQLAlchemyAutoSchema):
 	class Meta:
 		model = Ad
@@ -110,6 +103,13 @@ class AdSchema(ma.SQLAlchemyAutoSchema):
 	def get_daily_stats_list(self, ad_instance):
 		daily_stats_list = db.session.query(DailyStat).where(DailyStat.ad_id == ad_instance.id).all()
 		return [{"date": ds.date.strftime(DATE_FORMAT), "impressions": ds.impressions, "readings": ds.readings, "clicks": ds.clicks} for ds in daily_stats_list]
+
+class SimpleAdSchema(ma.SQLAlchemyAutoSchema):
+	class Meta:
+		model = Ad
+		fields = ("id", "campaign_id", "name", "media", "link", "date")
+
+	date = fields.DateTime(format=DATE_TIME_FORMAT)
 
 class CommentSchema(ma.SQLAlchemyAutoSchema):
 	class Meta:
@@ -128,7 +128,8 @@ id_username_schema = UserIdUsernameSchema(many=True)
 tags_schema = TagSchema(many=True)
 user_settings_schema = UserSettingsSchema()
 post_schema = SimplePostSchema()
-posts_schema = PostSchema(many = True)
-ads_schema = AdsSchema(many = True)
+posts_schema = PostSchema(many=True)
 ad_schema = AdSchema()
-comments_schema = CommentSchema(many = True)
+feed_ad_schema = SimpleAdSchema()
+ads_schema = SimpleAdSchema(many=True)
+comments_schema = CommentSchema(many=True)

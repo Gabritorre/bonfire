@@ -1,8 +1,10 @@
 import os
+import random
 import magic
 from flask import Response
+from sqlalchemy.sql.expression import func
 from config import db, snowflake, app
-from models import Interest, PostTag, Profile, AuthToken
+from models import Ad, AdCampaign, CampaignTag, Interest, PostTag, Profile, AuthToken
 from bcrypt import hashpw, gensalt, checkpw
 from werkzeug.datastructures import ImmutableMultiDict
 from hashlib import sha1
@@ -59,9 +61,7 @@ def update_interests(user_id: int, post_id: int, inc: float, dec: float) -> None
 	decreasing_interests = interests - increasing_interests
 	db.session.query(Interest).where(Interest.tag_id.in_(decreasing_interests)).update({Interest.interest: Interest.interest - dec})
 
-
 def save_file(file) -> str:
-
 	mime = magic.Magic(mime=True)
 	mime_type = mime.from_buffer(file.read(2048))
 	file.seek(0)
@@ -79,3 +79,21 @@ def delete_file(filename) -> None:
 	file_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
 	if os.path.exists(file_path):
 		os.remove(file_path)
+
+def recommend_ad(user_id: int, epsilon: float) -> Ad | None:
+	hi_interest = db.session.query(Interest).where(Interest.user_id == user_id).order_by(Interest.interest.desc()).first() # highest interest
+	if hi_interest:
+		interested_campaign = (db.session.query(AdCampaign) # campaign with highest budget that matches hi_interest
+						 .join(CampaignTag, AdCampaign.id == CampaignTag.campaign_id)
+						 .where(CampaignTag.tag_id == hi_interest.tag_id)
+						 .order_by(AdCampaign.budget.desc())
+						 .first())
+		if interested_campaign:
+			if random.random() < epsilon: # choose an ad inside interested_campaign with epsilon probability or explore other ads
+				ads = db.session.query(Ad).where(Ad.campaign_id == interested_campaign.id).all()
+				probs = []
+				for ad in ads:
+					probs.append(ad.probability)
+				return random.choices(ads, weights=probs, k=1)[0]
+
+	return db.session.query(Ad).order_by(func.random()).first()
