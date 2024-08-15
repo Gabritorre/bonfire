@@ -13,8 +13,8 @@ document.addEventListener("alpine:init", () => {
 		init() {
 			this.fetch("GET", "/api/settings/user").then((res) => {
 				const user = res.user;
-				this.handle = user.username;
-				this.name = user.display_name;
+				this.handle = user.handle;
+				this.name = user.name;
 				this.biography = user.biography;
 				this.gender = user.gender ?? this.gender;
 				this.pfp = user.pfp ?? this.pfp;

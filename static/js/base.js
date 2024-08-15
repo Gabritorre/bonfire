@@ -41,8 +41,8 @@ document.addEventListener("alpine:init", () => {
 					return;
 				}
 				this.account.pfp = res.user.pfp ?? this.account.pfp;
-				this.account.handle = res.user.username;
-				this.account.name = res.user.display_name;
+				this.account.handle = res.user.handle;
+				this.account.name = res.user.name;
 			});
 		},
 
