@@ -1,0 +1,78 @@
+<template x-for="(post, post_index) in posts">
+	<div class="row row-cols-1 gy-2 mb-3">
+		<div class="col">
+			<div class="card">
+				<div class="card-body">
+					<div class="card-title d-flex align-items-center mb-2">
+						<img class="profile-picture profile-picture-3 me-2" :src="post.user_pfp" />
+						<div>
+							<div class="fw-bold" x-text="post.user_name ?? post.user_handle"></div>
+							<div class="text-secondary">
+								@<span x-text="post.user_handle"></span> &middot; <span x-text="new Date(post.date).toLocaleDateString()"></span>
+							</div>
+						</div>
+					</div>
+					<p class="card-text" x-text="post.body"></p>
+					<img class="card-img mb-3" :src="post.media" />
+					<div class="d-flex gap-2">
+						<button class="btn btn-dark border text-body rounded-pill d-flex align-items-center gap-2 px-3 collapsed" title="Like the post">
+							<span class="collapse-fade-icons">
+								<i class="bi bi-heart"></i>
+								<i class="bi bi-heart-fill"></i>
+							</span>
+							<span x-text="post.likes"></span>
+						</button>
+						<button class="btn btn-dark text-body border rounded-pill d-flex align-items-center gap-2 px-3 collapsed" title="Show the comments" data-bs-toggle="collapse" data-bs-target="#section-comment">
+							<span class="collapse-fade-icons">
+								<i class="bi bi-chat-square"></i>
+								<i class="bi bi-chat-square-fill"></i>
+							</span>
+							<span x-text="post.comments"></span>
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="col collapse" id="section-comment">
+			<div class="card">
+				<div class="card-header">Comments</div>
+				<ul class="list-group list-group-flush overflow-scroll">
+					<li class="list-group-item p-4 pt-3">
+						<div class="row row-cols-1 gy-3">
+							<div class="col">
+								<div class="row">
+									<div class="col d-flex align-items-center">
+										<img class="profile-picture profile-picture-1 me-2" :src="account.pfp" />
+										<div class="fw-bold" x-text="account.name ?? account.handle"></div>
+									</div>
+									<div class="col-auto">
+										<button class="btn btn-outline-light rounded-pill">Send</button>
+									</div>
+								</div>
+							</div>
+							<div class="col">
+								<textarea class="form-control" rows="2"></textarea>
+							</div>
+						</div>
+					</li>
+					<li class="list-group-item px-4 py-3">
+						<div class="row row-cols-1 gy-2">
+							<div class="col d-flex align-items-center">
+								<img class="profile-picture profile-picture-1 me-2" src="https://cat-milk.github.io/Anime-Girls-Holding-Programming-Books/static/a6c38430026f9719ac9c69fd892dbb78/47126/Aharen_Reina_Holding_C_Programming_Language.png" />
+								<div class="fw-bold me-2">Seafan</div>
+								<div class="text-secondary">
+									@<span>seafan</span> &middot; <span>01/01/1970</span>
+								</div>
+							</div>
+							<div class="col">
+								Or you could just use C
+							</div>
+						</div>
+					</li>
+				</ul>
+			</div>
+
+			<hr class="post-separator" x-show="post_index < posts.length-1">
+		</div>
+	</div>
+</template>

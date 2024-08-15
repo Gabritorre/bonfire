@@ -55,6 +55,10 @@ textarea {
 	--bs-btn-close-focus-shadow: none;
 }
 
+.feed .card .card-text {
+	white-space: pre;
+}
+
 /* Transitions on collapse buttons icons */
 
 .collapse-fade-icons {
