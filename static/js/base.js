@@ -82,6 +82,14 @@ document.addEventListener("alpine:init", () => {
 			return new Promise((resolve, reject) => {
 				this.popup.resolve = resolve;
 			});
+		},
+
+		suffixize(number) {
+			const suffixes = ["", "K", "M", "B", "T"];
+			let i = Math.min(Math.floor(Math.log10(number)/3), suffixes.length-1);
+			let scaled = number / 10**(i*3);
+			let rounded = Math.round(scaled*10)/10;
+			return rounded + suffixes[i];
 		}
 	}));
 });
