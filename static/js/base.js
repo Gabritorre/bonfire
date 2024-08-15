@@ -2,14 +2,14 @@ const EMPTY_PFP = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5
 
 document.addEventListener("alpine:init", () => {
 	Alpine.data("base", () => ({
-		authenticated: null,
-		account: {
+		account: Alpine.$persist({
+			authenticated: null,
 			id: null,
 			handle: null,
 			name: null,
 			pfp: EMPTY_PFP,
 			is_adv: false
-		},
+		}),
 		popup: {
 			title: null,
 			body: null,
@@ -25,7 +25,7 @@ document.addEventListener("alpine:init", () => {
 			});
 
 			this.fetch("GET", "/api/profile").then((res) => {
-				this.authenticated = res.error == null;
+				this.account.authenticated = res.error == null;
 				if (res.error) {
 					return;
 				}

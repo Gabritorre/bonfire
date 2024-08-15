@@ -18,11 +18,11 @@
 			<input class="form-control mx-3 mx-sm-4 rounded-pill" type="search" placeholder="Search..." title="Search for your friends" />
 
 			<div class="col-md-3 d-flex justify-content-end">
-				<div class="d-flex flex-nowrap gap-2" x-show.important="authenticated === false">
+				<div class="d-flex flex-nowrap gap-2" x-show.important="account.authenticated === false">
 					<a class="btn btn-outline-light rounded-pill" href="/login">Login</a>
 					<a class="btn btn-light rounded-pill" href="/signup">Sign up</a>
 				</div>
-				<div x-show="authenticated === true">
+				<div x-show="account.authenticated === true">
 					<button class="btn border border-0 dropdown-toggle p-0" data-bs-toggle="dropdown" title="Open profile menu">
 						<img class="profile-picture profile-picture-2 border" :src="account.pfp" x-show="!account.is_adv" />
 						<i class="bi bi-card-heading fs-4" x-show="account.is_adv"></i>
