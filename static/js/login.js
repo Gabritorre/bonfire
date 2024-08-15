@@ -9,11 +9,12 @@ document.addEventListener("alpine:init", () => {
 				handle: this.handle,
 				password: this.password
 			}).then((res) => {
-				if (!res.error) {
-					window.location.pathname = "/";
+				if (res.error) {
+					this.error = res.error;
 					return;
 				}
-				this.error = res.error;
+				this.account.authenticated = null;
+				window.location.pathname = "/";
 			});
 		}
 	}));

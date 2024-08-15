@@ -85,14 +85,14 @@
 												<div class="fw-bold">Change password</div>
 												<div class="row row-cols-1 row-cols-sm-2 gy-3">
 													<div class="col">
-														<input class="form-control" type="password" placeholder="New password" />
+														<input class="form-control" type="password" minlength="8" placeholder="New password" x-model="password" />
 													</div>
 													<div class="col">
-														<input class="form-control" type="password" placeholder="Repeat new password" />
+														<input class="form-control" type="password" placeholder="Repeat new password" x-model="password_repeated" />
 													</div>
 													<div class="col col-sm-12">
 														<div class="progress progress-password" role="progressbar" title="Strength of the specified password">
-															<div class="progress-bar bg-danger" style="width: 25%"></div>
+															<div class="progress-bar" :style="score"></div>
 														</div>
 													</div>
 												</div>

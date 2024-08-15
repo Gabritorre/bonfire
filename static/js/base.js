@@ -1,4 +1,11 @@
-const EMPTY_PFP = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxIiBoZWlnaHQ9IjEiLz4K";
+const PFP_EMPTY = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxIiBoZWlnaHQ9IjEiLz4K";
+
+const PASSWORD_ENTROPY_RANGES = [
+	{range: [0, 25], color: "--bs-red", width: 25},
+	{range: [25, 50], color: "--bs-orange", width: 50},
+	{range: [50, 75], color: "--bs-yellow", width: 75},
+	{range: [75, Infinity], color: "--bs-green", width: 100}
+];
 
 document.addEventListener("alpine:init", () => {
 	Alpine.data("base", () => ({
@@ -7,7 +14,7 @@ document.addEventListener("alpine:init", () => {
 			id: null,
 			handle: null,
 			name: null,
-			pfp: EMPTY_PFP,
+			pfp: PFP_EMPTY,
 			is_adv: false
 		}),
 		popup: {
@@ -70,6 +77,8 @@ document.addEventListener("alpine:init", () => {
 
 		logout() {
 			this.fetch("GET", "/api/profile/logout").then((_) => {
+				this.account.authenticated = null;
+				this.account.pfp = PFP_EMPTY;
 				window.location.href = "/";
 			});
 		},
@@ -90,6 +99,16 @@ document.addEventListener("alpine:init", () => {
 			let scaled = number / 10**(i*3);
 			let rounded = Math.round(scaled*10)/10;
 			return rounded + suffixes[i];
+		},
+
+		entropy(password) {
+			let codes = Array.from(password ?? "").map((c) => c.charCodeAt(0));
+			let range = Math.max(...codes) - Math.min(...codes) + 1;
+			let entropy = password?.length * Math.log2(range) || 0;
+			let item = PASSWORD_ENTROPY_RANGES.filter((item) => item.range[0] <= entropy && entropy <= item.range[1])[0];
+			let color = "var(" + item.color + ")";
+			let width = item.width + "%";
+			return [color, width];
 		}
 	}));
 });

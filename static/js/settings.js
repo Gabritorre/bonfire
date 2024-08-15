@@ -3,14 +3,18 @@ document.addEventListener("alpine:init", () => {
 		handle: null,
 		name: null,
 		gender: null,
-		pfp: EMPTY_PFP,
+		pfp: PFP_EMPTY,
 		birthday: null,
 		biography: null,
-		password: null,
+		password: "",
+		password_repeated: "",
+		score: {width: "0%"},
 		tags: [],
 		error: null,
 
 		init() {
+			this.$watch("password", () => this.score_update());
+
 			this.fetch("GET", "/api/settings/user").then((res) => {
 				const user = res.user;
 				this.handle = user.handle;
@@ -25,6 +29,11 @@ document.addEventListener("alpine:init", () => {
 		},
 
 		submit() {
+			if (this.password != this.password_repeated) {
+				this.error = "Passwords don't match";
+				return;
+			}
+
 			this.fetch("PUT", "/api/settings/user", {
 				display_name: this.name,
 				gender: this.gender,
@@ -39,6 +48,12 @@ document.addEventListener("alpine:init", () => {
 				}
 				this.error = res.error;
 			});
+		},
+
+		score_update() {
+			let [color, width] = this.entropy(this.password);
+			this.score["background-color"] = color;
+			this.score["width"] = width;
 		},
 
 		nuke() {
