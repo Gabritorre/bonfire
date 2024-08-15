@@ -1,5 +1,3 @@
-const DELETE_WARNINGS = ["Delete account", "Are you sure?", "Are you <strong>really</strong> sure?"];
-
 document.addEventListener("alpine:init", () => {
 	Alpine.data("settings", () => ({
 		handle: null,
@@ -10,7 +8,6 @@ document.addEventListener("alpine:init", () => {
 		biography: null,
 		password: null,
 		tags: [],
-		warn: DELETE_WARNINGS[0],
 		error: null,
 
 		init() {
@@ -45,14 +42,15 @@ document.addEventListener("alpine:init", () => {
 		},
 
 		nuke() {
-			let i = DELETE_WARNINGS.indexOf(this.warn)+1;
-			if (i >= DELETE_WARNINGS.length) {
+			this.alert("Delete account", "Are you sure you want to delete your account?").then((confirmed) => {
+				if (!confirmed) {
+					return;
+				}
+
 				this.fetch("DELETE", "/api/profile").then((res) => {
 					window.location.pathname = "/";
 				});
-			} else {
-				this.warn = DELETE_WARNINGS[i];
-			}
+			});
 		},
 	}));
 });

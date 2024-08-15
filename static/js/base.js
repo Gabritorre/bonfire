@@ -10,8 +10,20 @@ document.addEventListener("alpine:init", () => {
 			pfp: EMPTY_PFP,
 			is_adv: false
 		},
+		popup: {
+			title: null,
+			body: null,
+			modal: null,
+			confirmed: false,
+			resolve: null
+		},
 
 		init() {
+			this.popup.modal = new bootstrap.Modal(this.$refs.popup);
+			this.$refs.popup.addEventListener("hidden.bs.modal", () => {
+				this.popup.resolve(this.popup.confirmed);
+			});
+
 			this.fetch("GET", "/api/profile").then((res) => {
 				this.authenticated = res.error == null;
 				if (res.error) {
@@ -59,6 +71,16 @@ document.addEventListener("alpine:init", () => {
 		logout() {
 			this.fetch("GET", "/api/profile/logout").then((_) => {
 				window.location.href = "/";
+			});
+		},
+
+		alert(title, body) {
+			this.popup.title = title;
+			this.popup.body = body;
+			this.popup.confirmed = false;
+			this.popup.modal.show();
+			return new Promise((resolve, reject) => {
+				this.popup.resolve = resolve;
 			});
 		}
 	}));

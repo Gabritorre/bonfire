@@ -51,6 +51,10 @@ textarea {
 	border-top: var(--bs-border-width) dashed var(--bs-secondary-color);
 }
 
+.btn-close:focus {
+	--bs-btn-close-focus-shadow: none;
+}
+
 /* Transitions on collapse buttons icons */
 
 .collapse-fade-icons {
