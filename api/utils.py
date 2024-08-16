@@ -1,10 +1,11 @@
 import os
 import random
 import magic
+from threading import Thread
 from flask import Response
 from sqlalchemy.sql.expression import func
 from config import db, snowflake, app
-from models import Ad, AdCampaign, CampaignTag, Interest, PostTag, Profile, AuthToken
+from models import Ad, AdCampaign, CampaignTag, DailyStat, Interest, PostTag, Profile, AuthToken
 from bcrypt import hashpw, gensalt, checkpw
 from werkzeug.datastructures import ImmutableMultiDict
 from hashlib import sha1
@@ -19,6 +20,7 @@ ALLOWED_MIME_TYPES = {
 	"video/ogg": {"ogg", "ogv"},
 	"video/webm": {"webm"},
 }
+IMPRESSION_FEE = 1
 
 def hash_secret(pwd: str) -> str:
 	return hashpw(pwd.encode("utf-8"), gensalt()).decode("utf-8")
@@ -47,7 +49,7 @@ def get_auth_token(cookies: ImmutableMultiDict[str, str]) -> AuthToken | None:
 	else:
 		return None
 
-def update_interests(user_id: int, post_id: int, inc: float, dec: float) -> None:
+def update_interests(user_id: int, post_id: int, inc: float=0.0, dec: float=0.0) -> None:
 	post_tags = {tag.tag_id for tag in db.session.query(PostTag).where(PostTag.post_id == post_id).all()}
 	interests = {interest.tag_id for interest in db.session.query(Interest).where(Interest.user_id == user_id).all()}
 
@@ -80,20 +82,47 @@ def delete_file(filename) -> None:
 	if os.path.exists(file_path):
 		os.remove(file_path)
 
+def update_daily_stats(ad: Ad | None, impression: int=0, read: int=0, click: int=0) -> None:
+	with app.app_context():
+		if ad:
+			today = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
+			d_stat = db.session.query(DailyStat).where(DailyStat.ad_id == ad.id, DailyStat.date == today).first()
+			if d_stat:
+				d_stat.impressions += impression
+				d_stat.readings += read
+				d_stat.clicks += click
+				db.session.commit()
+			else:
+				db.session.add(DailyStat(ad_id=ad.id, date=today, impressions=impression, readings=read, clicks=click))
+				db.session.commit()
+
 def recommend_ad(user_id: int, epsilon: float) -> Ad | None:
+	def update_budget(recommended_ad: Ad | None) -> None:
+		with app.app_context():
+			if recommended_ad:
+				db.session.query(AdCampaign).where(AdCampaign.id == recommended_ad.campaign_id).update({AdCampaign.budget: AdCampaign.budget - IMPRESSION_FEE})
+				db.session.commit()
+
 	hi_interest = db.session.query(Interest).where(Interest.user_id == user_id).order_by(Interest.interest.desc()).first() # highest interest
 	if hi_interest:
 		interested_campaign = (db.session.query(AdCampaign) # campaign with highest budget that matches hi_interest
 						 .join(CampaignTag, AdCampaign.id == CampaignTag.campaign_id)
-						 .where(CampaignTag.tag_id == hi_interest.tag_id)
+						 .where(CampaignTag.tag_id == hi_interest.tag_id, AdCampaign.end_date > datetime.now(timezone.utc),AdCampaign.budget >= IMPRESSION_FEE)
 						 .order_by(AdCampaign.budget.desc())
 						 .first())
-		if interested_campaign:
+
+		if interested_campaign and db.session.query(Ad).where(Ad.campaign_id == interested_campaign.id).first(): # the interested campaign has at least an ad
 			if random.random() < epsilon: # choose an ad inside interested_campaign with epsilon probability or explore other ads
 				ads = db.session.query(Ad).where(Ad.campaign_id == interested_campaign.id).all()
 				probs = []
 				for ad in ads:
 					probs.append(ad.probability)
-				return random.choices(ads, weights=probs, k=1)[0]
+				recommended_ad = random.choices(ads, weights=probs, k=1)[0]
+				Thread(target=update_daily_stats, args=(recommended_ad,), kwargs={"impression": 1}).start()
+				Thread(target=update_budget, args=(recommended_ad,)).start()
+				return recommended_ad
 
-	return db.session.query(Ad).order_by(func.random()).first()
+	recommended_ad = db.session.query(Ad).join(AdCampaign, Ad.campaign_id == AdCampaign.id).where(AdCampaign.budget >= IMPRESSION_FEE).order_by(func.random()).first()
+	Thread(target=update_daily_stats, args=(recommended_ad,), kwargs={"impression": 1}).start()
+	Thread(target=update_budget, args=(recommended_ad,)).start()
+	return recommended_ad

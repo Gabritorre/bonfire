@@ -1,4 +1,5 @@
 import json
+from threading import Thread
 from flask import Blueprint, jsonify, request
 from config import db, safeguard
 from models import BODY_LENGTH, Comment, Post, PostTag, User, Like
@@ -70,7 +71,7 @@ def like():
 	user = db.session.query(User).where(User.id == token.profile_id).first()
 	if user:
 		db.session.add(Like(user_id=user.id, post_id=post_id))
-		update_interests(token.profile_id, post_id, 0.2, 0.1)
+		Thread(target=update_interests, args=(token.profile_id, post_id), kwargs={"inc": 0.2, "dec": 0.1}).start()
 		db.session.commit()
 		return jsonify({"error": None})
 	else:
@@ -110,7 +111,7 @@ def add_comment():
 	user = db.session.query(User).where(User.id == token.profile_id).first()
 	if user:
 		db.session.add(Comment(user_id=user.id, post_id=post_id, body=comment_body))
-		update_interests(token.profile_id, post_id, 0.4, 0.1)
+		Thread(target=update_interests, args=(token.profile_id, post_id), kwargs={"inc": 0.4, "dec": 0.1}).start()
 		db.session.commit()
 		return jsonify({"error": None})
 	else:
