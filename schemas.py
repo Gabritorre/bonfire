@@ -10,7 +10,7 @@ class ProfileSchema(ma.SQLAlchemyAutoSchema):
 class UserSchema(ma.SQLAlchemyAutoSchema):
 	class Meta:
 		model = User
-		fields = ("handle", "name", "gender", "pfp", "banner", "biography", "birthday", "follower", "following", "interests")
+		fields = ("handle", "name", "gender", "pfp", "biography", "birthday", "follower", "following", "interests")
 
 	handle = fields.String(attribute="profile.handle", data_key="handle")
 	name = fields.String(attribute="profile.name", data_key="name")
