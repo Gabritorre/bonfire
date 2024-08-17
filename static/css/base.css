@@ -7,6 +7,7 @@
 	--profile-picture-3: 50px;
 	--profile-picture-4: 150px;
 	--profile-picture-5: 225px;
+	--tags-dropdown-height: 30vh;
 	--transition: .15s ease-in-out;
 }
 
@@ -57,6 +58,11 @@ textarea {
 
 .feed .card .card-text {
 	white-space: pre;
+}
+
+.tags-dropdown .dropdown-menu {
+	overflow: scroll;
+	max-height: var(--tags-dropdown-height);
 }
 
 /* Transitions on collapse buttons icons */

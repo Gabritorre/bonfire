@@ -54,20 +54,8 @@
 								<div class="col mt-3">
 									<input class="form-control" type="file" x-ref="media" />
 								</div>
-								<div class="col mt-3">
-									<div class="row g-2">
-										<div class="col-auto">
-											<button class="btn btn-success btn-tag rounded-pill position-relative">
-												<div>Assembly</div>
-												<i class="bi bi-trash-fill"></i>
-											</button>
-										</div>
-										<div class="col-auto">
-											<button class="btn btn-outline-success rounded-pill py-0">
-												<i class="bi bi-plus fs-4"></i>
-											</button>
-										</div>
-									</div>
+								<div class="col mt-3" x-data="{interests: draft.interests}">
+									{% include "layout/tags.html" %}
 								</div>
 							</div>
 						</div>

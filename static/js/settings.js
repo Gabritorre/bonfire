@@ -9,21 +9,21 @@ document.addEventListener("alpine:init", () => {
 		password: "",
 		password_repeated: "",
 		score: {width: "0%"},
-		tags: [],
+		interests: [],
 		error: null,
 
 		init() {
 			this.$watch("password", () => this.score_update());
 
 			this.fetch("GET", "/api/settings/user").then((res) => {
-				const user = res.user;
-				this.handle = user.handle;
-				this.name = user.name;
-				this.biography = user.biography;
-				this.gender = user.gender ?? this.gender;
-				this.pfp = user.pfp ?? this.pfp;
-				if (user.birthday) {
-					this.birthday = new Date(new Date(user.birthday) + "UTC").toISOString().split("T")[0];
+				this.handle = res.user.handle;
+				this.name = res.user.name;
+				this.biography = res.user.biography;
+				this.gender = res.user.gender ?? this.gender;
+				this.pfp = res.user.pfp ?? PFP_EMPTY;
+				this.interests = res.user.interests ?? [];
+				if (res.user.birthday) {
+					this.birthday = new Date(new Date(res.user.birthday) + "UTC").toISOString().split("T")[0];
 				}
 			});
 		},
@@ -39,8 +39,8 @@ document.addEventListener("alpine:init", () => {
 				gender: this.gender,
 				biography: this.biography,
 				birthday: this.birthday,
-				password: this.password,	// TODO
-				interests: this.tags
+				password: this.password,
+				interests: this.interests.map((tag) => tag.id)
 			}).then((res) => {
 				if (!res.error) {
 					window.location.reload();

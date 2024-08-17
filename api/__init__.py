@@ -19,4 +19,4 @@ api.register_blueprint(post)
 @safeguard
 def get_all_tags():
 	tags = db.session.query(Tag).all()
-	return jsonify({"error": None, "data": tags_schema.dump(tags)})
+	return jsonify({"error": None, "tags": tags_schema.dump(tags)})

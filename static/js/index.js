@@ -2,7 +2,7 @@ document.addEventListener("alpine:init", () => {
 	Alpine.data("index", () => ({
 		draft: {
 			body: "",
-			tags: []
+			interests: []
 		},
 		posts: [
 			{

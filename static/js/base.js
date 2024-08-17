@@ -47,7 +47,7 @@ document.addEventListener("alpine:init", () => {
 				if (!res || res.error) {
 					return;
 				}
-				this.account.pfp = res.user.pfp ?? this.account.pfp;
+				this.account.pfp = res.user.pfp ?? PFP_EMPTY;
 				this.account.handle = res.user.handle;
 				this.account.name = res.user.name;
 			});
