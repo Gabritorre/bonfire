@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, request
 from config import db, safeguard
-from models import Profile, User, Interest, DATE_FORMAT
-from schemas import user_settings_schema
+from models import Profile, User, Advertiser, Interest, DATE_FORMAT
+from schemas import user_settings_schema, adv_settings_schema
 from datetime import datetime
 from .utils import hash_secret, get_auth_token
 
@@ -38,6 +38,9 @@ def set_user_settings():
 	new_password = req["password"]
 	new_interests = req["interests"]
 
+	if not db.session.query(User).where(User.id == token.profile_id).first():
+		return jsonify({"error": "Current profile is not a user"})
+
 	db.session.query(Profile).where(Profile.id == token.profile_id).update({"name": new_display_name or None})
 	db.session.query(User).where(User.id == token.profile_id).update({"biography": new_biography or None})
 
@@ -54,17 +57,60 @@ def set_user_settings():
 		db.session.query(User).where(User.id == token.profile_id).update({"gender": new_gender})
 	if new_password:
 		db.session.query(Profile).where(Profile.id == token.profile_id).update({"password": hash_secret(new_password)})
-	if new_interests:
-		current_interests = db.session.query(Interest).where(Interest.user_id == token.profile_id).all()
-		current_interests_ids = {interest.tag_id for interest in current_interests}
-		new_interests = set(new_interests)
-		interests_to_remove = current_interests_ids - new_interests
-		interests_to_add = new_interests - current_interests_ids
-		if interests_to_remove:
-			db.session.query(Interest).where(Interest.user_id == token.profile_id, Interest.tag_id.in_(interests_to_remove)).delete()
-		if interests_to_add:
-			for interest in interests_to_add:
-				db.session.add(Interest(user_id=token.profile_id, tag_id=interest, interest=1.0))
+
+	# Update interests
+	current_interests = db.session.query(Interest).where(Interest.user_id == token.profile_id).all()
+	current_interests_ids = {interest.tag_id for interest in current_interests}
+	new_interests = set(new_interests)
+	interests_to_remove = current_interests_ids - new_interests
+	interests_to_add = new_interests - current_interests_ids
+	if interests_to_remove:
+		db.session.query(Interest).where(Interest.user_id == token.profile_id, Interest.tag_id.in_(interests_to_remove)).delete()
+	if interests_to_add:
+		for interest in interests_to_add:
+			db.session.add(Interest(user_id=token.profile_id, tag_id=interest, interest=1.0))
+
+	db.session.commit()
+	return jsonify({"error": None})
+
+
+
+# Get the settings of the current advertiser, indluding "name", "handle", "industry"
+@settings.route("/adv", methods=["GET"])
+@safeguard
+def get_adv_settings():
+	token = get_auth_token(request.cookies)
+	if not token:
+		return jsonify({"error": "Invalid token"})
+
+	adv = db.session.query(Advertiser).where(Advertiser.id == token.profile_id).first()
+	if adv:
+		return jsonify({"error": None, "adv": adv_settings_schema.dump(adv)})
+	return jsonify({"error": "Advertiser not found"})
+
+
+
+# Update the settings of the current advertiser
+@settings.route("/adv", methods=["PUT"])
+@safeguard
+def set_adv_settings():
+	token = get_auth_token(request.cookies)
+	if not token:
+		return jsonify({"error": "Invalid token"})
+
+	req = request.get_json()
+	new_display_name = req["display_name"]
+	new_industry = req["industry"]
+	new_password = req["password"]
+
+	if not db.session.query(Advertiser).where(Advertiser.id == token.profile_id).first():
+		return jsonify({"error": "Current profile is not an advertiser"})
+
+	db.session.query(Profile).where(Profile.id == token.profile_id).update({"name": new_display_name or None})
+	db.session.query(Advertiser).where(Advertiser.id == token.profile_id).update({"industry": new_industry or None})
+
+	if new_password:
+		db.session.query(Profile).where(Profile.id == token.profile_id).update({"password": hash_secret(new_password)})
 
 	db.session.commit()
 	return jsonify({"error": None})

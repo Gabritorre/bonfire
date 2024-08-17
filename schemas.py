@@ -129,6 +129,16 @@ class CommentSchema(ma.SQLAlchemyAutoSchema):
 	user_pfp = fields.String(attribute="user.pfp", data_key="user_pfp")
 
 
+class AdvSettingsSchema(ma.SQLAlchemyAutoSchema):
+	class Meta:
+		model = Advertiser
+		fields = ("name", "handle", "industry")
+
+	handle = fields.String(attribute="profile.handle", data_key="handle")
+	name = fields.String(attribute="profile.name", data_key="name")
+
+
+
 profile_schema = ProfileSchema()
 user_schema = UserSchema()
 users_schema = UserSchema(many=True)
@@ -141,3 +151,4 @@ ad_schema = AdSchema()
 feed_ad_schema = SimpleAdSchema()
 ads_schema = SimpleAdSchema(many=True)
 comments_schema = CommentSchema(many=True)
+adv_settings_schema = AdvSettingsSchema()

@@ -207,6 +207,6 @@ class Following(Base):
 
 	__table_args__ = (
 		Index("index_follower_followed", "follower", "followed"),
-		Index("indexx_followed_follower", "followed", "follower"),
+		Index("index_followed_follower", "followed", "follower"),
 		CheckConstraint("follower <> followed", name="check_self_follow"),
 	)
