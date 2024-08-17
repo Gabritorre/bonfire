@@ -6,6 +6,7 @@ from api.utils import get_auth_token
 
 user = Blueprint("user", __name__, url_prefix="/user")
 
+# Get info about a user, including "handle", "name", "gender", "pfp", "banner", "biography", "birthday", "follower", "following", "interests"
 @user.route("/", methods=["POST"])
 @safeguard
 def get_user():
@@ -19,6 +20,7 @@ def get_user():
 
 
 
+# Search for users by handle, retuns a list of users with "id", "pfp", "handle", "name"
 @user.route("/search", methods=["POST"])
 @safeguard
 def search_user():
@@ -35,6 +37,7 @@ def search_user():
 
 
 
+# Make the current user follow a user defined by their "id"
 @user.route("/follow", methods=["PUT"])
 @safeguard
 def follow():
@@ -57,6 +60,7 @@ def follow():
 
 
 
+# Make the current user unfollow a user defined by their "id"
 @user.route("/follow", methods=["DELETE"])
 @safeguard
 def unfollow():
@@ -79,6 +83,7 @@ def unfollow():
 
 
 
+# Get a list of users that follow the user defined by their "id"
 @user.route("/followers", methods=["POST"])
 @safeguard
 def get_followers():
@@ -87,9 +92,11 @@ def get_followers():
 	
 	followers = db.session.query(User).join(Following, Following.follower == User.id).where(Following.followed == user_id).all()
 
-	return jsonify({"followers" : id_username_schema.dump(followers), "error": None})
+	return jsonify({"error": None, "followers" : id_username_schema.dump(followers)})
 
 
+
+# Get a list of users that the user defined by their "id" follows
 @user.route("/followed", methods=["POST"])
 @safeguard
 def get_followed():
@@ -98,4 +105,4 @@ def get_followed():
 	
 	followed = db.session.query(User).join(Following, Following.followed == User.id).where(Following.follower == user_id).all()
 
-	return jsonify({"followed": id_username_schema.dump(followed), "error": None})
+	return jsonify({"error": None, "followed": id_username_schema.dump(followed)})

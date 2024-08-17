@@ -105,9 +105,6 @@ class CampaignTag(Base):
 	campaign: Mapped[AdCampaign] = relationship(backref=backref("campaign", cascade="all, delete"), passive_deletes=True)
 	tag: Mapped[Tag] = relationship(backref=backref("tags_target", cascade="all, delete"), passive_deletes=True)
 
-# ------
-
-
 
 # --- Users ---
 class User(Base):
@@ -116,7 +113,6 @@ class User(Base):
 
 	gender: Mapped[GenderEnum] = mapped_column(Enum(GenderEnum), nullable=True)
 	pfp: Mapped[str] = mapped_column(Text, nullable=True)
-	banner: Mapped[str] = mapped_column(Text, nullable=True)
 	biography: Mapped[str] = mapped_column(String(BODY_LENGTH), nullable=True)
 	birthday: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=True)
 
@@ -181,7 +177,7 @@ class Comment(Base):
 	user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="cascade"))
 	post_id: Mapped[int] = mapped_column(ForeignKey("posts.id", ondelete="cascade"), index=True)
 
-	body: Mapped[str] = mapped_column(String(BODY_LENGTH), nullable=True)
+	body: Mapped[str] = mapped_column(String(BODY_LENGTH), nullable=False)
 	date: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
 	user: Mapped[User] = relationship(backref=backref("users_comment", cascade="all, delete"), passive_deletes=True)

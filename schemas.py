@@ -6,7 +6,7 @@ class ProfileSchema(ma.SQLAlchemyAutoSchema):
 	class Meta:
 		model = Profile
 
-#todo: join this schema with UserSettingsSchema (?) / create a father class with the common fields?
+
 class UserSchema(ma.SQLAlchemyAutoSchema):
 	class Meta:
 		model = User
@@ -31,6 +31,7 @@ class UserSchema(ma.SQLAlchemyAutoSchema):
 						.all())
 		return [{"id": tag_id, "tag": tag_name} for tag_id, tag_name in interests_list]
 
+
 class UserSettingsSchema(ma.SQLAlchemyAutoSchema):
 	class Meta:
 		model = User
@@ -47,6 +48,7 @@ class UserSettingsSchema(ma.SQLAlchemyAutoSchema):
 						.all())
 		return [{"id": tag_id, "tag": tag_name} for tag_id, tag_name in interests_list]
 
+
 class UserIdUsernameSchema(ma.SQLAlchemySchema):
 	class Meta:
 		model = User
@@ -55,9 +57,11 @@ class UserIdUsernameSchema(ma.SQLAlchemySchema):
 	handle = fields.String(attribute="profile.handle", data_key="handle")
 	name = fields.String(attribute="profile.name", data_key="name")
 
+
 class TagSchema(ma.SQLAlchemyAutoSchema):
 	class Meta:
 		model = Tag
+
 
 class SimplePostSchema(ma.SQLAlchemyAutoSchema):
 	class Meta:
@@ -71,6 +75,7 @@ class SimplePostSchema(ma.SQLAlchemyAutoSchema):
 	def get_tags_list(self, post_instance):
 		tags_list = db.session.query(Tag).join(PostTag).where(PostTag.post_id == post_instance.id).all()
 		return [{"id": tag.id, "tag": tag.tag} for tag in tags_list]
+
 
 class PostSchema(ma.SQLAlchemyAutoSchema):
 	class Meta:
@@ -104,12 +109,14 @@ class AdSchema(ma.SQLAlchemyAutoSchema):
 		daily_stats_list = db.session.query(DailyStat).where(DailyStat.ad_id == ad_instance.id).all()
 		return [{"date": ds.date.strftime(DATE_FORMAT), "impressions": ds.impressions, "readings": ds.readings, "clicks": ds.clicks} for ds in daily_stats_list]
 
+
 class SimpleAdSchema(ma.SQLAlchemyAutoSchema):
 	class Meta:
 		model = Ad
 		fields = ("id", "campaign_id", "name", "media", "link", "date")
 
 	date = fields.DateTime(format=DATE_TIME_FORMAT)
+
 
 class CommentSchema(ma.SQLAlchemyAutoSchema):
 	class Meta:
@@ -120,6 +127,7 @@ class CommentSchema(ma.SQLAlchemyAutoSchema):
 	user_handle = fields.String(attribute="user.profile.handle", data_key="user_handle")
 	user_name = fields.String(attribute="user.profile.name", data_key="user_name")
 	user_pfp = fields.String(attribute="user.pfp", data_key="user_pfp")
+
 
 profile_schema = ProfileSchema()
 user_schema = UserSchema()

@@ -1,5 +1,4 @@
 import json
-from threading import Thread
 from flask import Blueprint, jsonify, request
 from config import db, safeguard
 from models import BODY_LENGTH, Comment, Post, PostTag, User, Like
@@ -8,6 +7,7 @@ from .utils import delete_file, get_auth_token, update_interests, save_file
 
 post = Blueprint("post", __name__, url_prefix="/post")
 
+# Create a new post for the current user
 @post.route("/", methods=["PUT"])
 @safeguard
 def create_post():
@@ -40,6 +40,7 @@ def create_post():
 
 
 
+# Delete a post owned by the current user
 @post.route("/", methods=["DELETE"])
 @safeguard
 def delete_post():
@@ -59,6 +60,7 @@ def delete_post():
 
 
 
+# Add a like to a post, increasing the user's interest in the post's tags
 @post.route("/like", methods=["PUT"])
 @safeguard
 def like():
@@ -71,14 +73,14 @@ def like():
 	user = db.session.query(User).where(User.id == token.profile_id).first()
 	if user:
 		db.session.add(Like(user_id=user.id, post_id=post_id))
-		Thread(target=update_interests, args=(token.profile_id, post_id), kwargs={"inc": 0.2, "dec": 0.1}).start()
+		update_interests(token.profile_id, post_id, 0.2, 0.1)
 		db.session.commit()
 		return jsonify({"error": None})
 	else:
 		return jsonify({"error": "User not found"})
 
 
-
+# Remove a like from a post
 @post.route("/like", methods=["DELETE"])
 @safeguard
 def remove_like():
@@ -98,6 +100,7 @@ def remove_like():
 
 
 
+# Add a comment to a post, increasing the user's interest in the post's tags
 @post.route("/comment", methods=["PUT"])
 @safeguard
 def add_comment():
@@ -111,14 +114,14 @@ def add_comment():
 	user = db.session.query(User).where(User.id == token.profile_id).first()
 	if user:
 		db.session.add(Comment(user_id=user.id, post_id=post_id, body=comment_body))
-		Thread(target=update_interests, args=(token.profile_id, post_id), kwargs={"inc": 0.4, "dec": 0.1}).start()
+		update_interests(token.profile_id, post_id, 0.4, 0.1)
 		db.session.commit()
 		return jsonify({"error": None})
 	else:
 		return jsonify({"error": "User not found"})
 
 
-
+# Get all the comments for a post
 @post.route("/comments", methods=["POST"])
 @safeguard
 def get_post_comments():
@@ -129,4 +132,4 @@ def get_post_comments():
 		return jsonify({"error": "Post not found"})
 
 	comments = db.session.query(Comment).where(Comment.post_id == post_id).order_by(Comment.date).all()
-	return jsonify({"comments": comments_schema.dump(comments), "error": None})
+	return jsonify({"error": None, "comments": comments_schema.dump(comments)})

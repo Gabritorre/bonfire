@@ -7,6 +7,7 @@ from .utils import hash_secret, get_auth_token
 
 settings = Blueprint("settings", __name__, url_prefix="/settings")
 
+# Get the settings of the current user, indluding "name", "handle", "pfp", "gender", "biography", "birthday", "interests"
 @settings.route("/user", methods=["GET"])
 @safeguard
 def get_user_settings():
@@ -21,6 +22,7 @@ def get_user_settings():
 
 
 
+# Update the settings of the current user
 @settings.route("/user", methods=["PUT"])
 @safeguard
 def set_user_settings():

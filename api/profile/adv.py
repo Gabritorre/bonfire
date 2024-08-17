@@ -7,6 +7,7 @@ from api.utils import get_auth_token, save_file, delete_file
 
 adv = Blueprint("adv", __name__, url_prefix="/adv")
 
+# Create a new campaign for the current advertiser
 @adv.route("/campaign", methods=["PUT"])
 @safeguard
 def create_campaign():
@@ -39,6 +40,7 @@ def create_campaign():
 
 
 
+# Delete a campaign, recognized by its "id", owned by the current advertiser
 @adv.route("/campaign", methods=["DELETE"])
 @safeguard
 def delete_campaign():
@@ -60,6 +62,8 @@ def delete_campaign():
 
 
 
+# Get all ads of a campaign, recognized by its "id", owned by the current advertiser.
+# Returns a list of ads that includes their "id", "campaign_id", "name", "media", "link", "date"
 @adv.route("/ads", methods=["POST"])
 @safeguard
 def get_ads():
@@ -80,6 +84,8 @@ def get_ads():
 
 
 
+# Get a specific ad, recognized by its "id", owned by the current advertiser
+# Returns the ad's "id", "campaign_id", "name", "media", "link", "probability", "date", "daily_stats"
 @adv.route("/ad", methods=["POST"])
 @safeguard
 def get_ad():
@@ -104,6 +110,7 @@ def get_ad():
 
 
 
+# Create a new ad for a campaign, recognized by its "id", owned by the current advertiser
 @adv.route("/ad", methods=["PUT"])
 @safeguard
 def create_ad():
@@ -132,6 +139,7 @@ def create_ad():
 
 
 
+# Delete an ad, recognized by its "id", owned by the current advertiser
 @adv.route("/ad", methods=["DELETE"])
 @safeguard
 def delete_ad():

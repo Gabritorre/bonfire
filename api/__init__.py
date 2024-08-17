@@ -13,6 +13,8 @@ api.register_blueprint(settings)
 api.register_blueprint(feed)
 api.register_blueprint(post)
 
+
+# Get a list of all tags
 @api.route("/tags", methods=["GET"])
 @safeguard
 def get_all_tags():

@@ -6,7 +6,7 @@ from models import *
 
 app.register_blueprint(api)
 
-
+# Get web page templates and static files from server file system
 @app.route("/", defaults={"path": "index"})
 @app.route("/<path:path>")
 def root(path):
@@ -22,6 +22,8 @@ def root(path):
 			return (render_template("404.html"), 404)
 		return send_from_directory(app.static_folder, path)
 
+
+# Get a specific the media file from server file system
 @app.route("/media/<path:path>")
 def media(path):
 	if not os.path.isfile(os.path.join(app.root_path, app.config["UPLOAD_FOLDER"], path)):

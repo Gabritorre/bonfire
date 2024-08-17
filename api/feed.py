@@ -9,6 +9,7 @@ feed = Blueprint("feed", __name__, url_prefix="/feed")
 
 POSTS_PER_CHUNK = 6
 
+# Get a list of posts for the explore page
 @feed.route("/explore", methods=["POST"])
 @safeguard
 def explore():
@@ -16,7 +17,7 @@ def explore():
 	req = request.get_json()
 	last_post_id = req["last_post_id"]
 	if last_post_id:
-		posts = db.session.query(Post).where(Post.id < last_post_id).order_by(Post.id.desc())
+		posts = db.session.query(Post).where(Post.id < last_post_id).order_by(Post.id.desc())	# get posts older than the last post in the previous chunk
 	else:
 		posts = db.session.query(Post).order_by(Post.id.desc())
 	posts = posts.limit(POSTS_PER_CHUNK)
@@ -32,7 +33,7 @@ def explore():
 	return jsonify({"error": None, "posts": posts_data, "ad": feed_ad_schema.dump(recommended_ad)})
 
 
-
+# Get a list of posts from the user's friends
 @feed.route("/friends", methods=["POST"])
 @safeguard
 def friends_posts():
@@ -46,7 +47,7 @@ def friends_posts():
 	req = request.get_json()
 	last_post_id = req["last_post_id"]
 	if last_post_id:
-		posts = db.session.query(Post).where(Post.user_id.in_(friends_ids), Post.id < last_post_id).order_by(Post.id.desc())
+		posts = db.session.query(Post).where(Post.user_id.in_(friends_ids), Post.id < last_post_id).order_by(Post.id.desc()) # get posts older than the last post in the previous chunk
 	else:
 		posts = db.session.query(Post).where(Post.user_id.in_(friends_ids)).order_by(Post.id.desc())
 	posts = posts.limit(POSTS_PER_CHUNK)
@@ -59,6 +60,7 @@ def friends_posts():
 	return jsonify({"error": None, "posts": data})
 
 
+# Get a list of posts from a specific user
 @feed.route("/user", methods=["POST"])
 @safeguard
 def user_posts():

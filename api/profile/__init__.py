@@ -9,6 +9,7 @@ profile = Blueprint("profile", __name__, url_prefix="/profile")
 profile.register_blueprint(user)
 profile.register_blueprint(adv)
 
+
 @profile.route("/signup", methods=["PUT"])
 @safeguard
 def signup():
@@ -68,7 +69,7 @@ def logout():
 	return res
 
 
-
+# Get the profile id of the current user, and whether they are an advertiser or not
 @profile.route("/", methods=["GET"])
 @safeguard
 def get_token():
@@ -78,10 +79,10 @@ def get_token():
 
 	if db.session.query(Advertiser).where(Advertiser.id == token.profile_id).first():
 		return jsonify({"error": None, "id": token.profile_id, "is_adv": True})
-	return jsonify({"id": token.profile_id, "is_adv": False, "error": None})
+	return jsonify({"error": None, "id": token.profile_id, "is_adv": False})
 
 
-
+# Delete the profile of the current user
 @profile.route("/", methods=["DELETE"])
 @safeguard
 def delete_profile():
