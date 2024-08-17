@@ -1,9 +1,10 @@
+import json
 from flask import Blueprint, jsonify, request
 from config import db, safeguard
 from models import Profile, User, Advertiser, Interest, DATE_FORMAT
 from schemas import user_settings_schema, adv_settings_schema
 from datetime import datetime
-from .utils import hash_secret, get_auth_token
+from .utils import hash_secret, get_auth_token, save_file, delete_file
 
 settings = Blueprint("settings", __name__, url_prefix="/settings")
 
@@ -30,13 +31,14 @@ def set_user_settings():
 	if not token:
 		return jsonify({"error": "Invalid token"})
 
-	req = request.get_json()
+	req = json.loads(request.form["json"])
 	new_display_name = req["display_name"]
 	new_gender = req["gender"]
 	new_biography = req["biography"]
 	new_birthday = req["birthday"]
 	new_password = req["password"]
 	new_interests = req["interests"]
+	pfp = request.files["pfp"]
 
 	if not db.session.query(User).where(User.id == token.profile_id).first():
 		return jsonify({"error": "Current profile is not a user"})
@@ -70,6 +72,13 @@ def set_user_settings():
 		for interest in interests_to_add:
 			db.session.add(Interest(user_id=token.profile_id, tag_id=interest, interest=1.0))
 
+	filename = save_file(pfp)
+	try:
+		db.session.query(User).where(User.id == token.profile_id).update({"pfp": filename})
+	except:
+		delete_file(filename)
+		raise
+	
 	db.session.commit()
 	return jsonify({"error": None})
 
