@@ -1,7 +1,7 @@
 <div class="row g-2" x-data="tags">
 	<template x-for="(tag, tag_index) in interests">
 		<div class="col-auto">
-			<button class="btn btn-success btn-tag rounded-pill position-relative" type="button" @click="tag_remove(tag_index)">
+			<button class="btn btn-success btn-tag rounded-pill" type="button" @click="tag_remove(tag_index)">
 				<div x-text="tag.tag"></div>
 				<i class="bi bi-trash-fill"></i>
 			</button>

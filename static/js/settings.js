@@ -4,6 +4,7 @@ document.addEventListener("alpine:init", () => {
 		name: null,
 		gender: null,
 		pfp: PFP_EMPTY,
+		pfp_file: null,
 		birthday: null,
 		biography: null,
 		password: "",
@@ -13,7 +14,9 @@ document.addEventListener("alpine:init", () => {
 		error: null,
 
 		init() {
+			console.log(this.$refs.pfp.files[0]);
 			this.$watch("password", () => this.score_update());
+			this.$watch("pfp_file", () => this.pfp_update());
 
 			this.fetch("GET", "/api/settings/user").then((res) => {
 				this.handle = res.user.handle;
@@ -34,26 +37,24 @@ document.addEventListener("alpine:init", () => {
 				return;
 			}
 
-			this.fetch("PUT", "/api/settings/user", {
+			let form = new FormData();
+			form.append("json", JSON.stringify({
 				display_name: this.name,
 				gender: this.gender,
 				biography: this.biography,
 				birthday: this.birthday,
 				password: this.password,
 				interests: this.interests.map((tag) => tag.id)
-			}).then((res) => {
+			}));
+			form.append("pfp", this.pfp_file);
+
+			this.fetch("PUT", "/api/settings/user", form).then((res) => {
 				if (!res.error) {
 					window.location.reload();
 					return;
 				}
 				this.error = res.error;
 			});
-		},
-
-		score_update() {
-			let [color, width] = this.entropy(this.password);
-			this.score["background-color"] = color;
-			this.score["width"] = width;
 		},
 
 		nuke() {
@@ -67,5 +68,19 @@ document.addEventListener("alpine:init", () => {
 				});
 			});
 		},
+
+		score_update() {
+			let [color, width] = this.entropy(this.password);
+			this.score["background-color"] = color;
+			this.score["width"] = width;
+		},
+
+		pfp_update() {
+			if (!this.pfp_file.type.startsWith("image/")) {
+				this.error = "Couldn't load profile picture";
+				return;
+			}
+			this.pfp = URL.createObjectURL(this.pfp_file);
+		}
 	}));
 });

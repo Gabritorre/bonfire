@@ -2,6 +2,7 @@ document.addEventListener("alpine:init", () => {
 	Alpine.data("index", () => ({
 		draft: {
 			body: "",
+			media: null,
 			interests: []
 		},
 		posts: [
@@ -30,7 +31,7 @@ document.addEventListener("alpine:init", () => {
 				body: this.draft.body,
 				tags: this.draft.tags
 			}));
-			form.append("media", this.$refs.media.files[0]);
+			form.append("media", this.draft.media);
 
 			this.fetch("PUT", "/api/post", form).then((res) => {
 				console.log(res);

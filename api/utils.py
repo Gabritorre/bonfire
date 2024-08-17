@@ -76,11 +76,12 @@ def save_file(file) -> str:
 			sf = snowflake.generate()
 			hashed_sf = hash_sha1(f"{sf}")
 			new_filename = f"{hashed_sf}.{extension}"
-			file.save(os.path.join(app.config["UPLOAD_FOLDER"], new_filename))
-			return new_filename
+			new_path = os.path.join(app.config["UPLOAD_FOLDER"], new_filename)
+			file.save(new_path)
+			return os.path.join("/", new_path)
 	raise ValueError("Invalid file extension")
 
-# Delete a file from the server filesystem 
+# Delete a file from the server filesystem
 def delete_file(filename) -> None:
 	file_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
 	if os.path.exists(file_path):

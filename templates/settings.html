@@ -12,7 +12,11 @@
 			<div class="col d-flex justify-content-center">
 				<div class="profile-picture-5 d-flex flex-column gap-3">
 					<div class="fw-bold">Profile picture</div>
-					<img class="profile-picture w-100" :src="pfp" />
+					<label class="btn btn-tag profile-picture border w-100 p-0" for="pfp-upload">
+						<img class="profile-picture w-100" :src="pfp">
+						<i class="bi bi-upload fs-2"></i>
+					</label>
+					<input class="d-none" id="pfp-upload" type="file" autocomplete="off" x-ref="pfp" @change="pfp_file = $refs.pfp.files[0]" />
 				</div>
 			</div>
 			<div class="col col-lg-8">

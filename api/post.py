@@ -18,12 +18,14 @@ def create_post():
 	req = json.loads(request.form["json"])
 	body = req["body"]
 	tags = req["tags"]
-	media = request.files["media"]
+	media = request.files.get("media")
 
 	if len(body) > BODY_LENGTH:
 		return jsonify({"error": "Post body is too long"})
 
-	filename = save_file(media)
+	filename = None
+	if media:
+		filename = save_file(media)
 
 	try:
 		post = Post(user_id=token.profile_id, body=body, media=filename)

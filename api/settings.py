@@ -38,7 +38,7 @@ def set_user_settings():
 	new_birthday = req["birthday"]
 	new_password = req["password"]
 	new_interests = req["interests"]
-	pfp = request.files["pfp"]
+	pfp = request.files.get("pfp")
 
 	if not db.session.query(User).where(User.id == token.profile_id).first():
 		return jsonify({"error": "Current profile is not a user"})
@@ -71,14 +71,14 @@ def set_user_settings():
 	if interests_to_add:
 		for interest in interests_to_add:
 			db.session.add(Interest(user_id=token.profile_id, tag_id=interest, interest=1.0))
+	if pfp:
+		filename = save_file(pfp)	# TODO: Prevent upload of videos here
+		try:
+			db.session.query(User).where(User.id == token.profile_id).update({"pfp": filename})
+		except:
+			delete_file(filename)
+			raise
 
-	filename = save_file(pfp)
-	try:
-		db.session.query(User).where(User.id == token.profile_id).update({"pfp": filename})
-	except:
-		delete_file(filename)
-		raise
-	
 	db.session.commit()
 	return jsonify({"error": None})
 

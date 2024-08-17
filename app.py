@@ -24,7 +24,7 @@ def root(path):
 
 
 # Get a specific the media file from server file system
-@app.route("/media/<path:path>")
+@app.route(os.path.join("/", app.config["UPLOAD_FOLDER"], "<path:path>"))
 def media(path):
 	if not os.path.isfile(os.path.join(app.root_path, app.config["UPLOAD_FOLDER"], path)):
 		return (render_template("404.html"), 404)
