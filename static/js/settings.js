@@ -2,6 +2,7 @@ document.addEventListener("alpine:init", () => {
 	Alpine.data("settings", () => ({
 		handle: null,
 		name: null,
+		industry: null,
 		gender: null,
 		pfp: PFP_EMPTY,
 		pfp_file: null,
@@ -14,21 +15,28 @@ document.addEventListener("alpine:init", () => {
 		error: null,
 
 		init() {
-			console.log(this.$refs.pfp.files[0]);
 			this.$watch("password", () => this.score_update());
 			this.$watch("pfp_file", () => this.pfp_update());
 
-			this.fetch("GET", "/api/settings/user").then((res) => {
-				this.handle = res.user.handle;
-				this.name = res.user.name;
-				this.biography = res.user.biography;
-				this.gender = res.user.gender ?? this.gender;
-				this.pfp = res.user.pfp ?? PFP_EMPTY;
-				this.interests = res.user.interests ?? [];
-				if (res.user.birthday) {
-					this.birthday = new Date(new Date(res.user.birthday) + "UTC").toISOString().split("T")[0];
-				}
-			});
+			if (this.account.is_adv) {
+				this.fetch("GET", "/api/settings/adv").then((res) => {
+					this.handle = res.adv.handle;
+					this.name = res.adv.name;
+					this.industry = res.adv.industry;
+				});
+			} else {
+				this.fetch("GET", "/api/settings/user").then((res) => {
+					this.handle = res.user.handle;
+					this.name = res.user.name;
+					this.biography = res.user.biography;
+					this.gender = res.user.gender ?? this.gender;
+					this.pfp = res.user.pfp ?? PFP_EMPTY;
+					this.interests = res.user.interests ?? [];
+					if (res.user.birthday) {
+						this.birthday = new Date(new Date(res.user.birthday) + "UTC").toISOString().split("T")[0];
+					}
+				});
+			}
 		},
 
 		submit() {
@@ -37,24 +45,38 @@ document.addEventListener("alpine:init", () => {
 				return;
 			}
 
-			let form = new FormData();
-			form.append("json", JSON.stringify({
-				display_name: this.name,
-				gender: this.gender,
-				biography: this.biography,
-				birthday: this.birthday,
-				password: this.password,
-				interests: this.interests.map((tag) => tag.id)
-			}));
-			form.append("pfp", this.pfp_file);
+			if (this.account.is_adv) {
+				this.fetch("PUT", "/api/settings/adv", {
+					display_name: this.name,
+					industry: this.industry,
+					password: this.password
+				}).then((res) => {
+					if (!res.error) {
+						window.location.reload();
+						return;
+					}
+					this.error = res.error;
+				});
+			} else {
+				let form = new FormData();
+				form.append("json", JSON.stringify({
+					display_name: this.name,
+					gender: this.gender,
+					biography: this.biography,
+					birthday: this.birthday,
+					password: this.password,
+					interests: this.interests.map((tag) => tag.id)
+				}));
+				form.append("pfp", this.pfp_file);
 
-			this.fetch("PUT", "/api/settings/user", form).then((res) => {
-				if (!res.error) {
-					window.location.reload();
-					return;
-				}
-				this.error = res.error;
-			});
+				this.fetch("PUT", "/api/settings/user", form).then((res) => {
+					if (!res.error) {
+						window.location.reload();
+						return;
+					}
+					this.error = res.error;
+				});
+			}
 		},
 
 		nuke() {

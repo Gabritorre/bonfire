@@ -8,8 +8,8 @@
 {% block view %}
 <div class="overflow-scroll flex-grow-1">
 	<div class="container py-5">
-		<form class="row row-cols-1 row-cols-lg-3 gy-5" x-data="settings" x-show="handle" @submit.prevent="submit">
-			<div class="col d-flex justify-content-center">
+		<form class="row row-cols-1 row-cols-lg-3 gy-5 justify-content-center" x-data="settings" x-show="handle" @submit.prevent="submit">
+			<div class="col d-flex justify-content-center" x-show.important="!account.is_adv">
 				<div class="profile-picture-5 d-flex flex-column gap-3">
 					<div class="fw-bold">Profile picture</div>
 					<label class="btn btn-tag profile-picture border w-100 p-0" for="pfp-upload">
@@ -33,7 +33,7 @@
 							<input class="form-control" type="text" placeholder="Display name" x-model="name" />
 						</div>
 					</div>
-					<div class="col">
+					<div class="col" x-show="!account.is_adv">
 						<div class="d-flex flex-column gap-2">
 							<div class="fw-bold">Gender</div>
 							<select class="form-select" x-model="gender">
@@ -44,19 +44,25 @@
 							</select>
 						</div>
 					</div>
-					<div class="col">
+					<div class="col" x-show="!account.is_adv">
 						<div class="d-flex flex-column gap-2">
 							<div class="fw-bold">Birthday</div>
 							<input class="form-control" type="date" x-model="birthday" />
 						</div>
 					</div>
-					<div class="col col-sm-12">
+					<div class="col col-sm-12" x-show="account.is_adv">
+						<div class="d-flex flex-column gap-2">
+							<div class="fw-bold">Industry</div>
+							<input class="form-control" type="text" x-model="industry" />
+						</div>
+					</div>
+					<div class="col col-sm-12" x-show="!account.is_adv">
 						<div class="d-flex flex-column gap-2">
 							<div class="fw-bold">Bio</div>
 							<textarea class="form-control" rows="3" x-model="biography"></textarea>
 						</div>
 					</div>
-					<div class="col col-sm-12">
+					<div class="col col-sm-12" x-show="!account.is_adv">
 						<div class="d-flex flex-column gap-2">
 							<div class="fw-bold">Interests</div>
 							{% include "layout/tags.html" %}
