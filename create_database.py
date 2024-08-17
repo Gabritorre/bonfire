@@ -7,24 +7,29 @@ Base.metadata.create_all(bind=engine)
 print("Done.")
 print("Creating triggers...")
 
-
-# example trigger
 with engine.connect() as connection:
 	connection.execute(text("""
-		CREATE OR REPLACE FUNCTION check_budget() 
-		RETURNS TRIGGER AS $$
-		BEGIN
-			IF NEW.budget < 0 THEN
-				RAISE EXCEPTION 'Budget cannot be negative';
-			END IF;
-			RETURN NEW;
-		END;
-		$$ LANGUAGE plpgsql;
+		create or replace function check_cumulative_probability()
+		returns trigger as $$
+		declare cumulative_prob float;
+		begin
+			select sum(probability) + new.probability
+			into cumulative_prob
+			from ads
+			where campaign_id = new.campaign_id;
 
-		CREATE OR REPLACE TRIGGER check_budget_trigger
-		BEFORE INSERT OR UPDATE ON ad_campaigns
-		FOR EACH ROW
-		EXECUTE FUNCTION check_budget();
+			if cumulative_prob < 0 or cumulative_prob > 1 then
+				raise exception 'Cumulative sum of probabilities is not between 0 and 1';
+			end if;
+
+			return new;
+		end;
+		$$ language plpgsql;
+
+		create or replace trigger bound_probability
+		before INSERT or UPDATE on ads
+		for each row
+		execute function check_cumulative_probability();
 	"""))
 	connection.commit()
 
