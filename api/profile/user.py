@@ -6,17 +6,23 @@ from api.utils import get_auth_token
 
 user = Blueprint("user", __name__, url_prefix="/user")
 
-# Get info about a user, including "handle", "name", "gender", "pfp", "banner", "biography", "birthday", "follower", "following", "interests"
+# Get info about a user, including "handle", "name", "creation_date", "gender", "pfp", "biography", "birthday", "follower", "following", "interests"
 @user.route("/", methods=["POST"])
 @safeguard
 def get_user():
+	token = get_auth_token(request.cookies)
 	req = request.get_json()
 	user_id = req["id"]
 	user = db.session.get(User, user_id)
 
 	if not user:
 		return jsonify({"error": "User not found"})
-	return jsonify({"error": None, "user": user_schema.dump(user)})
+	
+	# Check if the current user follows the selected user
+	user_data = user_schema.dump(user)
+	if token:
+		user_data["user_follow"] = bool(db.session.query(Following).where(Following.follower == token.profile_id, Following.followed == user_id).count())
+	return jsonify({"error": None, "user": user_data})
 
 
 
