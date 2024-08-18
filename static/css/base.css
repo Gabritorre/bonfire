@@ -56,13 +56,26 @@ textarea {
 	--bs-btn-close-focus-shadow: none;
 }
 
-.feed .card .card-text {
+.multiline {
 	white-space: pre;
 }
 
 .tags-dropdown .dropdown-menu {
 	overflow: scroll;
 	max-height: var(--tags-dropdown-height);
+}
+
+.feed {
+	width: min(var(--post-width), 100%);
+}
+
+.feed .card-img {
+	aspect-ratio: var(--post-media-ratio);
+	object-fit: cover;
+}
+
+.feed .card .list-group {
+	max-height: 500px;
 }
 
 /* Transitions on collapse buttons icons */

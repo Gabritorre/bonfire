@@ -2,7 +2,6 @@
 
 {% block head %}
 {{super()}}
-<link rel="stylesheet" href="/css/index.css" />
 <script src="/js/index.js"></script>
 {% endblock %}
 
@@ -21,8 +20,8 @@
 									<li class="nav-item">
 										<button class="nav-link active" title="See what the world is up to">Explore</button>
 									</li>
-									<li class="nav-item">
-										<button class="nav-link text-muted" title="See what your friends are up to" :disabled="!account.authenticated || account.is_adv">Friends</button>
+									<li class="nav-item" x-show="account.authenticated && !account.is_adv">
+										<button class="nav-link text-muted" title="See what your friends are up to">Friends</button>
 									</li>
 								</ul>
 							</div>

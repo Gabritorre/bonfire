@@ -95,7 +95,8 @@ document.addEventListener("alpine:init", () => {
 
 		suffixize(number) {
 			const suffixes = ["", "K", "M", "B", "T"];
-			let i = Math.min(Math.floor(Math.log10(number)/3), suffixes.length-1);
+			let order = Math.floor(Math.log10(number)/3);
+			let i = Math.max(Math.min(order, suffixes.length-1), 0);
 			let scaled = number / 10**(i*3);
 			let rounded = Math.round(scaled*10)/10;
 			return rounded + suffixes[i];

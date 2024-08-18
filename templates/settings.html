@@ -8,15 +8,15 @@
 {% block view %}
 <div class="overflow-scroll flex-grow-1">
 	<div class="container py-5">
-		<form class="row row-cols-1 row-cols-lg-3 gy-5 justify-content-center" x-data="settings" x-show="handle" @submit.prevent="submit">
+		<form class="row row-cols-1 row-cols-lg-3 gy-5 justify-content-center" x-data="settings" x-show="info.handle" @submit.prevent="submit">
 			<div class="col d-flex justify-content-center" x-show.important="!account.is_adv">
 				<div class="profile-picture-5 d-flex flex-column gap-3">
 					<div class="fw-bold">Profile picture</div>
 					<label class="btn btn-tag profile-picture border w-100 p-0" for="pfp-upload">
-						<img class="profile-picture w-100" :src="pfp">
+						<img class="profile-picture w-100" :src="info.pfp">
 						<i class="bi bi-upload fs-2"></i>
 					</label>
-					<input class="d-none" id="pfp-upload" type="file" autocomplete="off" x-ref="pfp" @change="pfp_file = $refs.pfp.files[0]" />
+					<input class="d-none" id="pfp-upload" type="file" autocomplete="off" x-ref="pfp" @change="file = $refs.pfp.files[0]" />
 				</div>
 			</div>
 			<div class="col col-lg-8">
@@ -24,19 +24,19 @@
 					<div class="col">
 						<div class="d-flex flex-column gap-2">
 							<div class="fw-bold">Handle</div>
-							<input class="form-control" type="text" x-model="handle" disabled />
+							<input class="form-control" type="text" x-model="info.handle" disabled />
 						</div>
 					</div>
 					<div class="col">
 						<div class="d-flex flex-column gap-2">
 							<div class="fw-bold">Name</div>
-							<input class="form-control" type="text" placeholder="Display name" x-model="name" />
+							<input class="form-control" type="text" placeholder="Display name" x-model="info.name" />
 						</div>
 					</div>
 					<div class="col" x-show="!account.is_adv">
 						<div class="d-flex flex-column gap-2">
 							<div class="fw-bold">Gender</div>
-							<select class="form-select" x-model="gender">
+							<select class="form-select" x-model="info.gender">
 								<option selected hidden>Not specified</option>
 								<option value="male">Male</option>
 								<option value="female">Female</option>
@@ -47,19 +47,19 @@
 					<div class="col" x-show="!account.is_adv">
 						<div class="d-flex flex-column gap-2">
 							<div class="fw-bold">Birthday</div>
-							<input class="form-control" type="date" x-model="birthday" />
+							<input class="form-control" type="date" x-model="info.birthday" />
 						</div>
 					</div>
 					<div class="col col-sm-12" x-show="account.is_adv">
 						<div class="d-flex flex-column gap-2">
 							<div class="fw-bold">Industry</div>
-							<input class="form-control" type="text" x-model="industry" />
+							<input class="form-control" type="text" x-model="info.industry" />
 						</div>
 					</div>
 					<div class="col col-sm-12" x-show="!account.is_adv">
 						<div class="d-flex flex-column gap-2">
 							<div class="fw-bold">Bio</div>
-							<textarea class="form-control" rows="3" x-model="biography"></textarea>
+							<textarea class="form-control" rows="3" x-model="info.biography"></textarea>
 						</div>
 					</div>
 					<div class="col col-sm-12" x-show="!account.is_adv">

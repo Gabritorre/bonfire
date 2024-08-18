@@ -1,35 +1,49 @@
 {% extends "layout/header.html" %}
 
+{% block head %}
+{{super()}}
+<script src="/js/profile.js"></script>
+{% endblock %}
+
 {% block view %}
-<div class="container">
-	<div class="d-flex flex-column flex-md-row pt-4 gap-4">
-		<div class="d-flex justify-content-center">
+<div class="overflow-scroll flex-grow-1">
+	<div class="container" x-data="profile" x-show="user.handle">
+		<div class="d-flex flex-column flex-md-row py-4 gap-4">
+			<div class="d-flex justify-content-center">
+				<div>
+					<img class="profile-picture profile-picture-4" :src="user.pfp" />
+				</div>
+			</div>
 			<div>
-				<img class="profile-picture profile-picture-4" src="https://cat-milk.github.io/Anime-Girls-Holding-Programming-Books/static/a6c38430026f9719ac9c69fd892dbb78/47126/Aharen_Reina_Holding_C_Programming_Language.png" />
+				<div class="d-flex align-items-center gap-3">
+					<span class="fs-4 fw-bold" x-text="user.name ?? user.handle"></span>
+					<button class="btn btn-sm rounded-pill" :class="user.followed ? 'btn-outline-light' : 'btn-light'" x-show="account.id != id" x-text="user.followed ? 'Followed' : 'Follow'" @click="submit_follow"></button>
+				</div>
+				<div class="text-secondary">
+					@<span x-text="user.handle"></span> &middot;
+					<span x-show="user.gender"><span x-text="user.gender"></span> &middot;</span>
+					<span x-show="user.birthday">Born <span x-text="user.birthday"></span> &middot;</span>
+					Joined <span x-text="user.creation_date"></span>
+				</div>
+				<div class="text-secondary d-flex gap-3 my-2">
+					<div>
+						<span class="text-body fw-bold" x-text="suffixize(user.follower)"></span> Followers
+					</div>
+					<div>
+						<span class="text-body fw-bold" x-text="suffixize(user.following)"></span> Following
+					</div>
+				</div>
+				<div class="multiline" x-text="user.biography"></div>
 			</div>
 		</div>
-		<div>
-			<div class="d-flex align-items-center gap-3">
-				<span class="fs-4 fw-bold">Seafan</span>
-				<button class="btn btn-sm btn-light rounded-pill">Follow</button>
-			</div>
-			<div class="text-secondary">
-				@<span>seafan</span> &middot; Joined <span>01/01/1970</span>
-			</div>
-			<div class="text-secondary d-flex gap-3 my-2">
-				<div>
-					<span class="text-body fw-bold">2M</span> Followers
-				</div>
-				<div>
-					<span class="text-body fw-bold">37</span> Following
-				</div>
-			</div>
-			<div>
-				Why yes, I pack all my structs. How could you tell?
+
+		<hr class="mt-0 mb-3">
+
+		<div class="d-flex justify-content-center">
+			<div class="feed">
+				{% include "layout/feed.html" %}
 			</div>
 		</div>
 	</div>
-
-	<hr class="my-4">
 </div>
 {% endblock %}
