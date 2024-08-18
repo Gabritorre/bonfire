@@ -71,8 +71,9 @@ def set_user_settings():
 	if interests_to_add:
 		for interest in interests_to_add:
 			db.session.add(Interest(user_id=token.profile_id, tag_id=interest, interest=1.0))
+
 	if pfp:
-		filename = save_file(pfp)	# TODO: Prevent upload of videos here
+		filename = save_file(pfp, img_only=True)
 		try:
 			db.session.query(User).where(User.id == token.profile_id).update({"pfp": filename})
 		except:

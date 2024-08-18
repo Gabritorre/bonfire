@@ -125,7 +125,9 @@ def create_ad():
 	prob = req["probability"]
 	media = request.files["media"]
 
-	filename = save_file(media)
+	filename = None
+	if media:
+		filename = save_file(media)
 
 	try:
 		ad = Ad(campaign_id=campaign_id, name=name, media=filename, link=link, probability=prob)

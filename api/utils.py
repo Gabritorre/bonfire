@@ -66,19 +66,22 @@ def update_interests(user_id: int, post_id: int, inc: float=0.0, dec: float=0.0)
 	db.session.query(Interest).where(Interest.tag_id.in_(decreasing_interests)).update({Interest.interest: Interest.interest - dec})
 
 # Save a file in the server filesystem, before saving the file, the mime type and extensiona are validated and the filename is hashed
-def save_file(file) -> str:
+def save_file(file, img_only = False) -> str:
 	mime = magic.Magic(mime=True)
 	mime_type = mime.from_buffer(file.read(2048))
 	file.seek(0)
-	if mime_type in ALLOWED_MIME_TYPES:
-		extension = file.filename.rsplit('.', 1)[1].lower() if '.' in file.filename else ''
-		if extension in ALLOWED_MIME_TYPES[mime_type]:
-			sf = snowflake.generate()
-			hashed_sf = hash_sha1(f"{sf}")
-			new_filename = f"{hashed_sf}.{extension}"
-			new_path = os.path.join(app.config["UPLOAD_FOLDER"], new_filename)
-			file.save(new_path)
-			return os.path.join("/", new_path)
+
+	if (img_only and not mime_type.startswith("image/")) or mime_type not in ALLOWED_MIME_TYPES:
+		raise ValueError("Invalid file type")
+
+	extension = file.filename.rsplit('.', 1)[1].lower() if '.' in file.filename else ''
+	if extension in ALLOWED_MIME_TYPES[mime_type]:
+		sf = snowflake.generate()
+		hashed_sf = hash_sha1(f"{sf}")
+		new_filename = f"{hashed_sf}.{extension}"
+		new_path = os.path.join(app.config["UPLOAD_FOLDER"], new_filename)
+		file.save(new_path)
+		return os.path.join("/", new_path)
 	raise ValueError("Invalid file extension")
 
 # Delete a file from the server filesystem
