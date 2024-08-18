@@ -37,7 +37,7 @@
 			<div class="card">
 				<div class="card-header">Comments</div>
 				<ul class="list-group list-group-flush overflow-scroll">
-					<li class="list-group-item p-4 pt-3" x-show="account.authenticated && !account.is_adv">
+					<li class="list-group-item p-4 pt-3" :class="post.comments.length == 0 && 'border-bottom-0'" x-show="account.authenticated && !account.is_adv">
 						<div class="row row-cols-1 gy-3">
 							<div class="col">
 								<div class="row">
@@ -55,20 +55,20 @@
 							</div>
 						</div>
 					</li>
-					<li class="list-group-item px-4 py-3">
-						<div class="row row-cols-1 gy-2">
-							<div class="col d-flex align-items-center">
-								<img class="profile-picture profile-picture-1 me-2" src="https://cat-milk.github.io/Anime-Girls-Holding-Programming-Books/static/a6c38430026f9719ac9c69fd892dbb78/47126/Aharen_Reina_Holding_C_Programming_Language.png" />
-								<div class="fw-bold me-2">Seafan</div>
-								<div class="text-secondary">
-									@<span>seafan</span> &middot; <span>01/01/1970</span>
+					<template x-for="(comment, comment_index) in post.comments">
+						<li class="list-group-item px-4 py-3">
+							<div class="row row-cols-1 gy-2">
+								<div class="col d-flex align-items-center">
+									<img class="profile-picture profile-picture-1 me-2" :src="comment.user_pfp ?? PFP_EMPTY" />
+									<div class="fw-bold me-2" x-text="comment.user_name ?? comment.user_handle"></div>
+									<div class="text-secondary">
+										@<span x-text="comment.user_handle"></span> &middot; <span x-text="new Date(comment.date).toLocaleDateString()"></span>
+									</div>
 								</div>
+								<div class="col multiline" x-text="comment.body"></div>
 							</div>
-							<div class="col">
-								Or you could just use C
-							</div>
-						</div>
-					</li>
+						</li>
+					</template>
 				</ul>
 			</div>
 
