@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, request
 from sqlalchemy.sql.expression import func
 from config import db, safeguard
-from models import Ad, Post, Following, Like, User
+from models import Ad, Post, Following, Like, User, PostTag, Tag
 from schemas import posts_schema, feed_ad_schema
 from .utils import get_auth_token, recommend_ad
 
@@ -71,6 +71,36 @@ def user_posts():
 	if not db.session.query(User).where(User.id == user_id).first():
 		return jsonify({"error": "User not found"})
 	posts = db.session.query(Post).where(Post.user_id == user_id).order_by(Post.id.desc()).all()
+	data = posts_schema.dump(posts)
+
+	# for each post check if the user liked it or not
+	if token:
+		for count, post in enumerate(posts):
+			data[count]['user_like'] = bool(db.session.query(Like).where(Like.post_id == post.id, Like.user_id == token.profile_id).count())
+
+	return jsonify({"error": None, "posts": data})
+
+# Get a list of posts with a specific tag
+@feed.route("/tag", methods=["POST"])
+@safeguard
+def search_posts_by_tag():
+	token = get_auth_token(request.cookies)
+	req = request.get_json()
+	input_tag = req["tag"]
+	last_post_id = req["last_post_id"]
+
+	tag = db.session.query(Tag).where(Tag.tag == input_tag).first()
+	if not tag:
+		return jsonify({"error": None, "posts": []})
+
+	if last_post_id:
+		posts = (db.session.query(Post)		# get posts older than the last post in the previous chunk
+			.join(PostTag, Post.id == PostTag.post_id)
+			.where(PostTag.tag_id == tag.id, Post.id < last_post_id)
+			.order_by(Post.id.desc()))
+	else:
+		posts = db.session.query(Post).join(PostTag, Post.id == PostTag.post_id).where(PostTag.tag_id == tag.id).order_by(Post.id.desc())
+	posts = posts.limit(POSTS_PER_CHUNK)
 	data = posts_schema.dump(posts)
 
 	# for each post check if the user liked it or not
