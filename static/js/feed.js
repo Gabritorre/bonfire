@@ -21,8 +21,9 @@ document.addEventListener("alpine:init", () => {
 					if (res.error) {
 						return;
 					}
-					post.draft = "";
 					post.comments = res.comments.reverse();
+					post.draft = "";
+					post.info.comments = post.comments.length;
 				});
 			}
 		},
@@ -37,6 +38,7 @@ document.addEventListener("alpine:init", () => {
 				if (res.error) {
 					return;
 				}
+				info.likes += info.user_like ? -1 : 1;
 				info.user_like = !info.user_like;
 			});
 		},

@@ -17,11 +17,11 @@ def get_user():
 
 	if not user:
 		return jsonify({"error": "User not found"})
-	
+
 	# Check if the current user follows the selected user
 	user_data = user_schema.dump(user)
 	if token:
-		user_data["user_follow"] = bool(db.session.query(Following).where(Following.follower == token.profile_id, Following.followed == user_id).count())
+		user_data["followed"] = bool(db.session.query(Following).where(Following.follower == token.profile_id, Following.followed == user_id).count())
 	return jsonify({"error": None, "user": user_data})
 
 
@@ -95,7 +95,7 @@ def unfollow():
 def get_followers():
 	req = request.get_json()
 	user_id = req["id"]
-	
+
 	followers = db.session.query(User).join(Following, Following.follower == User.id).where(Following.followed == user_id).all()
 
 	return jsonify({"error": None, "followers" : id_username_schema.dump(followers)})
@@ -108,7 +108,7 @@ def get_followers():
 def get_followed():
 	req = request.get_json()
 	user_id = req["id"]
-	
+
 	followed = db.session.query(User).join(Following, Following.followed == User.id).where(Following.follower == user_id).all()
 
 	return jsonify({"error": None, "followed": id_username_schema.dump(followed)})

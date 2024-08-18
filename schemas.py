@@ -10,7 +10,7 @@ class ProfileSchema(ma.SQLAlchemyAutoSchema):
 class UserSchema(ma.SQLAlchemyAutoSchema):
 	class Meta:
 		model = User
-		fields = ("handle", "name", "creation_date", "gender", "pfp", "biography", "birthday", "follower", "following", "interests", "user_follow")
+		fields = ("handle", "name", "creation_date", "gender", "pfp", "biography", "birthday", "follower", "following", "interests", "followed")
 
 	handle = fields.String(attribute="profile.handle", data_key="handle")
 	name = fields.String(attribute="profile.name", data_key="name")
@@ -18,7 +18,7 @@ class UserSchema(ma.SQLAlchemyAutoSchema):
 	follower = fields.Method("get_follower_count_field")
 	following = fields.Method("get_following_count_field")
 	interests = fields.Method("get_interests_list")
-	user_follow = fields.Boolean()
+	followed = fields.Boolean()
 
 	def get_follower_count_field(self, user_instance):
 		return db.session.query(Following).where(Following.followed == user_instance.id).count()

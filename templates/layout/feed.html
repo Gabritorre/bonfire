@@ -15,7 +15,7 @@
 					<p class="card-text multiline" x-text="post.info.body"></p>
 					<img class="card-img mb-3" :src="post.info.media" x-show="post.info.media" />
 					<div class="d-flex gap-2">
-						<button class="btn btn-dark border text-body rounded-pill d-flex align-items-center gap-2 px-3" :class="!post.info.user_like && 'collapsed'" title="Like the post" @click="submit_like(post_index)" :disabled="!account.authenticated || account.is_adv || post.info.user_id == id">
+						<button class="btn btn-dark border text-body rounded-pill d-flex align-items-center gap-2 px-3" :class="!post.info.user_like && 'collapsed'" title="Like the post" @click="submit_like(post_index)" :disabled="!account.authenticated || account.is_adv">
 							<span class="collapse-fade-icons">
 								<i class="bi bi-heart"></i>
 								<i class="bi bi-heart-fill"></i>
