@@ -55,6 +55,31 @@ document.addEventListener("alpine:init", () => {
 				}
 				this.comments_update();
 			});
+		},
+
+		delete_post(i) {
+			this.alert("Delete post", "Are you sure you want to delete this post?").then((confirmed) => {
+				if (!confirmed) {
+					return;
+				}
+
+				this.fetch("DELETE", "/api/post", {id: this.posts[i].info.id}).then((res) => {
+					if (res.error) {
+						return;
+					}
+					this.posts.splice(i, 1);
+				});
+			});
+		},
+
+		delete_comment(post, i) {
+			this.alert("Delete comment", "Are you sure you want to delete this comment?").then((confirmed) => {
+				if (!confirmed) {
+					return;
+				}
+
+				// TODO: Call api and remove comment
+			});
 		}
 	}));
 });

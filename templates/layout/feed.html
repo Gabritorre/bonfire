@@ -3,13 +3,20 @@
 		<div class="col">
 			<div class="card">
 				<div class="card-body">
-					<div class="card-title d-flex align-items-center mb-2">
-						<img class="profile-picture profile-picture-3 me-2" :src="post.info.user_pfp" />
-						<div>
-							<div class="fw-bold" x-text="post.info.user_name ?? post.info.user_handle"></div>
-							<div class="text-secondary">
-								@<span x-text="post.info.user_handle"></span> &middot; <span x-text="new Date(post.info.date).toLocaleDateString()"></span>
+					<div class="card-title d-flex justify-content-between mb-2">
+						<div class="d-flex align-items-center">
+							<img class="profile-picture profile-picture-3 me-2" :src="post.info.user_pfp" />
+							<div>
+								<div class="fw-bold" x-text="post.info.user_name ?? post.info.user_handle"></div>
+								<div class="text-secondary">
+									@<span x-text="post.info.user_handle"></span> &middot; <span x-text="new Date(post.info.date).toLocaleDateString()"></span>
+								</div>
 							</div>
+						</div>
+						<div x-show="post.info.user_id === account.id">
+							<button class="btn btn-dark btn-round text-body" @click="delete_post(post_index)">
+								<i class="bi bi-trash-fill"></i>
+							</button>
 						</div>
 					</div>
 					<p class="card-text multiline" x-text="post.info.body"></p>
@@ -58,11 +65,18 @@
 					<template x-for="(comment, comment_index) in post.comments">
 						<li class="list-group-item px-4 py-3">
 							<div class="row row-cols-1 gy-2">
-								<div class="col d-flex align-items-center">
-									<img class="profile-picture profile-picture-1 me-2" :src="comment.user_pfp ?? PFP_EMPTY" />
-									<div class="fw-bold me-2" x-text="comment.user_name ?? comment.user_handle"></div>
-									<div class="text-secondary">
-										@<span x-text="comment.user_handle"></span> &middot; <span x-text="new Date(comment.date).toLocaleDateString()"></span>
+								<div class="col d-flex justify-content-between">
+									<div class="d-flex align-items-center">
+										<img class="profile-picture profile-picture-1 me-2" :src="comment.user_pfp ?? PFP_EMPTY" />
+										<div class="fw-bold me-2" x-text="comment.user_name ?? comment.user_handle"></div>
+										<div class="text-secondary">
+											@<span x-text="comment.user_handle"></span> &middot; <span x-text="new Date(comment.date).toLocaleDateString()"></span>
+										</div>
+									</div>
+									<div x-show="comment.user_id === account.id">
+										<button class="btn btn-dark btn-round text-body" @click="delete_comment(post, comment_index)">
+											<i class="bi bi-trash-fill"></i>
+										</button>
 									</div>
 								</div>
 								<div class="col multiline" x-text="comment.body"></div>

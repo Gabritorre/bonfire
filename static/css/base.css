@@ -78,6 +78,11 @@ textarea {
 	max-height: 500px;
 }
 
+.btn.btn-round {
+	aspect-ratio: 1/1;
+	border-radius: 50%;
+}
+
 /* Transitions on collapse buttons icons */
 
 .collapse-fade-icons {
