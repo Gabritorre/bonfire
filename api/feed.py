@@ -3,7 +3,7 @@ from sqlalchemy.sql.expression import func
 from config import db, safeguard
 from models import Ad, Post, Following, Like, User, PostTag, Tag
 from schemas import posts_schema, feed_ad_schema
-from .utils import get_auth_token, recommend_ad
+from .utils import get_auth_token, recommend_ad, set_user_like
 
 feed = Blueprint("feed", __name__, url_prefix="/feed")
 
@@ -23,10 +23,9 @@ def explore():
 	posts = posts.limit(POSTS_PER_CHUNK)
 	posts_data = posts_schema.dump(posts)
 
-	# for each post check if the user liked it or not
+	
 	if token:
-		for count, post in enumerate(posts):
-			posts_data[count]["user_like"] = bool(db.session.query(Like).where(Like.post_id == post.id, Like.user_id == token.profile_id).count())
+		set_user_like(posts, posts_data, token.profile_id)	# for each post check if the current user liked it or not
 		recommended_ad = recommend_ad(token.profile_id, 0.8)
 	else:
 		recommended_ad = db.session.query(Ad).order_by(func.random()).first() # random ad if not logged in
@@ -51,13 +50,11 @@ def friends_posts():
 	else:
 		posts = db.session.query(Post).where(Post.user_id.in_(friends_ids)).order_by(Post.id.desc())
 	posts = posts.limit(POSTS_PER_CHUNK)
-	data = posts_schema.dump(posts)
+	posts_data = posts_schema.dump(posts)
 
-	# for each post check if the user liked it or not
-	for count, post in enumerate(posts):
-		data[count]['user_like'] = bool(db.session.query(Like).where(Like.post_id == post.id, Like.user_id == token.profile_id).count())
+	set_user_like(posts, posts_data, token.profile_id)	# for each post check if the current user liked it or not
 
-	return jsonify({"error": None, "posts": data})
+	return jsonify({"error": None, "posts": posts_data})
 
 
 # Get a list of posts from a specific user
@@ -76,14 +73,12 @@ def user_posts():
 	else:
 		posts = db.session.query(Post).where(Post.user_id == user_id).order_by(Post.id.desc())
 	posts = posts.limit(POSTS_PER_CHUNK)
-	data = posts_schema.dump(posts)
+	posts_data = posts_schema.dump(posts)
 
-	# for each post check if the user liked it or not
 	if token:
-		for count, post in enumerate(posts):
-			data[count]['user_like'] = bool(db.session.query(Like).where(Like.post_id == post.id, Like.user_id == token.profile_id).count())
+		set_user_like(posts, posts_data, token.profile_id)	# for each post check if the current user liked it or not
 
-	return jsonify({"error": None, "posts": data})
+	return jsonify({"error": None, "posts": posts_data})
 
 # Get a list of posts with a specific tag
 @feed.route("/tag", methods=["POST"])
@@ -106,11 +101,10 @@ def search_posts_by_tag():
 	else:
 		posts = db.session.query(Post).join(PostTag, Post.id == PostTag.post_id).where(PostTag.tag_id == tag.id).order_by(Post.id.desc())
 	posts = posts.limit(POSTS_PER_CHUNK)
-	data = posts_schema.dump(posts)
+	posts_data = posts_schema.dump(posts)
 
 	# for each post check if the user liked it or not
 	if token:
-		for count, post in enumerate(posts):
-			data[count]['user_like'] = bool(db.session.query(Like).where(Like.post_id == post.id, Like.user_id == token.profile_id).count())
+		set_user_like(posts, posts_data, token.profile_id)	# for each post check if the current user liked it or not
 
-	return jsonify({"error": None, "posts": data})
+	return jsonify({"error": None, "posts": posts_data})

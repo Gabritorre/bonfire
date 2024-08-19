@@ -4,7 +4,7 @@ import magic
 from flask import Response
 from sqlalchemy.sql.expression import func
 from config import db, snowflake, app
-from models import Ad, AdCampaign, CampaignTag, DailyStat, Interest, PostTag, Profile, AuthToken
+from models import Ad, AdCampaign, CampaignTag, DailyStat, Interest, PostTag, Profile, AuthToken, Like
 from bcrypt import hashpw, gensalt, checkpw
 from werkzeug.datastructures import ImmutableMultiDict
 from hashlib import sha1
@@ -136,3 +136,14 @@ def recommend_ad(user_id: int, epsilon: float) -> Ad | None:
 	update_daily_stats(recommended_ad, impression=1)
 	update_budget(recommended_ad)
 	return recommended_ad
+
+# for each post check if the current user liked it or not
+def set_user_like(posts, post_data, profile_id):
+	post_ids = [post.id for post in posts]
+	user_likes = db.session.query(Like.post_id).where(
+		Like.user_id == profile_id,
+		Like.post_id.in_(post_ids)
+		).all()
+	liked_post_ids = {like.post_id for like in user_likes}
+	for count, post in enumerate(posts):
+		post_data[count]["user_like"] = post.id in liked_post_ids
