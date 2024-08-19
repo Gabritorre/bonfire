@@ -4,7 +4,7 @@
 			<div class="card">
 				<div class="card-body">
 					<div class="card-title d-flex justify-content-between mb-2">
-						<a class="d-flex align-items-center text-reset text-decoration-none" :href="'/profile?id=' + post.user_id" target="_blank">
+						<a class="d-flex align-items-center text-reset text-decoration-none" :href="'/profile?id=' + post.user_id">
 							<img class="profile-picture profile-picture-3 me-2" :src="post.user_pfp" />
 							<div>
 								<div class="fw-bold" x-text="post.user_name ?? post.user_handle"></div>
@@ -20,7 +20,10 @@
 						</div>
 					</div>
 					<p class="card-text multiline" x-text="post.body"></p>
-					<img class="card-img mb-3" :src="post.media" x-show="post.media" />
+					<div class="mb-3" x-show="media[post.id]">
+						<img class="card-img" :src="media[post.id]?.image" x-show="media[post.id]?.image" />
+						<video class="card-img" :src="media[post.id]?.video" x-show="media[post.id]?.video" controls></video>
+					</div>
 					<div class="d-flex gap-2">
 						<button class="btn btn-dark border text-body rounded-pill d-flex align-items-center gap-2 px-3" :class="!post.user_like && 'collapsed'" title="Like the post" @click="submit_like(post)" :disabled="!account.authenticated || account.is_adv">
 							<span class="collapse-fade-icons">
@@ -66,7 +69,7 @@
 						<li class="list-group-item px-4 py-3">
 							<div class="row row-cols-1 gy-2">
 								<div class="col d-flex justify-content-between">
-									<a class="d-flex align-items-center text-reset text-decoration-none" :href="'/profile?id=' + comment.user_id" target="_blank">
+									<a class="d-flex align-items-center text-reset text-decoration-none" :href="'/profile?id=' + comment.user_id">
 										<img class="profile-picture profile-picture-1 me-2" :src="comment.user_pfp ?? PFP_EMPTY" />
 										<div class="fw-bold me-2" x-text="comment.user_name ?? comment.user_handle"></div>
 										<div class="text-secondary">

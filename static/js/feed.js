@@ -4,6 +4,7 @@ document.addEventListener("alpine:init", () => {
 	Alpine.data("feed", () => ({
 		comments: {},
 		drafts: {},
+		media: {},
 		scroll_fetching: false,
 
 		init() {
@@ -11,6 +12,22 @@ document.addEventListener("alpine:init", () => {
 				this.posts.forEach((post) => {
 					if (!this.comments.hasOwnProperty(post.id)) {
 						this.update_comments(post);
+					}
+					if (post.media && !this.media.hasOwnProperty(post.id)) {
+						window.fetch(post.media).then((res) => {
+							if (res.status != 200) {
+								return null;
+							}
+							return res.blob();
+						}).then((blob) => {
+							if (!blob) {
+								return;
+							}
+
+							this.media[post.id] = {
+								[blob.type.split("/")[0]]: URL.createObjectURL(blob)
+							};
+						});
 					}
 				});
 			});
