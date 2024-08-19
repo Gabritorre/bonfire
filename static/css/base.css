@@ -83,6 +83,14 @@ textarea {
 	border-radius: 50%;
 }
 
+input[type="search"] + .dropdown-menu.show {
+	visibility: hidden;
+}
+
+input[type="search"]:focus + .dropdown-menu.show, input[type="search"]:has(+ .dropdown-menu.show :active) + .dropdown-menu.show {
+	visibility: visible;
+}
+
 /* Transitions on collapse buttons icons */
 
 .collapse-fade-icons {
