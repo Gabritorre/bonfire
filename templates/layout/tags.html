@@ -7,11 +7,11 @@
 			</button>
 		</div>
 	</template>
-	<div class="col-auto tags-dropdown dropdown-center" x-show="remaining.length > 0">
+	<div class="col-auto dropdown-center" x-show="remaining.length > 0">
 		<button class="btn btn-outline-success rounded-pill py-0" type="button" data-bs-toggle="dropdown">
 			<i class="bi bi-plus fs-4"></i>
 		</button>
-		<ul class="dropdown-menu">
+		<ul class="dropdown-menu dropdown-many">
 			<template x-for="(tag, tag_index) in remaining">
 				<li><button class="dropdown-item btn btn-dark" type="button" x-text="tag.tag" @click="tag_add(tag_index)"></button></li>
 			</template>

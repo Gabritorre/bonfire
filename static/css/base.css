@@ -7,7 +7,7 @@
 	--profile-picture-3: 50px;
 	--profile-picture-4: 150px;
 	--profile-picture-5: 225px;
-	--tags-dropdown-height: 30vh;
+	--dropdown-many-height: 500px;
 	--transition: .15s ease-in-out;
 }
 
@@ -60,9 +60,9 @@ textarea {
 	white-space: pre;
 }
 
-.tags-dropdown .dropdown-menu {
+.dropdown-many {
 	overflow: scroll;
-	max-height: var(--tags-dropdown-height);
+	max-height: var(--dropdown-many-height);
 }
 
 .feed {

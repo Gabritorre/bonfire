@@ -3,6 +3,7 @@ from config import db, safeguard
 from models import Following, User, Profile
 from schemas import user_schema, id_username_schema
 from api.utils import get_auth_token
+from sqlalchemy import func
 
 user = Blueprint("user", __name__, url_prefix="/user")
 
@@ -31,15 +32,15 @@ def get_user():
 @safeguard
 def search_user():
 	req = request.get_json()
-	input_handle = req["query"]
-	data = (db.session.query(User)
+	query = req["query"].lower()
+	results = (db.session.query(User)
 		.join(Profile)
-		.where(Profile.handle.contains(input_handle, autoescape=True))
+		.where(func.lower(Profile.handle).contains(query, autoescape=True) | func.lower(Profile.name).contains(query, autoescape=True))
 		.all()
 	)
-	if not data:
+	if not results:
 		return jsonify({"error": "No users found"})
-	return jsonify({"error": None, "data": id_username_schema.dump(data)})
+	return jsonify({"error": None, "results": id_username_schema.dump(results)})
 
 
 

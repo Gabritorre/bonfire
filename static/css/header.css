@@ -1,4 +1,4 @@
-header input[type="search"] {
+header :has(> input[type="search"]) {
 	max-width: var(--search-width);
 }
 

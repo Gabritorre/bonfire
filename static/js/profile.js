@@ -40,6 +40,7 @@ document.addEventListener("alpine:init", () => {
 				if (res.error) {
 					return;
 				}
+				this.user.follower += this.user.followed ? -1 : 1;
 				this.user.followed = !this.user.followed;
 			});
 		}

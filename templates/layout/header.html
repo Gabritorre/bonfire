@@ -3,19 +3,36 @@
 {% block head %}
 {{super()}}
 <link rel="stylesheet" href="/css/header.css" />
+<script src="/js/header.js"></script>
 {% endblock %}
 
 {% block body %}
 {{super()}}
 <div class="d-flex flex-column vh-100">
-	<header class="bg-dark-subtle py-3 border-bottom">
+	<header class="bg-dark-subtle py-3 border-bottom" x-data="header">
 		<div class="container d-flex align-items-center justify-content-center justify-content-md-between">
 			<a class="col-md-3 d-inline-flex align-items-center text-reset text-decoration-none gap-2" href="/">
 				<img class="profile-picture profile-picture-2" src="/favicon.png" />
 				<span class="d-none d-sm-inline fs-5 fw-bold">App</span>
 			</a>
 
-			<input class="form-control mx-3 mx-sm-4 rounded-pill" type="search" placeholder="Search..." title="Search for your friends" />
+			<div class="dropdown-center d-flex justify-content-center mx-3 mx-sm-4 w-100">
+				<input class="form-control rounded-pill" type="search" placeholder="Search..." title="Search for your friends" x-ref="search" x-model.debounce="query" />
+				<ul class="dropdown-menu dropdown-many w-100">
+					<template x-for="result in results" x-show="!error">
+						<li>
+							<a class="dropdown-item btn btn-dark d-flex align-items-center py-2" :href="'/profile?id=' + result.id">
+								<img class="profile-picture profile-picture-1 me-2" :src="result.pfp ?? PFP_EMPTY" />
+								<div class="fw-bold me-2" x-text="result.name ?? result.handle"></div>
+								<div class="text-secondary">
+									@<span x-text="result.handle"></span>
+								</div>
+							</a>
+						</li>
+					</template>
+					<div class="d-flex justify-content-center py-2" x-show.important="error" x-text="error"></div>
+				</ul>
+			</div>
 
 			<div class="col-md-3 d-flex justify-content-end">
 				<div class="d-flex flex-nowrap gap-2" x-show.important="account.authenticated === false">
