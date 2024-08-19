@@ -67,10 +67,15 @@ def user_posts():
 	token = get_auth_token(request.cookies)
 	req = request.get_json()
 	user_id = req["id"]
+	last_post_id = req["last_post_id"]
 
 	if not db.session.query(User).where(User.id == user_id).first():
 		return jsonify({"error": "User not found"})
-	posts = db.session.query(Post).where(Post.user_id == user_id).order_by(Post.id.desc()).all()
+	if last_post_id:
+		posts = db.session.query(Post).where(Post.user_id == user_id, Post.id < last_post_id).order_by(Post.id.desc())	# get posts older than the last post in the previous chunk
+	else:
+		posts = db.session.query(Post).where(Post.user_id == user_id).order_by(Post.id.desc())
+	posts = posts.limit(POSTS_PER_CHUNK)
 	data = posts_schema.dump(posts)
 
 	# for each post check if the user liked it or not
