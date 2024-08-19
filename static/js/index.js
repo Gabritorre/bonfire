@@ -2,39 +2,50 @@ document.addEventListener("alpine:init", () => {
 	Alpine.data("index", () => ({
 		draft: {
 			body: "",
-			media: null,
 			interests: []
 		},
-		posts: [
-			{
-				info: {
-					id: 1,
-					user_id: 1337,
-					user_handle: "ferris",
-					user_name: "Ferris the Crab",	// TODO: Add link to profile on profile header
-					user_pfp: "http://web.archive.org/web/20240409133415if_/https://rustacean.net/more-crabby-things/squishable-ferris.jpg",
-					body: `The Rules say there may exist either:\n- one or more references\n- exactly one mutable reference`,
-					media: "https://cat-milk.github.io/Anime-Girls-Holding-Programming-Books/static/f5bcf000a3399d76c369dffce060f941/72645/Tsukishima_Shijima_The_Rust_programming_language.png",
-					date: "1970-01-01",
-					likes: 12000,
-					comments: 1000,
-					user_like: false
-				},
-				comments: [],
-				draft: ""
-			}
-		],
+		friends: [],
+		explore: [],
+		posts: null,
+		feed: "explore",
+
+		init() {
+			this.posts = this[this.feed];
+			this.$watch("feed", () => {
+				this.posts = this[this.feed];
+				if (this.posts.length == 0) {
+					this.fetch_feed(null);
+				}
+			});
+		},
+
+		fetch_feed(last_post_id) {
+			let original_feed = this.feed;
+			return this.fetch("POST", "/api/feed/" + this.feed, {last_post_id}).then((res) => {
+				if (res.error || original_feed != this.feed) {
+					return res;
+				}
+				this.posts.push(...res.posts);
+				return res;
+			});
+		},
 
 		submit_post() {
 			let form = new FormData();
 			form.append("json", JSON.stringify({
 				body: this.draft.body,
-				tags: this.draft.tags
+				tags: this.draft.interests.map((tag) => tag.id)
 			}));
-			form.append("media", this.draft.media);
+			form.append("media", this.$refs.media.files[0]);
 
 			this.fetch("PUT", "/api/post", form).then((res) => {
-				console.log(res);
+				if (res.error) {
+					return;
+				}
+				this.posts.splice(0, 0, res.post);
+				this.draft.body = "";
+				this.$refs.media.value = null;
+				this.draft.interests.splice(0);
 			});
 		}
 	}));

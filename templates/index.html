@@ -7,7 +7,7 @@
 
 {% block view %}
 {{super()}}
-<div class="overflow-scroll flex-grow-1" x-data="index">
+<div class="overflow-scroll flex-grow-1" x-data="index" x-ref="scroll">
 	<div class="container d-flex justify-content-center">
 		<div class="feed row row-cols-1 gy-3 gx-0">
 			<div class="col pt-2">
@@ -18,15 +18,15 @@
 							<div class="col d-flex justify-content-center">
 								<ul class="nav nav-underline flex-nowrap">
 									<li class="nav-item">
-										<button class="nav-link active" title="See what the world is up to">Explore</button>
+										<button class="nav-link" :class="feed == 'explore' ? 'active' : 'text-muted'" title="See what the world is up to" @click="feed = 'explore'">Explore</button>
 									</li>
 									<li class="nav-item" x-show="account.authenticated && !account.is_adv">
-										<button class="nav-link text-muted" title="See what your friends are up to">Friends</button>
+										<button class="nav-link" :class="feed == 'friends' ? 'active' : 'text-muted'" title="See what your friends are up to" @click="feed = 'friends'">Friends</button>
 									</li>
 								</ul>
 							</div>
 							<div class="col d-flex justify-content-end">
-								<button class="btn btn-dark btn-round collapsed" title="Share your thoughts" data-bs-toggle="collapse" data-bs-target="#section-send-content" x-show="account.authenticated && !account.is_adv">
+								<button class="btn btn-dark btn-round collapsed" title="Share your thoughts" data-bs-toggle="collapse" data-bs-target="#section-send-content" x-show="account.authenticated && !account.is_adv && feed == 'explore'">
 									<div class="collapse-fade-icons">
 										<i class="bi bi-pen"></i>
 										<i class="bi bi-pen-fill"></i>
@@ -34,7 +34,7 @@
 								</button>
 							</div>
 						</div>
-						<div id="section-send-content" class="accordion-collapse collapse" data-bs-parent="#section-danger">
+						<div id="section-send-content" class="accordion-collapse collapse" data-bs-parent="#section-danger" x-show="feed == 'explore'">
 							<div class="accordion-body row row-cols-1 pb-2">
 								<div class="col">
 									<div class="row">
@@ -51,7 +51,7 @@
 									<textarea class="form-control" rows="3" x-model="draft.body"></textarea>
 								</div>
 								<div class="col mt-3">
-									<input class="form-control" type="file" autocomplete="off" x-ref="media" @change="draft.media = $refs.media.files[0]" />
+									<input class="form-control" type="file" autocomplete="off" x-ref="media" />
 								</div>
 								<div class="col mt-3" x-data="{interests: draft.interests}">
 									{% include "layout/tags.html" %}

@@ -7,7 +7,7 @@ from .utils import get_auth_token, recommend_ad
 
 feed = Blueprint("feed", __name__, url_prefix="/feed")
 
-POSTS_PER_CHUNK = 6
+POSTS_PER_CHUNK = 10
 
 # Get a list of posts for the explore page
 @feed.route("/explore", methods=["POST"])

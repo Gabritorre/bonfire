@@ -7,7 +7,6 @@ document.addEventListener("alpine:init", () => {
 
 		init() {
 			this.search = new bootstrap.Dropdown(this.$refs.search);
-			window.a = this;
 			this.$watch("query", () => this.search_update());
 		},
 

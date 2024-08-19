@@ -1,89 +1,114 @@
+const SCROLL_THRESHOLD = 1000;	// TODO: Reduce with a faster db connection
+
 document.addEventListener("alpine:init", () => {
 	Alpine.data("feed", () => ({
-		fetched: [],
+		comments: {},
+		drafts: {},
+		scroll_fetching: false,
 
 		init() {
-			this.$watch("posts", () => this.comments_update());
-			this.comments_update();
-		},
-
-		comments_update() {
-			for (let i = 0; i < this.posts.length; i++) {
-				let post = this.posts[i];
-				if (this.fetched.includes(post.info.id)) {
-					continue;
-				}
-				this.fetched.push(post.info.id);
-
-				this.fetch("POST", "/api/post/comments", {
-					id: post.info.id
-				}).then((res) => {
-					if (res.error) {
-						return;
+			this.$watch("posts.length", () => {
+				this.posts.forEach((post) => {
+					if (!this.comments.hasOwnProperty(post.id)) {
+						this.update_comments(post);
 					}
-					post.comments = res.comments.reverse();
-					post.draft = "";
-					post.info.comments = post.comments.length;
 				});
+			});
+
+			const scroll_handler = () => {
+				const delta = this.$refs.scroll.scrollTopMax - this.$refs.scroll.scrollTop;
+				if (delta <= SCROLL_THRESHOLD && !this.scroll_fetching) {
+					this.scroll_fetching = true;
+					this.continue_posts().then(() => this.scroll_fetching = false);
+				}
 			}
+			this.$refs.scroll?.addEventListener("scroll", scroll_handler);
+			scroll_handler();
 		},
 
-		submit_like(i) {
-			const info = this.posts[i].info;
+		continue_posts() {
+			return this.fetch_feed(this.posts[this.posts.length-1]?.id ?? null);
+		},
+
+		update_comments(post) {
+			return this.fetch("POST", "/api/post/comments", {
+				id: post.id
+			}).then((res) => {
+				if (res.error) {
+					return res;
+				}
+				this.comments[post.id] = res.comments.reverse();
+				post.comments = this.comments[post.id].length;
+				return res;
+			});
+		},
+
+		submit_like(post) {
 			this.fetch(
-				info.user_like ? "DELETE" : "PUT",
+				post.user_like ? "DELETE" : "PUT",
 				"/api/post/like",
-				{id: info.id}
+				{id: post.id}
 			).then((res) => {
 				if (res.error) {
 					return;
 				}
-				info.likes += info.user_like ? -1 : 1;
-				info.user_like = !info.user_like;
+				post.likes += post.user_like ? -1 : 1;
+				post.user_like = !post.user_like;
 			});
 		},
 
-		submit_comment(i) {
-			const post = this.posts[i];
+		submit_comment(post) {
 			this.fetch("PUT", "/api/post/comment", {
-				id: post.info.id,
-				body: post.draft
+				id: post.id,
+				body: this.drafts[post.id]
 			}).then((res) => {
-				let j = this.fetched.indexOf(post.info.id);
-				if (j >= 0) {
-					this.fetched.splice(j, 1);
+				if (res.error) {
+					return res;
 				}
-				this.comments_update();
+				return this.update_comments(post);
+			}).then((res) => {
+				if (res.error) {
+					return;
+				}
+				this.drafts[post.id] = null;
 			});
 		},
 
-		delete_post(i) {
+		delete_post(post) {
 			this.alert("Delete post", "Are you sure you want to delete this post?").then((confirmed) => {
 				if (!confirmed) {
 					return;
 				}
 
-				this.fetch("DELETE", "/api/post", {id: this.posts[i].info.id}).then((res) => {
+				this.fetch("DELETE", "/api/post", {
+					id: post.id
+				}).then((res) => {
 					if (res.error) {
 						return;
 					}
-					this.posts.splice(i, 1);
+					const i = this.posts.indexOf(post);
+					if (i > -1) {
+						this.posts.splice(i, 1);
+					}
 				});
 			});
 		},
 
-		delete_comment(post, i) {
+		delete_comment(post, comment) {
 			this.alert("Delete comment", "Are you sure you want to delete this comment?").then((confirmed) => {
 				if (!confirmed) {
 					return;
 				}
 
-				this.fetch("DELETE", "/api/post/comment", {id: post.comments[i].id}).then((res) => {
+				this.fetch("DELETE", "/api/post/comment", {id: comment.id}).then((res) => {
 					if (res.error) {
 						return;
 					}
-					post.comments.splice(i, 1);
-					post.info.comments = post.comments.length;
+					const i = this.comments[post.id].indexOf(comment);
+					if (i > -1) {
+						this.comments[post.id].splice(i, 1);
+						post.comments = this.comments[post.id].length;
+					}
 				});
 			});
 		}

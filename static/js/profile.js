@@ -18,16 +18,18 @@ document.addEventListener("alpine:init", () => {
 				this.user.birthday &&= new Date(this.user.birthday).toLocaleDateString();
 				this.user.creation_date = new Date(this.user.creation_date).toLocaleDateString();
 			});
-			this.fetch("POST", "/api/feed/user", {id: this.id}).then((res) => {
-				if (res.error) {
-					return;
-				}
+		},
 
-				this.posts = res.posts.map((post) => ({
-					info: post,
-					comments: [],
-					draft: ""
-				}));
+		fetch_feed(last_post_id) {
+			return this.fetch("POST", "/api/feed/user", {
+				id: this.id,
+				last_post_id: last_post_id
+			}).then((res) => {
+				if (res.error) {
+					return res;
+				}
+				this.posts.push(...res.posts);
+				return res;
 			});
 		},
 
