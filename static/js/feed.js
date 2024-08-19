@@ -78,7 +78,13 @@ document.addEventListener("alpine:init", () => {
 					return;
 				}
 
-				// TODO: Call api and remove comment
+				this.fetch("DELETE", "/api/post/comment", {id: post.comments[i].id}).then((res) => {
+					if (res.error) {
+						return;
+					}
+					post.comments.splice(i, 1);
+					post.info.comments = post.comments.length;
+				});
 			});
 		}
 	}));
