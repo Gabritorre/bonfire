@@ -116,10 +116,10 @@ def recommend_ad(user_id: int, epsilon: float) -> Ad | None:
 	hi_interest = db.session.query(Interest).where(Interest.user_id == user_id).order_by(Interest.interest.desc()).first() # highest interest
 	if hi_interest:
 		interested_campaign = (db.session.query(AdCampaign) # campaign with highest budget that matches hi_interest
-						 .join(CampaignTag, AdCampaign.id == CampaignTag.campaign_id)
-						 .where(CampaignTag.tag_id == hi_interest.tag_id, AdCampaign.end_date > datetime.now(timezone.utc), AdCampaign.budget >= IMPRESSION_FEE)
-						 .order_by(AdCampaign.budget.desc())
-						 .first())
+						.join(CampaignTag, AdCampaign.id == CampaignTag.campaign_id)
+						.where(CampaignTag.tag_id == hi_interest.tag_id, AdCampaign.end_date > datetime.now(timezone.utc), AdCampaign.budget >= IMPRESSION_FEE)
+						.order_by(AdCampaign.budget.desc())
+						.first())
 
 		if interested_campaign and db.session.query(Ad).where(Ad.campaign_id == interested_campaign.id).first(): # the interested campaign has at least an ad
 			if random.random() < epsilon: # choose an ad inside interested_campaign with epsilon probability or explore other ads

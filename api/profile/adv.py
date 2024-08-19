@@ -135,7 +135,8 @@ def create_ad():
 		db.session.add(ad)
 		db.session.commit()
 	except:
-		delete_file(filename)
+		if filename:
+			delete_file(filename)
 		raise
 
 	return jsonify({"error": None})
@@ -162,6 +163,7 @@ def delete_ad():
 	if not campaign or campaign.advertiser_id != adv.id:
 		return jsonify({"error": "Ad doesn't belong to this advertiser"})
 	db.session.delete(ad)
-	delete_file(ad.media)
+	if ad.media:
+		delete_file(ad.media)
 	db.session.commit()
 	return jsonify({"error": None})

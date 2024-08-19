@@ -35,7 +35,8 @@ def create_post():
 			db.session.add(PostTag(post_id=post.id, tag_id=tag))
 		db.session.commit()
 	except:
-		delete_file(filename)
+		if filename:
+			delete_file(filename)
 		raise
 
 	return jsonify({"error": None, "post": post_schema.dump(post)})
@@ -56,7 +57,8 @@ def delete_post():
 	if not post:
 		return jsonify({"error": "Post not found"})
 	db.session.delete(post)
-	delete_file(post.media)
+	if post.media:
+		delete_file(post.media)
 	db.session.commit()
 	return jsonify({"error": None})
 
@@ -122,6 +124,26 @@ def add_comment():
 		return jsonify({"error": None})
 	else:
 		return jsonify({"error": "User not found"})
+
+
+
+# Remove a comment from a post, only the comment's owner can delete it
+@post.route("/comment", methods=["DELETE"])
+@safeguard
+def delete_comment():
+	token = get_auth_token(request.cookies)
+
+	req = request.get_json()
+	comment_id = req["id"]
+	comment = db.session.query(Comment).where(Comment.id == comment_id).first()
+	if not comment:
+		return jsonify({"error": "Comment not found"})
+	if not token or comment.user_id != token.profile_id:
+		return jsonify({"error": "Comment doesn't belong to this user"})
+	db.session.delete(comment)
+	update_interests(token.profile_id, comment.post_id, inc=-0.4, dec=0.1)
+	db.session.commit()
+	return jsonify({"error": None})
 
 
 
