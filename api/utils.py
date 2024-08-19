@@ -34,7 +34,7 @@ def hash_sha1(string: str) -> str:
 def set_auth_token(profile: Profile, res: Response) -> None:
 	sf = snowflake.generate()
 
-	hashed_sf = hash_sha1(f"{sf}")
+	hashed_sf = hash_sha1(str(sf))
 	expiration_date = snowflake.creation_date(sf) + timedelta(weeks=1)
 
 	db.session.add(AuthToken(value=hashed_sf, profile_id=profile.id, expiration_date=expiration_date))
@@ -51,19 +51,21 @@ def get_auth_token(cookies: ImmutableMultiDict[str, str]) -> AuthToken | None:
 		return None
 
 # Update the interests of a user based on a post's tags and the current user interests
+# The interests are always >= 0, this is enforced by a database trigger
 def update_interests(user_id: int, post_id: int, inc: float=0.0, dec: float=0.0) -> None:
 	post_tags = {tag.tag_id for tag in db.session.query(PostTag).where(PostTag.post_id == post_id).all()}
-	interests = {interest.tag_id for interest in db.session.query(Interest).where(Interest.user_id == user_id).all()}
 
-	new_interests = post_tags - interests
-	for tag in new_interests:
-		db.session.add(Interest(user_id=user_id, tag_id=tag, interest=1.0))
+	if len(post_tags) > 0:
+		interests = {interest.tag_id for interest in db.session.query(Interest).where(Interest.user_id == user_id).all()}
+		new_interests = post_tags - interests
+		for tag in new_interests:
+			db.session.add(Interest(user_id=user_id, tag_id=tag, interest=inc))
 
-	increasing_interests = post_tags - new_interests
-	db.session.query(Interest).where(Interest.tag_id.in_(increasing_interests)).update({Interest.interest: Interest.interest + inc})
+		increasing_interests = post_tags - new_interests
+		db.session.query(Interest).where(Interest.tag_id.in_(increasing_interests), Interest.user_id == user_id).update({Interest.interest: Interest.interest + inc})
 
-	decreasing_interests = interests - increasing_interests
-	db.session.query(Interest).where(Interest.tag_id.in_(decreasing_interests)).update({Interest.interest: Interest.interest - dec})
+		decreasing_interests = interests - increasing_interests
+		db.session.query(Interest).where(Interest.tag_id.in_(decreasing_interests), Interest.user_id == user_id).update({Interest.interest: Interest.interest + dec})
 
 # Save a file in the server filesystem, before saving the file, the mime type and extensiona are validated and the filename is hashed
 def save_file(file, img_only = False) -> str:

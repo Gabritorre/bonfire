@@ -75,7 +75,7 @@ def like():
 	user = db.session.query(User).where(User.id == token.profile_id).first()
 	if user:
 		db.session.add(Like(user_id=user.id, post_id=post_id))
-		update_interests(token.profile_id, post_id, 0.2, 0.1)
+		update_interests(token.profile_id, post_id, inc=0.2, dec=-0.1)
 		db.session.commit()
 		return jsonify({"error": None})
 	else:
@@ -95,6 +95,7 @@ def remove_like():
 	user = db.session.query(User).where(User.id == token.profile_id).first()
 	if user:
 		db.session.query(Like).where(Like.user_id == user.id, Like.post_id == post_id).delete()
+		update_interests(token.profile_id, post_id, inc=-0.2, dec=0.1)
 		db.session.commit()
 		return jsonify({"error": None})
 	else:
@@ -116,11 +117,12 @@ def add_comment():
 	user = db.session.query(User).where(User.id == token.profile_id).first()
 	if user:
 		db.session.add(Comment(user_id=user.id, post_id=post_id, body=comment_body))
-		update_interests(token.profile_id, post_id, 0.4, 0.1)
+		update_interests(token.profile_id, post_id, inc=0.4, dec=-0.1)
 		db.session.commit()
 		return jsonify({"error": None})
 	else:
 		return jsonify({"error": "User not found"})
+
 
 
 # Get all the comments for a post

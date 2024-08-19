@@ -31,6 +31,23 @@ with engine.connect() as connection:
 		for each row
 		execute function check_cumulative_probability();
 	"""))
+
+	connection.execute(text("""
+		create or replace function delete_old_interests()
+		returns trigger as $$
+		begin
+			delete from interests
+			where (user_id, tag_id) = (new.user_id, new.tag_id);
+			return null;
+		end;
+		$$ language plpgsql;
+
+		create or replace trigger bound_interest
+		before UPDATE on interests
+		for each row
+		when (new.interest <= 0)
+		execute function delete_old_interests();
+	"""))
 	connection.commit()
 
 print("Done.")

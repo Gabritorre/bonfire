@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 from flask import Blueprint, jsonify, request
 from config import db, safeguard
 from models import Profile, User, Advertiser, AuthToken
@@ -50,6 +51,8 @@ def login():
 	if profile and verify_secret(pwd, profile.password):
 		res = jsonify({"error": None})
 		set_auth_token(profile, res)
+		db.session.query(AuthToken).where(AuthToken.profile_id == profile.id, AuthToken.expiration_date < datetime.now(timezone.utc)).delete()
+		db.session.commit()
 		return res
 	return jsonify({"error": "Invalid credentials"})
 

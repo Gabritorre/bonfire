@@ -2,7 +2,7 @@ from flask import Blueprint, json, jsonify, request
 from config import db, safeguard
 from models import DATE_FORMAT, AdCampaign, Advertiser, Ad, CampaignTag
 from schemas import ads_schema, ad_schema
-from datetime import datetime
+from datetime import datetime, timezone
 from api.utils import get_auth_token, save_file, delete_file
 
 adv = Blueprint("adv", __name__, url_prefix="/adv")
@@ -25,7 +25,7 @@ def create_campaign():
 	if adv:
 		start = datetime.strptime(start, DATE_FORMAT)
 		end = datetime.strptime(end, DATE_FORMAT)
-		if start > datetime.now() and end > start:
+		if start > datetime.now(timezone.utc) and end > start:
 			ad_campaign = AdCampaign(advertiser_id=adv.id, name=name, budget=budget, start_date=start, end_date=end)
 			db.session.add(ad_campaign)
 			db.session.flush()
@@ -111,6 +111,7 @@ def get_ad():
 
 
 # Create a new ad for a campaign, recognized by its "id", owned by the current advertiser
+# The probability of an ad appearing on a certain campaign is bounded to [0, 1], this is enforced by a database trigger
 @adv.route("/ad", methods=["PUT"])
 @safeguard
 def create_ad():
