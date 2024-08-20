@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, request
 from sqlalchemy.sql.expression import func
 from config import db, safeguard
-from models import Ad, Post, Following, Like, User, PostTag, Tag
+from models import Ad, Post, Following, User, PostTag, Tag
 from schemas import posts_schema, feed_ad_schema
 from .utils import get_auth_token, recommend_ad, set_user_like, set_likes_count, set_comments_count
 
@@ -17,20 +17,22 @@ def explore():
 	req = request.get_json()
 	last_post_id = req["last_post_id"]
 	if last_post_id:
-		posts = db.session.query(Post).where(Post.id < last_post_id).order_by(Post.id.desc())	# get posts older than the last post in the previous chunk
+		posts = db.session.query(Post).where(Post.id < last_post_id).order_by(Post.id.desc()) # get posts older than the last post in the previous chunk
 	else:
 		posts = db.session.query(Post).order_by(Post.id.desc())
 	posts = posts.limit(POSTS_PER_CHUNK)
 	posts_data = posts_schema.dump(posts)
 
-	
+
 	if token:
-		set_user_like(posts, posts_data, token.profile_id)	# for each post check if the current user liked it or not
-		set_likes_count(posts, posts_data)	# set the number of likes for each post
-		set_comments_count(posts, posts_data)	# set the number of comments for each post
-		recommended_ad = recommend_ad(token.profile_id, 0.8)
+		set_user_like(posts, posts_data, token.profile_id) # for each post check if the current user liked it or not
+		set_likes_count(posts, posts_data) # set the number of likes for each post
+		set_comments_count(posts, posts_data) # set the number of comments for each post
+		recommended_ad = recommend_ad(token.profile_id, epsilon=0.8)
+		db.session.commit()
 	else:
 		recommended_ad = db.session.query(Ad).order_by(func.random()).first() # random ad if not logged in
+		db.session.commit()
 	return jsonify({"error": None, "posts": posts_data, "ad": feed_ad_schema.dump(recommended_ad)})
 
 
