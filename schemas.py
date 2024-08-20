@@ -120,6 +120,15 @@ class AdvSettingsSchema(ma.SQLAlchemyAutoSchema):
 	name = fields.String(attribute="profile.name", data_key="name")
 
 
+class AdCampaignsSchema(ma.SQLAlchemyAutoSchema):
+	class Meta:
+		model = AdCampaign
+		fields = ("id", "name", "budget", "start_date", "end_date")
+
+	start_date = fields.DateTime(format=DATE_FORMAT)
+	end_date = fields.DateTime(format=DATE_FORMAT)
+
+
 
 profile_schema = ProfileSchema()
 user_schema = UserSchema()
@@ -134,3 +143,4 @@ feed_ad_schema = SimpleAdSchema()
 ads_schema = SimpleAdSchema(many=True)
 comments_schema = CommentSchema(many=True)
 adv_settings_schema = AdvSettingsSchema()
+campaigns_schema = AdCampaignsSchema(many=True)

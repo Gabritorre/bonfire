@@ -1,7 +1,7 @@
 from flask import Blueprint, json, jsonify, request
 from config import db, safeguard
 from models import DATE_FORMAT, AdCampaign, Advertiser, Ad, CampaignTag
-from schemas import ads_schema, ad_schema
+from schemas import ads_schema, ad_schema, campaigns_schema
 from datetime import datetime, timezone
 from api.utils import get_auth_token, save_file, delete_file
 
@@ -59,6 +59,22 @@ def delete_campaign():
 	db.session.delete(campaign)
 	db.session.commit()
 	return jsonify({"error": None})
+
+
+
+# Lists the details of each campaign created by the current advertiser
+@adv.route("/campaigns", methods=["POST"])
+@safeguard
+def get_campaigns():
+	token = get_auth_token(request.cookies)
+	if not token:
+		return jsonify({"error": "Invalid token"})
+
+	adv = db.session.query(Advertiser).where(Advertiser.id == token.profile_id).first()
+	if not adv:
+		return jsonify({"error": "Not an advertiser profile"})
+	campaigns = db.session.query(AdCampaign).where(AdCampaign.advertiser_id == adv.id)
+	return jsonify({"error": None, "campaigns": campaigns_schema.dump(campaigns)})
 
 
 
