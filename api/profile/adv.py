@@ -24,16 +24,17 @@ def create_campaign():
 	if adv:
 		start = datetime.strptime(start, DATE_FORMAT)
 		end = datetime.strptime(end, DATE_FORMAT)
-		if start > datetime.now() and end > start:
-			ad_campaign = AdCampaign(advertiser_id=adv.id, name=name, start_date=start, end_date=end)
-			db.session.add(ad_campaign)
-			db.session.flush()
-			for tag in tags:
-				db.session.add(CampaignTag(campaign_id=ad_campaign.id, tag_id=tag))
-			db.session.commit()
-			return jsonify({"error": None})
-		else:
-			return jsonify({"error": "End date is previous to start date"})
+		if start.date() < datetime.now().date():
+			return jsonify({"error": "Start date is previous to current date"})
+		if end <= start:
+			return jsonify({"error": "End date is previous or equal to start date"})
+		ad_campaign = AdCampaign(advertiser_id=adv.id, name=name, start_date=start, end_date=end)
+		db.session.add(ad_campaign)
+		db.session.flush()
+		for tag in tags:
+			db.session.add(CampaignTag(campaign_id=ad_campaign.id, tag_id=tag))
+		db.session.commit()
+		return jsonify({"error": None})
 	else:
 		return jsonify({"error": "Advertiser not found"})
 
