@@ -39,7 +39,12 @@ def create_post():
 			delete_file(filename)
 		raise
 
-	return jsonify({"error": None, "post": post_schema.dump(post)})
+	post_data = post_schema.dump(post)
+	post_data["likes"] = 0
+	post_data["comments"] = 0
+	post_data["user_like"] = False
+
+	return jsonify({"error": None, "post": post_data})
 
 
 
