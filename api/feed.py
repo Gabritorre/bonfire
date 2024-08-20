@@ -26,7 +26,7 @@ def explore():
 	set_likes_count(posts, posts_data) # set the number of likes for each post
 	set_comments_count(posts, posts_data) # set the number of comments for each post
 
-	recommended_ad = []
+	recommended_ad = None
 	if posts_data:
 		if token:
 			set_user_like(posts, posts_data, token.profile_id) # for each post check if the current user liked it or not

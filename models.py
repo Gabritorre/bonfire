@@ -66,7 +66,7 @@ class Ad(Base):
 	campaign_id: Mapped[int] = mapped_column(ForeignKey("ad_campaigns.id", ondelete="cascade"))
 
 	name: Mapped[str] = mapped_column(String(NAME_LENGTH), nullable=False)
-	media: Mapped[str] = mapped_column(Text, nullable=True, unique=True)
+	media: Mapped[str] = mapped_column(Text, nullable=False, unique=True)
 	link: Mapped[str] = mapped_column(Text, nullable=True)
 	probability: Mapped[float] = mapped_column(Float, nullable=False)
 	date: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
