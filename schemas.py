@@ -129,6 +129,14 @@ class AdCampaignsSchema(ma.SQLAlchemyAutoSchema):
 	end_date = fields.DateTime(format=DATE_FORMAT)
 
 
+class AdStatsSchema(ma.SQLAlchemyAutoSchema):
+	class Meta:
+		model = DailyStat
+		fields = ("id", "impressions", "readings", "clicks", "date")
+
+	date = fields.DateTime(format=DATE_FORMAT)
+
+
 
 profile_schema = ProfileSchema()
 user_schema = UserSchema()
@@ -144,3 +152,4 @@ ads_schema = SimpleAdSchema(many=True)
 comments_schema = CommentSchema(many=True)
 adv_settings_schema = AdvSettingsSchema()
 campaigns_schema = AdCampaignsSchema(many=True)
+ad_stats_schema = AdStatsSchema(many=True)

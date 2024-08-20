@@ -48,7 +48,7 @@ class AdCampaign(Base):
 	advertiser_id: Mapped[int] = mapped_column(ForeignKey("advertisers.id", ondelete="cascade"))
 
 	name: Mapped[str] = mapped_column(String(NAME_LENGTH), nullable=False)
-	budget: Mapped[float] = mapped_column(Numeric(12, 2), nullable=False)
+	budget: Mapped[float] = mapped_column(Numeric(12, 2), default=0.00, nullable=False)
 	start_date: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 	end_date: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
