@@ -46,7 +46,7 @@ document.addEventListener("alpine:init", () => {
 				if (res.error) {
 					return;
 				}
-				this.posts.splice(0, 0, res.post);
+				this.posts.splice(0, 0, {type: "post", ...res.post});
 				this.draft.body = "";
 				this.$refs.media.value = null;
 				this.draft.interests.splice(0);
