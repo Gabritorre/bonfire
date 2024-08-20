@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, request
 from config import db, safeguard
 from models import DATE_FORMAT, Ad, AdCampaign, Advertiser, CampaignTag
-from schemas import campaigns_schema, ads_schema
+from schemas import campaigns_schema, campaign_schema, ads_schema
 from datetime import datetime
 from api.utils import get_auth_token
 
@@ -34,7 +34,8 @@ def create_campaign():
 		for tag in tags:
 			db.session.add(CampaignTag(campaign_id=ad_campaign.id, tag_id=tag))
 		db.session.commit()
-		return jsonify({"error": None})
+
+		return jsonify({"error": None, "campaign": campaign_schema.dump(ad_campaign)})
 	else:
 		return jsonify({"error": "Advertiser not found"})
 
@@ -79,7 +80,7 @@ def get_campaigns():
 
 
 # Adds new funds for the specified campaign
-@adv.route("/budget", methods=["POST"])
+@adv.route("/budget", methods=["PUT"])
 @safeguard
 def add_budget():
 	token = get_auth_token(request.cookies)

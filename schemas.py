@@ -127,6 +127,7 @@ class AdCampaignsSchema(ma.SQLAlchemyAutoSchema):
 
 	start_date = fields.DateTime(format=DATE_FORMAT)
 	end_date = fields.DateTime(format=DATE_FORMAT)
+	budget = fields.Float()
 
 
 class AdStatsSchema(ma.SQLAlchemyAutoSchema):
@@ -152,4 +153,5 @@ ads_schema = SimpleAdSchema(many=True)
 comments_schema = CommentSchema(many=True)
 adv_settings_schema = AdvSettingsSchema()
 campaigns_schema = AdCampaignsSchema(many=True)
+campaign_schema = AdCampaignsSchema()
 ad_stats_schema = AdStatsSchema(many=True)

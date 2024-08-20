@@ -61,7 +61,7 @@ def create_ad():
 			delete_file(filename)
 		raise
 
-	return jsonify({"error": None})
+	return jsonify({"error": None, "ad": ad_schema.dump(ad)})
 
 
 

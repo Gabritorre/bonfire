@@ -33,9 +33,10 @@ def explore():
 			recommended_ad = recommend_ad(user_id=token.profile_id)
 		else:
 			recommended_ad = recommend_ad(user_id=None)
-		db.session.commit()
-		recommended_ad = feed_ad_schema.dump(recommended_ad)
 
+		if recommended_ad:
+			db.session.commit()
+			recommended_ad = feed_ad_schema.dump(recommended_ad)
 	return jsonify({"error": None, "posts": posts_data, "ad": recommended_ad})
 
 
