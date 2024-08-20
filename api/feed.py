@@ -1,7 +1,6 @@
 from flask import Blueprint, jsonify, request
-from sqlalchemy.sql.expression import func
 from config import db, safeguard
-from models import Ad, Post, Following, User, PostTag, Tag
+from models import Post, Following, User, PostTag, Tag
 from schemas import posts_schema, feed_ad_schema
 from .utils import get_auth_token, recommend_ad, set_user_like, set_likes_count, set_comments_count
 
@@ -28,10 +27,10 @@ def explore():
 		set_user_like(posts, posts_data, token.profile_id) # for each post check if the current user liked it or not
 		set_likes_count(posts, posts_data) # set the number of likes for each post
 		set_comments_count(posts, posts_data) # set the number of comments for each post
-		recommended_ad = recommend_ad(token.profile_id, epsilon=0.8)
+		recommended_ad = recommend_ad(user_id=token.profile_id)
 		db.session.commit()
 	else:
-		recommended_ad = db.session.query(Ad).order_by(func.random()).first() # random ad if not logged in
+		recommended_ad = recommend_ad(user_id=None)
 		db.session.commit()
 	return jsonify({"error": None, "posts": posts_data, "ad": feed_ad_schema.dump(recommended_ad)})
 

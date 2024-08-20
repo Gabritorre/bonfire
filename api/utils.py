@@ -110,23 +110,24 @@ def update_budget(campaign: AdCampaign, fee: int) -> None:
 	campaign.budget -= fee
 
 # Select a recommend ad to a user based on their interests and the ad's budget
-def recommend_ad(user_id: int, epsilon: float=0.8) -> Ad | None:
-	hi_interest = db.session.query(Interest).where(Interest.user_id == user_id).order_by(Interest.interest.desc()).first() # highest interest
-	if hi_interest:
-		interested_campaign = (db.session.query(AdCampaign) # campaign with highest budget that matches hi_interest
-						.join(CampaignTag, AdCampaign.id == CampaignTag.campaign_id)
-						.where(CampaignTag.tag_id == hi_interest.tag_id, AdCampaign.end_date > datetime.now(timezone.utc), AdCampaign.budget >= IMPRESSION_FEE+CLICK_FEE)
-						.order_by(AdCampaign.budget.desc())
-						.first())
+def recommend_ad(user_id: int | None, epsilon: float=0.8) -> Ad | None:
+	if user_id:
+		hi_interest = db.session.query(Interest).where(Interest.user_id == user_id).order_by(Interest.interest.desc()).first() # highest interest
+		if hi_interest:
+			interested_campaign = (db.session.query(AdCampaign) # campaign with highest budget that matches hi_interest
+							.join(CampaignTag, AdCampaign.id == CampaignTag.campaign_id)
+							.where(CampaignTag.tag_id == hi_interest.tag_id, AdCampaign.end_date > datetime.now(timezone.utc), AdCampaign.budget >= IMPRESSION_FEE+CLICK_FEE)
+							.order_by(AdCampaign.budget.desc())
+							.first())
 
-		if interested_campaign and db.session.query(Ad).where(Ad.campaign_id == interested_campaign.id).first(): # the interested campaign has at least an ad
-			if random.random() < epsilon: # choose an ad inside interested_campaign with epsilon probability or explore other ads
-				ads = db.session.query(Ad).where(Ad.campaign_id == interested_campaign.id).all()
-				probs = [ad.probability for ad in ads]
-				recommended_ad = random.choices(ads, weights=probs, k=1)[0]
-				update_daily_stats(recommended_ad, impression=1)
-				update_budget(interested_campaign, IMPRESSION_FEE)
-				return recommended_ad
+			if interested_campaign and db.session.query(Ad).where(Ad.campaign_id == interested_campaign.id).first(): # the interested campaign has at least an ad
+				if random.random() < epsilon: # choose an ad inside interested_campaign with epsilon probability or explore other ads
+					ads = db.session.query(Ad).where(Ad.campaign_id == interested_campaign.id).all()
+					probs = [ad.probability for ad in ads]
+					recommended_ad = random.choices(ads, weights=probs, k=1)[0]
+					update_daily_stats(recommended_ad, impression=1)
+					update_budget(interested_campaign, IMPRESSION_FEE)
+					return recommended_ad
 
 	res = db.session.query(Ad, AdCampaign).join(AdCampaign, Ad.campaign_id == AdCampaign.id).where(AdCampaign.budget >= IMPRESSION_FEE+CLICK_FEE).order_by(func.random()).first() # select a random ad
 	if res:
