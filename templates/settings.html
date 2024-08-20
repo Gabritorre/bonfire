@@ -7,7 +7,7 @@
 {% endblock %}
 
 {% block view %}
-<div class="overflow-scroll flex-grow-1">
+<div class="overflow-y-auto flex-grow-1">
 	<div class="container py-5">
 		<form class="row row-cols-1 row-cols-lg-3 gy-5 justify-content-center" x-data="settings" x-show="info.handle" @submit.prevent="submit">
 			<div class="col d-flex justify-content-center" x-show.important="!account.is_adv">

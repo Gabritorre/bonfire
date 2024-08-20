@@ -7,9 +7,9 @@
 
 {% block view %}
 {{super()}}
-<div class="overflow-scroll flex-grow-1" x-data="follows" x-show="type">
+<div class="overflow-y-auto flex-grow-1" x-data="follows" x-show="type">
 	<div class="container d-flex justify-content-center">
-		<div class="feed row row-cols-1 gy-3 py-4">
+		<div class="feed row row-cols-1 gy-3 gx-0 py-4">
 			<div class="col">
 				<div class="fs-5 fw-bold">
 					<span x-show="type === 's'">Followers</span>

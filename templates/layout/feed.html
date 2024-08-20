@@ -46,7 +46,7 @@
 		<div class="col collapse" :id="comments_id">
 			<div class="card">
 				<div class="card-header">Comments</div>
-				<ul class="list-group list-group-flush overflow-scroll">
+				<ul class="list-group list-group-flush overflow-y-auto">
 					<li class="list-group-item p-4 pt-3" :class="comments[post.id]?.length == 0 && 'border-bottom-0'" x-show="account.authenticated && !account.is_adv">
 						<div class="row row-cols-1 gy-3">
 							<div class="col">

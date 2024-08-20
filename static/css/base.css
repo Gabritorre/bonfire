@@ -61,7 +61,7 @@ textarea {
 }
 
 .dropdown-many {
-	overflow: scroll;
+	overflow-y: auto;
 	max-height: var(--dropdown-many-height);
 }
 

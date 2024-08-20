@@ -33,7 +33,8 @@ document.addEventListener("alpine:init", () => {
 			});
 
 			const scroll_handler = () => {
-				const delta = this.$refs.scroll.scrollTopMax - this.$refs.scroll.scrollTop;
+				const scroll = this.$refs.scroll;
+				const delta = (scroll.scrollHeight - scroll.clientHeight) - scroll.scrollTop;
 				if (delta <= SCROLL_THRESHOLD && !this.scroll_fetching) {
 					this.scroll_fetching = true;
 					this.continue_posts().then(() => this.scroll_fetching = false);
