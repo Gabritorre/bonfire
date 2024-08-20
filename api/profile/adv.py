@@ -78,6 +78,29 @@ def get_campaigns():
 
 
 
+# Adds new funds for the specified campaign
+@adv.route("/budget", methods=["POST"])
+@safeguard
+def add_budget():
+	token = get_auth_token(request.cookies)
+	if not token:
+		return jsonify({"error": "Invalid token"})
+
+	req = request.get_json()
+	campaign_id = req["id"]
+	added_funds = req["funds"]
+	if added_funds < 0:
+		return jsonify({"error": "Funds cannot be negative"})
+
+	adv = db.session.query(Advertiser).where(Advertiser.id == token.profile_id).first()
+	if not adv:
+		return jsonify({"error": "Not an advertiser profile"})
+	db.session.query(AdCampaign).where(AdCampaign.id == campaign_id, AdCampaign.advertiser_id == adv.id).update({AdCampaign.budget: AdCampaign.budget + added_funds})
+	db.session.commit()
+	return jsonify({"error": None})
+
+
+
 # Get all ads of a campaign, recognized by its "id", owned by the current advertiser.
 # Returns a list of ads that includes their "id", "campaign_id", "name", "media", "link", "date"
 @adv.route("/ads", methods=["POST"])
