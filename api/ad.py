@@ -2,7 +2,7 @@ from flask import Blueprint, json, jsonify, request
 from config import db, safeguard
 from models import AdCampaign, Advertiser, Ad, DailyStat
 from schemas import ad_schema, ad_stats_schema
-from api.utils import get_auth_token, save_file, delete_file
+from api.utils import get_auth_token, save_file, delete_file, update_daily_stats
 
 ad = Blueprint("ad", __name__, url_prefix="/ad")
 
@@ -106,3 +106,19 @@ def get_stats():
 		return jsonify({"error": "Ad doesn't belong to this advertiser or doesn't exist"})
 	stats = db.session.query(DailyStat).join(Ad, DailyStat.ad_id == Ad.id).where(DailyStat.ad_id == ad_id).all()
 	return jsonify({"error": None, "stats": ad_stats_schema.dump(stats)})
+
+
+
+@ad.route("/update_stats", methods=["POST"])
+@safeguard
+def update_stats():
+	req = request.get_json()
+	ad_id = req["id"]
+	click = req["clicked"]
+	read = req["read"]
+	if click:
+		update_daily_stats(ad_id, click=1)
+	if read:
+		update_daily_stats(ad_id, read=1)
+	db.session.commit()
+	return jsonify({"error": None})

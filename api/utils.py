@@ -95,19 +95,17 @@ def delete_file(filename) -> None:
 		os.remove(file_path)
 
 # Update the daily stats of an advertisement
-def update_daily_stats(ad: Ad | None, impression: int=0, read: int=0, click: int=0) -> None:
-	if ad:
+def update_daily_stats(ad_id: int | None, impression: int=0, read: int=0, click: int=0) -> None:
+	if ad_id:
 		today = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
-		d_stat = db.session.query(DailyStat).where(DailyStat.ad_id == ad.id, DailyStat.date == today).first()
+		d_stat = db.session.query(DailyStat).where(DailyStat.ad_id == ad_id, DailyStat.date == today).first()
 		if d_stat:
 			d_stat.impressions += impression
 			d_stat.readings += read
 			d_stat.clicks += click
 		else:
-			db.session.add(DailyStat(ad_id=ad.id, date=today, impressions=impression, readings=read, clicks=click))
+			db.session.add(DailyStat(ad_id=ad_id, date=today, impressions=impression, readings=read, clicks=click))
 
-def update_budget(campaign: AdCampaign, fee: int) -> None:
-	campaign.budget -= fee
 
 # Select a recommend ad to a user based on their interests and the ad's budget
 def recommend_ad(user_id: int | None, epsilon: float=0.8) -> Ad | None:
@@ -123,17 +121,20 @@ def recommend_ad(user_id: int | None, epsilon: float=0.8) -> Ad | None:
 			if interested_campaign and db.session.query(Ad).where(Ad.campaign_id == interested_campaign.id).first(): # the interested campaign has at least an ad
 				if random.random() < epsilon: # choose an ad inside interested_campaign with epsilon probability or explore other ads
 					ads = db.session.query(Ad).where(Ad.campaign_id == interested_campaign.id).all()
-					probs = [ad.probability for ad in ads]
-					recommended_ad = random.choices(ads, weights=probs, k=1)[0]
-					update_daily_stats(recommended_ad, impression=1)
-					update_budget(interested_campaign, IMPRESSION_FEE)
-					return recommended_ad
+					if len(ads) > 0:
+						probs = [ad.probability for ad in ads]
+						recommended_ad = random.choices(ads, weights=probs, k=1)[0]
+						interested_campaign.budget -= IMPRESSION_FEE
+						update_daily_stats(recommended_ad.id, impression=1)
+						return recommended_ad
+					else:
+						return None
 
 	res = db.session.query(Ad, AdCampaign).join(AdCampaign, Ad.campaign_id == AdCampaign.id).where(AdCampaign.budget >= IMPRESSION_FEE+CLICK_FEE).order_by(func.random()).first() # select a random ad
 	if res:
 		recommended_ad, interested_campaign = res
-		update_daily_stats(recommended_ad, impression=1)
-		update_budget(interested_campaign, IMPRESSION_FEE)
+		interested_campaign.budget -= IMPRESSION_FEE
+		update_daily_stats(recommended_ad.id, impression=1)
 		return recommended_ad
 
 # for each post check if the current user liked it or not
