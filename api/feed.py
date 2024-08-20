@@ -22,16 +22,19 @@ def explore():
 	posts = posts.limit(POSTS_PER_CHUNK)
 	posts_data = posts_schema.dump(posts)
 
+	set_likes_count(posts, posts_data) # set the number of likes for each post
+	set_comments_count(posts, posts_data) # set the number of comments for each post
 
-	if token:
-		set_user_like(posts, posts_data, token.profile_id) # for each post check if the current user liked it or not
-		set_likes_count(posts, posts_data) # set the number of likes for each post
-		set_comments_count(posts, posts_data) # set the number of comments for each post
-		recommended_ad = recommend_ad(user_id=token.profile_id)
-		db.session.commit()
-	else:
-		recommended_ad = recommend_ad(user_id=None)
-		db.session.commit()
+	recommended_ad = []
+	if posts_data:
+		if token:
+			set_user_like(posts, posts_data, token.profile_id) # for each post check if the current user liked it or not
+			recommended_ad = recommend_ad(user_id=token.profile_id)
+			db.session.commit()
+		else:
+			recommended_ad = recommend_ad(user_id=None)
+			db.session.commit()
+
 	return jsonify({"error": None, "posts": posts_data, "ad": feed_ad_schema.dump(recommended_ad)})
 
 
@@ -80,10 +83,11 @@ def user_posts():
 	posts = posts.limit(POSTS_PER_CHUNK)
 	posts_data = posts_schema.dump(posts)
 
+	set_likes_count(posts, posts_data) # set the number of likes for each post
+	set_comments_count(posts, posts_data) # set the number of comments for each post
+
 	if token:
 		set_user_like(posts, posts_data, token.profile_id)	# for each post check if the current user liked it or not
-		set_likes_count(posts, posts_data)	# set the number of likes for each post
-		set_comments_count(posts, posts_data)	# set the number of comments for each post
 
 	return jsonify({"error": None, "posts": posts_data})
 
@@ -110,10 +114,11 @@ def search_posts_by_tag():
 	posts = posts.limit(POSTS_PER_CHUNK)
 	posts_data = posts_schema.dump(posts)
 
+	set_likes_count(posts, posts_data) # set the number of likes for each post
+	set_comments_count(posts, posts_data) # set the number of comments for each post
+
 	# for each post check if the user liked it or not
 	if token:
 		set_user_like(posts, posts_data, token.profile_id)	# for each post check if the current user liked it or not
-		set_likes_count(posts, posts_data)	# set the number of likes for each post
-		set_comments_count(posts, posts_data)	# set the number of comments for each post
 
 	return jsonify({"error": None, "posts": posts_data})
