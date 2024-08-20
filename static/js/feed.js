@@ -10,6 +10,9 @@ document.addEventListener("alpine:init", () => {
 		init() {
 			this.$watch("posts.length", () => {
 				this.posts.forEach((post) => {
+					if (post.type !== "post") {
+						return;
+					}
 					if (!this.comments.hasOwnProperty(post.id)) {
 						this.update_comments(post);
 					}
@@ -45,7 +48,8 @@ document.addEventListener("alpine:init", () => {
 		},
 
 		continue_posts() {
-			return this.fetch_feed(this.posts[this.posts.length-1]?.id ?? null);
+			const user_posts = this.posts.filter((post) => post.type === "post");
+			return this.fetch_feed(user_posts[user_posts.length-1]?.id ?? null);
 		},
 
 		update_comments(post) {

@@ -25,7 +25,11 @@ document.addEventListener("alpine:init", () => {
 				if (res.error || original_feed != this.feed) {
 					return res;
 				}
-				this.posts.push(...res.posts);
+
+				this.posts.push(...res.posts.map((post) => ({type: "post", ...post})));
+				if (res.ad) {
+					this.posts.push({type: "ad", ...res.ad});
+				}
 				return res;
 			});
 		},

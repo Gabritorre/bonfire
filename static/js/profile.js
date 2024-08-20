@@ -28,7 +28,7 @@ document.addEventListener("alpine:init", () => {
 				if (res.error) {
 					return res;
 				}
-				this.posts.push(...res.posts);
+				this.posts.push(...res.posts.map((post) => ({type: "post", ...post})));
 				return res;
 			});
 		},
