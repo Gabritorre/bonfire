@@ -1,0 +1,108 @@
+{% extends "layout/header.html" %}
+
+{% block head %}
+{{super()}}
+<script src="/js/tags.js"></script>
+<script src="/js/campaigns.js"></script>
+{% endblock %}
+
+{% block view %}
+{{super()}}
+<div class="overflow-y-auto flex-grow-1" x-data="campaigns">
+	<div class="container d-flex justify-content-center">
+		<div class="feed row row-cols-1 gy-3 gx-0">
+			<div class="col pt-3">
+				<form class="accordion accordion-flush" @submit.prevent="submit_campaign">
+					<div class="accordion-item">
+						<div class="accordion-header d-flex justify-content-between align-items-center">
+							<div class="fs-5 fw-bold">Campaigns</div>
+							<button class="btn btn-dark btn-round collapsed" title="Create a new campaign" data-bs-toggle="collapse" data-bs-target="#section-create-content" type="button">
+								<div class="collapse-fade-icons">
+									<i class="bi bi-plus-circle"></i>
+									<i class="bi bi-plus-circle-fill"></i>
+								</div>
+							</button>
+						</div>
+						<div id="section-create-content" class="accordion-collapse collapse">
+							<div class="accordion-body row row-cols-1 row-cols-sm-2 pb-2">
+								<div class="col col-sm-12">
+									<div class="d-flex flex-column gap-2">
+										<div class="fw-medium">Name</div>
+										<input class="form-control" type="text" x-model="draft.name" required />
+									</div>
+								</div>
+								<div class="col mt-3">
+									<div class="d-flex flex-column gap-2">
+										<div class="fw-medium">Start date</div>
+										<input class="form-control" type="date" x-model="draft.start" required />
+									</div>
+								</div>
+								<div class="col mt-3">
+									<div class="d-flex flex-column gap-2">
+										<div class="fw-medium">End date</div>
+										<input class="form-control" type="date" x-model="draft.end" required />
+									</div>
+								</div>
+								<div class="col col-sm-12 mt-3">
+									<div class="d-flex flex-column gap-2" x-data="{interests: draft.interests}">
+										<div class="fw-medium">Targeted interests</div>
+										<div class="d-flex justify-content-between gap-5">
+											<div class="flex-grow-1">
+												{% include "layout/tags.html" %}
+											</div>
+											<div class="d-none d-sm-flex align-items-center justify-content-end">
+												<button class="btn btn-light rounded-pill" type="submit">Create</button>
+											</div>
+										</div>
+									</div>
+								</div>
+								<div class="col col-sm-12 d-flex justify-content-between align-items-center gap-2">
+									<div>
+										<div class="text-danger mt-3" x-show="error">
+											<i class="bi bi-x"></i>
+											<span x-text="error"></span>
+										</div>
+									</div>
+									<div class="d-block d-sm-none mt-3">
+										<button class="btn btn-light rounded-pill" type="submit">Create</button>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</form>
+			</div>
+			<div class="col">
+				<template x-for="campaign in campaigns">
+					<div class="card mb-3">
+						<div class="card-body">
+							<div class="card-title d-flex justify-content-between align-items-stretch ms-1">
+								<a class="fs-5 fw-bold text-reset text-decoration-none" x-text="campaign.name" :href="'/ads?id=' + campaign.id"></a>
+								<div>
+									<button class="btn btn-dark btn-round text-body" type="button" @click="delete_campaign(campaign)">
+										<i class="bi bi-trash-fill"></i>
+									</button>
+								</div>
+							</div>
+							<div class="d-flex flex-column flex-sm-row justify-content-sm-between align-items-sm-end gap-2 me-2">
+								<div>
+									<button class="btn btn-dark rounded-3 fs-4" title="Update budget" type="button" x-text="'€' + campaign.budget.toFixed(2)" @click="update_budget(campaign)"></button>
+								</div>
+								<div class="text-secondary text-end mb-1">
+									From <span class="text-body" x-text="new Date(campaign.start_date).toLocaleDateString()"></span> to <span class="text-body" x-text="new Date(campaign.end_date).toLocaleDateString()"></span>
+								</div>
+							</div>
+						</div>
+					</div>
+				</template>
+			</div>
+		</div>
+		<template x-teleport=".modal[x-ref='popup'] .modal-body">
+			<div class="d-flex flex-column gap-2" x-show.important="budget_addition !== null">
+				<div>Please select the amount to add:</div>
+				<input class="form-control" type="number" min="0.01" step="0.01" x-model="budget_addition" :required="budget_addition !== null" />
+			</div>
+		</template>
+	</div>
+</div>
+{% endblock %}
