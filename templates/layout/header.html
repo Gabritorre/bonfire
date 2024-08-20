@@ -11,10 +11,12 @@
 <div class="d-flex flex-column vh-100">
 	<header class="bg-dark-subtle py-3 border-bottom" x-data="header">
 		<div class="container d-flex align-items-center justify-content-center justify-content-md-between">
-			<a class="col-md-3 d-inline-flex align-items-center text-reset text-decoration-none gap-2" href="/">
-				<img class="profile-picture profile-picture-2" src="/favicon.png" />
-				<span class="d-none d-sm-inline fs-5 fw-bold">App</span>
-			</a>
+			<div class="col-md-3 d-flex">
+				<a class="d-flex align-items-center text-reset text-decoration-none gap-2" href="/">
+					<img class="profile-picture profile-picture-2" src="/favicon.png" />
+					<span class="d-none d-sm-inline fs-5 fw-bold">App</span>
+				</a>
+			</div>
 
 			<div class="dropdown-center d-flex justify-content-center mx-3 mx-sm-4 w-100">
 				<input class="form-control rounded-pill" type="search" placeholder="Search..." title="Search for your friends" x-ref="search" x-model.debounce="query" />

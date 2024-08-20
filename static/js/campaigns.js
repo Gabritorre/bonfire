@@ -6,13 +6,13 @@ document.addEventListener("alpine:init", () => {
 			end: null,
 			interests: []
 		},
-		campaigns: [],
+		campaigns: null,
 		error: null,
 		budget_addition: null,
 
 		init() {
 			this.fetch("POST", "/api/profile/adv/campaigns").then((res) => {
-				this.campaigns = res.campaigns.map((campaign) => ({...campaign, budget: +campaign.budget})).reverse();
+				this.campaigns = (res.campaigns ?? []).reverse();
 			});
 		},
 
@@ -28,7 +28,11 @@ document.addEventListener("alpine:init", () => {
 					return;
 				}
 				this.error = null;
-				this.campaigns.splice(0, 0, {...res.campaign, budget: +res.campaign.budget});
+				this.campaigns.splice(0, 0, res.campaign);
+				this.draft.name = null;
+				this.draft.start = null;
+				this.draft.end = null;
+				this.draft.interests.splice(0);
 			});
 		},
 
@@ -61,7 +65,7 @@ document.addEventListener("alpine:init", () => {
 					return;
 				}
 
-				this.fetch("POST", "/api/profile/adv/budget", {
+				this.fetch("PUT", "/api/profile/adv/budget", {
 					id: campaign.id,
 					funds: addition
 				}).then((res) => {

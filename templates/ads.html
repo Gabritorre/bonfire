@@ -1,0 +1,107 @@
+{% extends "layout/header.html" %}
+
+{% block head %}
+{{super()}}
+<link rel="stylesheet" href="/css/ads.css" />
+<script src="/js/ads.js"></script>
+{% endblock %}
+
+{% block view %}
+{{super()}}
+<div class="overflow-y-auto flex-grow-1" x-data="ads" x-show="ads !== null">
+	<div class="container d-flex justify-content-center">
+		<div class="feed row row-cols-1 gy-3 gx-0">
+			<div class="col pt-3">
+				<form class="accordion accordion-flush" @submit.prevent="submit_ad">
+					<div class="accordion-item">
+						<div class="accordion-header d-flex justify-content-between align-items-center">
+							<div class="fs-5 fw-bold">Ads</div>
+							<button class="btn btn-dark btn-round collapsed" title="Create a new ad on this campaign" data-bs-toggle="collapse" data-bs-target="#section-create-content" type="button">
+								<div class="collapse-fade-icons">
+									<i class="bi bi-plus-circle"></i>
+									<i class="bi bi-plus-circle-fill"></i>
+								</div>
+							</button>
+						</div>
+						<div id="section-create-content" class="accordion-collapse collapse">
+							<div class="accordion-body row row-cols-1 row-cols-sm-2 pb-2">
+								<div class="col col-sm-12">
+									<div class="d-flex flex-column gap-2">
+										<div class="fw-medium">Name</div>
+										<input class="form-control" type="text" x-model="draft.name" required />
+									</div>
+								</div>
+								<div class="col col-sm-12 mt-3">
+									<div class="d-flex flex-column gap-2">
+										<div class="fw-medium">Media</div>
+										<input class="form-control" type="file" autocomplete="off" x-ref="media" required />
+									</div>
+								</div>
+								<div class="col mt-3">
+									<div class="d-flex flex-column gap-2">
+										<div class="fw-medium">Link</div>
+										<input class="form-control" type="text" x-model="draft.link" />
+									</div>
+								</div>
+								<div class="col mt-3">
+									<div class="d-flex flex-column gap-2">
+										<div class="fw-medium">Probability</div>
+										<input class="form-control" type="number" min="0" max="100" step="0.01" x-model="draft.probability" required />
+									</div>
+								</div>
+								<div class="col col-sm-12 d-flex justify-content-between align-items-center gap-2 mt-3">
+									<div>
+										<div class="text-danger" x-show="error">
+											<i class="bi bi-x"></i>
+											<span x-text="error"></span>
+										</div>
+									</div>
+									<div>
+										<button class="btn btn-light rounded-pill" type="submit">Create</button>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</form>
+			</div>
+			<div class="col">
+				<template x-for="ad in ads">
+					<div class="card mb-3" x-data="{chart_id: $id('chart')}">
+						<div class="card-body">
+							<div class="card-title d-flex flex-column flex-sm-row gap-3">
+								<div class="ad-image">
+									<img class="border rounded-2 w-100 h-100" :src="ad.media" />
+								</div>
+								<div class="d-flex justify-content-between flex-grow-1">
+									<div>
+										<div class="d-flex align-items-baseline gap-2 mb-2">
+											<div class="fs-5 fw-bold" x-text="ad.name"></div>
+											<div class="text-secondary" x-text="new Date(ad.date).toLocaleDateString()"></div>
+										</div>
+										<div class="text-secondary">
+											Probability: <span class="text-body" x-text="ad.probability*100 + '%'">12%</span>
+										</div>
+										<div class="ad-link" x-show="ad.link">
+											<span class="text-secondary">Link:</span> <a :href="ad.link" x-text="ad.link"></a>
+										</div>
+									</div>
+									<div>
+										<button class="btn btn-dark btn-round text-body" type="button" @click="delete_ad(ad)">
+											<i class="bi bi-trash-fill"></i>
+										</button>
+									</div>
+								</div>
+							</div>
+							<canvas class="w-100" :id="chart_id"></canvas>
+						</div>
+					</div>
+				</template>
+				<div class="d-flex justify-content-center p-4" x-show.important="ads?.length == 0">
+					No ads found
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock %}

@@ -39,12 +39,12 @@
 						<div id="section-send-content" class="accordion-collapse collapse" x-show="feed == 'explore'">
 							<div class="accordion-body row row-cols-1 pb-2">
 								<div class="col">
-									<div class="row">
-										<div class="col d-flex align-items-center">
+									<div class="d-flex justify-content-between">
+										<a class="d-flex align-items-center text-reset text-decoration-none" :href="'/profile?id=' + account.id">
 											<img class="profile-picture profile-picture-1 me-2" :src="account.pfp" />
 											<div class="fw-bold" x-text="account.name ?? account.handle"></div>
-										</div>
-										<div class="col-auto">
+										</a>
+										<div>
 											<button class="btn btn-light rounded-pill" @click="submit_post">Post</button>
 										</div>
 									</div>

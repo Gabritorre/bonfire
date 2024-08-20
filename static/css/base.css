@@ -1,12 +1,13 @@
 :root {
 	--search-width: 500px;
-	--post-width: 600px;
-	--post-media-ratio: 5/3;
+	--post-width: 650px;
+	--post-media-ratio: 7/4;
 	--profile-picture-1: 35px;
 	--profile-picture-2: 40px;
 	--profile-picture-3: 50px;
 	--profile-picture-4: 150px;
 	--profile-picture-5: 225px;
+	--ad-image-size: 120px;
 	--dropdown-many-height: 500px;
 	--transition: .15s ease-in-out;
 }
@@ -70,6 +71,7 @@ textarea {
 }
 
 .feed .card-img {
+	background-color: var(--bs-dark-bg-subtle);
 	aspect-ratio: var(--post-media-ratio);
 	object-fit: cover;
 }

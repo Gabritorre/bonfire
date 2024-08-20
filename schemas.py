@@ -95,7 +95,7 @@ class AdSchema(ma.SQLAlchemyAutoSchema):
 class SimpleAdSchema(ma.SQLAlchemyAutoSchema):
 	class Meta:
 		model = Ad
-		fields = ("id", "campaign_id", "name", "media", "link", "date")
+		fields = ("id", "campaign_id", "name", "media", "link", "date", "probability")
 
 	date = fields.DateTime(format=DATE_TIME_FORMAT)
 

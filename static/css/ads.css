@@ -1,0 +1,19 @@
+.ad-image {
+	height: var(--ad-image-size);
+	min-width: var(--ad-image-size);
+	flex-basis: var(--ad-image-size);
+}
+
+.ad-image > img {
+	object-fit: cover;
+	background-color: var(--bs-dark-bg-subtle);
+}
+
+.ad-link {
+	word-break: break-all;
+	display: -webkit-box;
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 2;
+	overflow: hidden;
+	color: var(--bs-link-color);
+}
