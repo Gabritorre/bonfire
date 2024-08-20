@@ -73,16 +73,10 @@ class PostSchema(ma.SQLAlchemyAutoSchema):
 	user_handle = fields.String(attribute="user.profile.handle", data_key="user_handle")
 	user_name = fields.String(attribute="user.profile.name", data_key="user_name")
 	user_pfp = fields.String(attribute="user.pfp", data_key="user_pfp")
-	likes = fields.Method("get_likes_count_field")
-	comments = fields.Method("get_comments_count_field")
+	likes = fields.Integer()
+	comments = fields.Integer()
 	user_like = fields.Boolean()
 	date = fields.DateTime(format=DATE_TIME_FORMAT)
-
-	def get_likes_count_field(self, post_instance):
-		return db.session.query(Like).where(Like.post_id == post_instance.id).count()
-
-	def get_comments_count_field(self, post_instance):
-		return db.session.query(Comment).where(Comment.post_id == post_instance.id, Comment.body.isnot(None)).count()
 
 
 class AdSchema(ma.SQLAlchemyAutoSchema):

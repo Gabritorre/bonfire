@@ -3,7 +3,7 @@ from sqlalchemy.sql.expression import func
 from config import db, safeguard
 from models import Ad, Post, Following, Like, User, PostTag, Tag
 from schemas import posts_schema, feed_ad_schema
-from .utils import get_auth_token, recommend_ad, set_user_like
+from .utils import get_auth_token, recommend_ad, set_user_like, set_likes_count, set_comments_count
 
 feed = Blueprint("feed", __name__, url_prefix="/feed")
 
@@ -26,6 +26,8 @@ def explore():
 	
 	if token:
 		set_user_like(posts, posts_data, token.profile_id)	# for each post check if the current user liked it or not
+		set_likes_count(posts, posts_data)	# set the number of likes for each post
+		set_comments_count(posts, posts_data)	# set the number of comments for each post
 		recommended_ad = recommend_ad(token.profile_id, 0.8)
 	else:
 		recommended_ad = db.session.query(Ad).order_by(func.random()).first() # random ad if not logged in
@@ -53,6 +55,8 @@ def friends_posts():
 	posts_data = posts_schema.dump(posts)
 
 	set_user_like(posts, posts_data, token.profile_id)	# for each post check if the current user liked it or not
+	set_likes_count(posts, posts_data)	# set the number of likes for each post
+	set_comments_count(posts, posts_data)	# set the number of comments for each post
 
 	return jsonify({"error": None, "posts": posts_data})
 
@@ -77,6 +81,8 @@ def user_posts():
 
 	if token:
 		set_user_like(posts, posts_data, token.profile_id)	# for each post check if the current user liked it or not
+		set_likes_count(posts, posts_data)	# set the number of likes for each post
+		set_comments_count(posts, posts_data)	# set the number of comments for each post
 
 	return jsonify({"error": None, "posts": posts_data})
 
@@ -106,5 +112,7 @@ def search_posts_by_tag():
 	# for each post check if the user liked it or not
 	if token:
 		set_user_like(posts, posts_data, token.profile_id)	# for each post check if the current user liked it or not
+		set_likes_count(posts, posts_data)	# set the number of likes for each post
+		set_comments_count(posts, posts_data)	# set the number of comments for each post
 
 	return jsonify({"error": None, "posts": posts_data})

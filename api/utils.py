@@ -4,7 +4,7 @@ import magic
 from flask import Response
 from sqlalchemy.sql.expression import func
 from config import db, snowflake, app
-from models import Ad, AdCampaign, CampaignTag, DailyStat, Interest, PostTag, Profile, AuthToken, Like
+from models import Ad, AdCampaign, CampaignTag, DailyStat, Interest, PostTag, Profile, AuthToken, Like, Comment
 from bcrypt import hashpw, gensalt, checkpw
 from werkzeug.datastructures import ImmutableMultiDict
 from hashlib import sha1
@@ -140,10 +140,29 @@ def recommend_ad(user_id: int, epsilon: float) -> Ad | None:
 # for each post check if the current user liked it or not
 def set_user_like(posts, post_data, profile_id):
 	post_ids = [post.id for post in posts]
-	user_likes = db.session.query(Like.post_id).where(
-		Like.user_id == profile_id,
-		Like.post_id.in_(post_ids)
-		).all()
+	user_likes = (db.session.query(Like.post_id)
+				.where(Like.user_id == profile_id, Like.post_id.in_(post_ids))
+				.all())
 	liked_post_ids = {like.post_id for like in user_likes}
 	for count, post in enumerate(posts):
 		post_data[count]["user_like"] = post.id in liked_post_ids
+
+def set_likes_count(posts, posts_data):
+	post_ids = [post.id for post in posts]
+	like_counts = (db.session.query(Like.post_id, func.count().label("like_count"))
+				.where(Like.post_id.in_(post_ids))
+				.group_by(Like.post_id)
+				.all())
+	like_count_dict = {post_id: like_count for post_id, like_count in like_counts}
+	for post_data in posts_data:
+		post_data["likes"] = like_count_dict.get(post_data["id"], 0)
+
+def set_comments_count(posts, posts_data):
+	post_ids = [post.id for post in posts]
+	comment_counts = (db.session.query(Comment.post_id, func.count().label("comment_count"))
+					.where(Comment.post_id.in_(post_ids), Comment.body.isnot(None))
+					.group_by(Comment.post_id)
+					.all())
+	comment_count_dict = {post_id: comment_count for post_id, comment_count in comment_counts}
+	for post_data in posts_data:
+		post_data["comments"] = comment_count_dict.get(post_data["id"], 0)
