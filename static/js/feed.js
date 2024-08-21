@@ -5,7 +5,7 @@ document.addEventListener("alpine:init", () => {
 		comments: {},
 		drafts: {},
 		media: {},
-		scroll_fetching: false,
+		fetching: false,
 
 		init() {
 			this.$watch("posts.length", () => {
@@ -38,9 +38,9 @@ document.addEventListener("alpine:init", () => {
 			const scroll_handler = () => {
 				const scroll = this.$refs.scroll;
 				const delta = (scroll.scrollHeight - scroll.clientHeight) - scroll.scrollTop;
-				if (delta <= SCROLL_THRESHOLD && !this.scroll_fetching) {
-					this.scroll_fetching = true;
-					this.continue_posts().then(() => this.scroll_fetching = false);
+				if (delta <= SCROLL_THRESHOLD && !this.fetching) {
+					this.fetching = true;
+					this.continue_posts().then(() => this.fetching = false);
 				}
 			}
 			this.$refs.scroll?.addEventListener("scroll", scroll_handler);
@@ -49,7 +49,7 @@ document.addEventListener("alpine:init", () => {
 
 		continue_posts() {
 			const user_posts = this.posts.filter((post) => post.type === "post");
-			return this.fetch_feed(user_posts[user_posts.length-1]?.id ?? null);
+			return this.fetch_feed(user_posts[user_posts.length-1]?.id ?? null, this.posts);
 		},
 
 		update_comments(post) {

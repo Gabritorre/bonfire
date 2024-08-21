@@ -64,7 +64,10 @@
 				</div>
 			</div>
 
-			<div class="col">
+			<div class="col" x-data="{posts: explore}" x-show="feed === 'explore'">
+				{% include "layout/feed.html" %}
+			</div>
+			<div class="col" x-data="{posts: friends}" x-show="feed === 'friends'">
 				{% include "layout/feed.html" %}
 			</div>
 		</div>

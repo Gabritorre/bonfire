@@ -1,34 +1,23 @@
 document.addEventListener("alpine:init", () => {
 	Alpine.data("index", () => ({
 		draft: {
-			body: "",
+			body: null,
 			interests: []
 		},
 		friends: [],
 		explore: [],
-		posts: null,
 		feed: "explore",
 
-		init() {
-			this.posts = this[this.feed];
-			this.$watch("feed", () => {
-				this.posts = this[this.feed];
-				if (this.posts.length == 0) {
-					this.fetch_feed(null);
-				}
-			});
-		},
-
-		fetch_feed(last_post_id) {
-			let original_feed = this.feed;
-			return this.fetch("POST", "/api/feed/" + this.feed, {last_post_id}).then((res) => {
-				if (res.error || original_feed != this.feed) {
+		fetch_feed(last_post_id, source) {
+			let original_feed = source == this.friends ? "friends" : "explore";
+			return this.fetch("POST", "/api/feed/" + original_feed, {last_post_id}).then((res) => {
+				if (res.error) {
 					return res;
 				}
 
-				this.posts.push(...res.posts.map((post) => ({type: "post", ...post})));
+				this[original_feed].push(...res.posts.map((post) => ({type: "post", ...post})));
 				if (res.ad) {
-					this.posts.push({type: "ad", ...res.ad});
+					this[original_feed].push({type: "ad", ...res.ad});
 				}
 				return res;
 			});
@@ -46,8 +35,8 @@ document.addEventListener("alpine:init", () => {
 				if (res.error) {
 					return;
 				}
-				this.posts.splice(0, 0, {type: "post", ...res.post});
-				this.draft.body = "";
+				this.explore.splice(0, 0, {type: "post", ...res.post});
+				this.draft.body = null;
 				this.$refs.media.value = null;
 				this.draft.interests.splice(0);
 			});

@@ -1,115 +1,120 @@
-<template x-for="(post, post_index) in posts" x-data="feed">
-	<div>
-		<div class="row row-cols-1 gy-2 gx-0 mb-3" x-data="{comments_id: $id('post-comments')}" x-show="post.type === 'post'">
-			<div class="col">
-				<div class="card">
-					<div class="card-body">
-						<div class="card-title d-flex justify-content-between">
-							<a class="d-flex align-items-center text-reset text-decoration-none" :href="'/profile?id=' + post.user_id">
-								<img class="profile-picture profile-picture-3 me-2" :src="post.user_pfp" />
-								<div>
-									<div class="fw-bold" x-text="post.user_name ?? post.user_handle"></div>
-									<div class="text-secondary">
-										@<span x-text="post.user_handle"></span> &middot; <span x-text="new Date(post.date).toLocaleDateString()"></span>
+<div x-data="feed" x-ref="feed">
+	<template x-for="(post, post_index) in posts">
+		<div>
+			<div class="row row-cols-1 gy-2 gx-0 mb-3" x-data="{comments_id: $id('post-comments')}" x-show="post.type === 'post'">
+				<div class="col">
+					<div class="card">
+						<div class="card-body">
+							<div class="card-title d-flex justify-content-between">
+								<a class="d-flex align-items-center text-reset text-decoration-none" :href="'/profile?id=' + post.user_id">
+									<img class="profile-picture profile-picture-3 me-2" :src="post.user_pfp" />
+									<div>
+										<div class="fw-bold" x-text="post.user_name ?? post.user_handle"></div>
+										<div class="text-secondary">
+											@<span x-text="post.user_handle"></span> &middot; <span x-text="new Date(post.date).toLocaleDateString()"></span>
+										</div>
 									</div>
+								</a>
+								<div x-show="post.user_id === account.id">
+									<button class="btn btn-dark btn-round text-body" @click="delete_post(post)">
+										<i class="bi bi-trash-fill"></i>
+									</button>
 								</div>
-							</a>
-							<div x-show="post.user_id === account.id">
-								<button class="btn btn-dark btn-round text-body" @click="delete_post(post)">
-									<i class="bi bi-trash-fill"></i>
+							</div>
+							<p class="card-text multiline" x-text="post.body"></p>
+							<div class="mb-3" x-show="media[post.id]">
+								<img class="card-img" :src="media[post.id]?.image" x-show="media[post.id]?.image" />
+								<video class="card-img" :src="media[post.id]?.video" x-show="media[post.id]?.video" controls></video>
+							</div>
+							<div class="d-flex gap-2">
+								<button class="btn btn-dark border text-body rounded-pill d-flex align-items-center gap-2 px-3" :class="!post.user_like && 'collapsed'" title="Like the post" @click="submit_like(post)" :disabled="!account.authenticated || account.is_adv">
+									<span class="collapse-fade-icons">
+										<i class="bi bi-heart"></i>
+										<i class="bi bi-heart-fill"></i>
+									</span>
+									<span x-text="suffixize(post.likes)"></span>
+								</button>
+								<button class="btn btn-dark text-body border rounded-pill d-flex align-items-center gap-2 px-3 collapsed" title="Show the comments" data-bs-toggle="collapse" :data-bs-target="'#' + comments_id">
+									<span class="collapse-fade-icons">
+										<i class="bi bi-chat-square"></i>
+										<i class="bi bi-chat-square-fill"></i>
+									</span>
+									<span x-text="suffixize(post.comments)"></span>
 								</button>
 							</div>
 						</div>
-						<p class="card-text multiline" x-text="post.body"></p>
-						<div class="mb-3" x-show="media[post.id]">
-							<img class="card-img" :src="media[post.id]?.image" x-show="media[post.id]?.image" />
-							<video class="card-img" :src="media[post.id]?.video" x-show="media[post.id]?.video" controls></video>
-						</div>
-						<div class="d-flex gap-2">
-							<button class="btn btn-dark border text-body rounded-pill d-flex align-items-center gap-2 px-3" :class="!post.user_like && 'collapsed'" title="Like the post" @click="submit_like(post)" :disabled="!account.authenticated || account.is_adv">
-								<span class="collapse-fade-icons">
-									<i class="bi bi-heart"></i>
-									<i class="bi bi-heart-fill"></i>
-								</span>
-								<span x-text="suffixize(post.likes)"></span>
-							</button>
-							<button class="btn btn-dark text-body border rounded-pill d-flex align-items-center gap-2 px-3 collapsed" title="Show the comments" data-bs-toggle="collapse" :data-bs-target="'#' + comments_id">
-								<span class="collapse-fade-icons">
-									<i class="bi bi-chat-square"></i>
-									<i class="bi bi-chat-square-fill"></i>
-								</span>
-								<span x-text="suffixize(post.comments)"></span>
-							</button>
-						</div>
 					</div>
 				</div>
-			</div>
-			<div class="col collapse" :id="comments_id">
-				<div class="card">
-					<div class="card-header">Comments</div>
-					<ul class="list-group list-group-flush overflow-y-auto">
-						<li class="list-group-item p-4 pt-3" x-show="account.authenticated && !account.is_adv">
-							<div class="row row-cols-1 gy-3">
-								<div class="col">
-									<div class="row">
-										<div class="col d-flex align-items-center">
-											<img class="profile-picture profile-picture-1 me-2" :src="account.pfp" />
-											<div class="fw-bold" x-text="account.name ?? account.handle"></div>
-										</div>
-										<div class="col-auto">
-											<button class="btn btn-outline-light rounded-pill" @click="submit_comment(post)">Send</button>
-										</div>
-									</div>
-								</div>
-								<div class="col">
-									<textarea class="form-control" rows="2" x-model="drafts[post.id]"></textarea>
-								</div>
-							</div>
-						</li>
-						<template x-for="(comment, comment_index) in comments[post.id]">
-							<li class="list-group-item px-4 py-3" :class="comment_index == comments[post.id].length-1 && 'border-bottom-0'">
-								<div class="row row-cols-1 gy-2">
-									<div class="col d-flex justify-content-between">
-										<a class="d-flex align-items-center text-reset text-decoration-none" :href="'/profile?id=' + comment.user_id">
-											<img class="profile-picture profile-picture-1 me-2" :src="comment.user_pfp ?? PFP_EMPTY" />
-											<div class="fw-bold me-2" x-text="comment.user_name ?? comment.user_handle"></div>
-											<div class="text-secondary">
-												@<span x-text="comment.user_handle"></span> &middot; <span x-text="new Date(comment.date).toLocaleDateString()"></span>
+				<div class="col collapse" :id="comments_id">
+					<div class="card">
+						<div class="card-header">Comments</div>
+						<ul class="list-group list-group-flush overflow-y-auto">
+							<li class="list-group-item p-4 pt-3" x-show="account.authenticated && !account.is_adv">
+								<div class="row row-cols-1 gy-3">
+									<div class="col">
+										<div class="row">
+											<div class="col d-flex align-items-center">
+												<img class="profile-picture profile-picture-1 me-2" :src="account.pfp" />
+												<div class="fw-bold" x-text="account.name ?? account.handle"></div>
 											</div>
-										</a>
-										<div x-show="comment.user_id === account.id">
-											<button class="btn btn-dark btn-round text-body" @click="delete_comment(post, comment)">
-												<i class="bi bi-trash-fill"></i>
-											</button>
+											<div class="col-auto">
+												<button class="btn btn-outline-light rounded-pill" @click="submit_comment(post)">Send</button>
+											</div>
 										</div>
 									</div>
-									<div class="col multiline" x-text="comment.body"></div>
+									<div class="col">
+										<textarea class="form-control" rows="2" x-model="drafts[post.id]"></textarea>
+									</div>
 								</div>
 							</li>
-						</template>
-						<li class="list-group-item px-4 py-3" x-show="comments[post.id]?.length == 0">
-							<div class="d-flex justify-content-center">
-								No comments available
-							</div>
-						</li>
-					</ul>
-				</div>
-
-				<hr class="post-separator" x-show="post_index < posts.length-1">
-			</div>
-		</div>
-		<div class="row row-cols-1 gy-2 gx-0 mb-3" x-show="post.type === 'ad'">
-			<div class="card">
-				<div class="card-body">
-					<div class="card-title d-flex align-items-center gap-2">
-						<i class="bi bi-badge-ad fs-5"></i>
-						<div class="fw-bold" x-text="post.name"></div>
+							<template x-for="(comment, comment_index) in comments[post.id]">
+								<li class="list-group-item px-4 py-3" :class="comment_index == comments[post.id].length-1 && 'border-bottom-0'">
+									<div class="row row-cols-1 gy-2">
+										<div class="col d-flex justify-content-between">
+											<a class="d-flex align-items-center text-reset text-decoration-none" :href="'/profile?id=' + comment.user_id">
+												<img class="profile-picture profile-picture-1 me-2" :src="comment.user_pfp ?? PFP_EMPTY" />
+												<div class="fw-bold me-2" x-text="comment.user_name ?? comment.user_handle"></div>
+												<div class="text-secondary">
+													@<span x-text="comment.user_handle"></span> &middot; <span x-text="new Date(comment.date).toLocaleDateString()"></span>
+												</div>
+											</a>
+											<div x-show="comment.user_id === account.id">
+												<button class="btn btn-dark btn-round text-body" @click="delete_comment(post, comment)">
+													<i class="bi bi-trash-fill"></i>
+												</button>
+											</div>
+										</div>
+										<div class="col multiline" x-text="comment.body"></div>
+									</div>
+								</li>
+							</template>
+							<li class="list-group-item px-4 py-3" x-show="comments[post.id]?.length == 0">
+								<div class="d-flex justify-content-center">
+									No comments available
+								</div>
+							</li>
+						</ul>
 					</div>
-					<a :href="post.link" target="_blank">
-						<img class="card-img" :src="post.media" />
-					</a>
+
+					<hr class="post-separator" x-show="post_index < posts.length-1">
+				</div>
+			</div>
+			<div class="row row-cols-1 gy-2 gx-0 mb-3" x-show="post.type === 'ad'">
+				<div class="card">
+					<div class="card-body">
+						<div class="card-title d-flex align-items-center gap-2">
+							<i class="bi bi-badge-ad fs-5"></i>
+							<div class="fw-bold" x-text="post.name"></div>
+						</div>
+						<a :href="post.link" target="_blank">
+							<img class="card-img" :src="post.media" />
+						</a>
+					</div>
 				</div>
 			</div>
 		</div>
+	</template>
+	<div class="d-flex justify-content-center p-3" x-show.important="!fetching && posts?.length == 0">
+		No posts found
 	</div>
-</template>
+</div>
