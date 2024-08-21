@@ -39,5 +39,13 @@
 				</form>
 			</div>
 		</div>
+
+		<div class="d-none viewer" x-show.important="viewer.blob" x-ref="viewer">
+			<img :src="viewer.blob?.type == 'image' && viewer.blob?.url" x-show="viewer.blob?.type == 'image'" />
+			<video :src="viewer.blob?.type == 'video' && viewer.blob?.url" x-show="viewer.blob?.type == 'video'" x-ref="viewer_video" autoplay controls></video>
+			<button class="btn btn-dark btn-round rounded-circle d-flex align-items-center p-2 m-4" @click="$refs.viewer_video.pause(); viewer.blob = null">
+				<i class="bi bi-x fs-2"></i>
+			</button>
+		</div>
 	</body>
 </html>

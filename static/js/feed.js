@@ -4,33 +4,16 @@ document.addEventListener("alpine:init", () => {
 	Alpine.data("feed", () => ({
 		comments: {},
 		drafts: {},
-		media: {},
 		fetching: false,
 
 		init() {
 			this.$watch("posts.length", () => {
 				this.posts.forEach((post) => {
-					if (post.type !== "post") {
-						return;
-					}
-					if (!this.comments.hasOwnProperty(post.id)) {
+					if (post.type == "post" && !this.comments.hasOwnProperty(post.id)) {
 						this.update_comments(post);
 					}
-					if (post.media && !this.media.hasOwnProperty(post.id)) {
-						window.fetch(post.media).then((res) => {
-							if (res.status != 200) {
-								return null;
-							}
-							return res.blob();
-						}).then((blob) => {
-							if (!blob) {
-								return;
-							}
-
-							this.media[post.id] = {
-								[blob.type.split("/")[0]]: URL.createObjectURL(blob)
-							};
-						});
+					if (post.media) {
+						this.blobify(post.media);
 					}
 				});
 			});

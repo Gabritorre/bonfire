@@ -9,6 +9,8 @@
 	--profile-picture-5: 225px;
 	--ad-image-size: 120px;
 	--dropdown-many-height: 500px;
+	--post-play-size: 4rem;
+	--ad-play-size: 2rem;
 	--transition: .15s ease-in-out;
 }
 
@@ -85,12 +87,56 @@ textarea {
 	border-radius: 50%;
 }
 
+.btn.btn-round > i {
+	display: flex;
+}
+
 .btn.btn-static:hover, .btn.btn-static:active {
 	cursor: default;
 	color: var(--bs-btn-color);
 	background-color: var(--bs-btn-bg);
 	border-color: var(--bs-btn-border-color);
 }
+
+.card-play {
+	position: absolute;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-color: rgba(0, 0, 0, 0.4) !important;
+}
+
+.card-play > .bi-play-circle-fill {
+	font-size: var(--post-play-size);
+}
+
+.viewer {
+	position: absolute;
+	overflow: hidden;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-color: black;
+}
+
+.viewer > img, .viewer > video {
+	width: 100%;
+	height: 100%;
+	object-fit: contain;
+}
+
+.viewer > button {
+	position: absolute;
+	top: 0;
+	right: 0;
+}
+
+/* Hide search results when out of focus */
 
 input[type="search"] + .dropdown-menu.show {
 	visibility: hidden;

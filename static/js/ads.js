@@ -21,7 +21,10 @@ document.addEventListener("alpine:init", () => {
 			this.$watch("ads?.length", () => {
 				this.charts.forEach((chart) => chart.destroy());
 				this.charts.splice(0);
-				this.ads.forEach((ad) => this.create_chart(ad));
+				this.ads.forEach((ad) => {
+					this.blobify(ad.media);
+					this.create_chart(ad);
+				});
 			});
 
 			this.fetch("POST", "/api/profile/adv/ads", {id: this.id}).then((res) => {

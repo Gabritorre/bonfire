@@ -24,12 +24,19 @@ document.addEventListener("alpine:init", () => {
 			confirmed: false,
 			resolve: null
 		},
+		viewer: {
+			blob: null,
+			request: 0
+		},
+		blobs: {},
 
 		init() {
 			this.popup.modal = new bootstrap.Modal(this.$refs.popup);
 			this.$refs.popup.addEventListener("hidden.bs.modal", () => {
 				this.popup.resolve(this.popup.confirmed);
 			});
+
+			this.$refs.viewer.classList.remove("d-none");
 
 			this.fetch("GET", "/api/profile").then((res) => {
 				this.account.authenticated = res.error == null;
@@ -88,8 +95,40 @@ document.addEventListener("alpine:init", () => {
 			this.popup.body = body;
 			this.popup.confirmed = false;
 			this.popup.modal.show();
-			return new Promise((resolve, reject) => {
-				this.popup.resolve = resolve;
+			return new Promise((resolve) => this.popup.resolve = resolve);
+		},
+
+		blobify(url) {
+			if (!url) {
+				return new Promise((resolve) => resolve(null));
+			} else if (this.blobs.hasOwnProperty(url)) {
+				return new Promise((resolve) => resolve(this.blobs[url]));
+			}
+
+			return window.fetch(url).then((res) => {
+				if (res.status != 200) {
+					return null;
+				}
+				return res.blob();
+			}).then((blob) => {
+				if (!blob) {
+					return null;
+				}
+
+				return this.blobs[url] = {
+					type: blob.type.split("/")[0],
+					url: URL.createObjectURL(blob)
+				};
+			});
+		},
+
+		view(url) {
+			const request = ++this.viewer.request;
+			this.blobify(url).then((blob) => {
+				if (this.viewer.request != request) {
+					return;
+				}
+				this.viewer.blob = blob;
 			});
 		},
 
