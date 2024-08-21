@@ -92,7 +92,7 @@ def save_file(file, img_only = False) -> str:
 
 # Delete a file from the server filesystem
 def delete_file(filename) -> None:
-	file_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
+	file_path = os.path.join(app.root_path, filename.strip("/"))
 	if os.path.exists(file_path):
 		os.remove(file_path)
 
