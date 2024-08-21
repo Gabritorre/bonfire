@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, request
 from config import db, safeguard
 from models import Post, Following, User, PostTag, Tag
-from schemas import posts_schema, feed_ad_schema
+from schemas import posts_schema, ad_schema
 from .utils import get_auth_token, recommend_ad, set_user_like, set_likes_count, set_comments_count
 
 feed = Blueprint("feed", __name__, url_prefix="/feed")
@@ -36,7 +36,7 @@ def explore():
 
 		if recommended_ad:
 			db.session.commit()
-			recommended_ad = feed_ad_schema.dump(recommended_ad)
+			recommended_ad = ad_schema.dump(recommended_ad)
 	return jsonify({"error": None, "posts": posts_data, "ad": recommended_ad})
 
 

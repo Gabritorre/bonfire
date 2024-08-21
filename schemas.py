@@ -2,11 +2,6 @@ from config import ma, db
 from models import *
 from marshmallow import fields
 
-class ProfileSchema(ma.SQLAlchemyAutoSchema):
-	class Meta:
-		model = Profile
-
-
 class UserSchema(ma.SQLAlchemyAutoSchema):
 	class Meta:
 		model = User
@@ -82,20 +77,7 @@ class PostSchema(ma.SQLAlchemyAutoSchema):
 class AdSchema(ma.SQLAlchemyAutoSchema):
 	class Meta:
 		model = Ad
-		fields = ("id", "campaign_id", "name", "media", "link", "probability", "date", "daily_stats")
-
-	daily_stats = fields.Method("get_daily_stats_list")
-	date = fields.DateTime(format=DATE_TIME_FORMAT)
-
-	def get_daily_stats_list(self, ad_instance):
-		daily_stats_list = db.session.query(DailyStat).where(DailyStat.ad_id == ad_instance.id).all()
-		return [{"date": ds.date.strftime(DATE_FORMAT), "impressions": ds.impressions, "readings": ds.readings, "clicks": ds.clicks} for ds in daily_stats_list]
-
-
-class SimpleAdSchema(ma.SQLAlchemyAutoSchema):
-	class Meta:
-		model = Ad
-		fields = ("id", "campaign_id", "name", "media", "link", "date", "probability")
+		fields = ("id", "campaign_id", "name", "media", "link", "probability", "date")
 
 	date = fields.DateTime(format=DATE_TIME_FORMAT)
 
@@ -123,11 +105,19 @@ class AdvSettingsSchema(ma.SQLAlchemyAutoSchema):
 class AdCampaignsSchema(ma.SQLAlchemyAutoSchema):
 	class Meta:
 		model = AdCampaign
-		fields = ("id", "name", "budget", "start_date", "end_date")
+		fields = ("id", "name", "budget", "start_date", "end_date", "tags")
 
 	start_date = fields.DateTime(format=DATE_FORMAT)
 	end_date = fields.DateTime(format=DATE_FORMAT)
 	budget = fields.Float()
+	tags = fields.Method("get_campaign_tags")
+
+	def get_campaign_tags(self, campaign_instance):
+		tags = (db.session.query(Tag.id, Tag.tag)
+		  .join(CampaignTag, Tag.id == CampaignTag.tag_id)
+		  .where(CampaignTag.campaign_id == campaign_instance.id)
+		  .all())
+		return [{"id": tag_id, "tag": tag_name} for tag_id, tag_name in tags]
 
 
 class AdStatsSchema(ma.SQLAlchemyAutoSchema):
@@ -139,17 +129,14 @@ class AdStatsSchema(ma.SQLAlchemyAutoSchema):
 
 
 
-profile_schema = ProfileSchema()
 user_schema = UserSchema()
-users_schema = UserSchema(many=True)
 id_username_schema = UserIdUsernameSchema(many=True)
 tags_schema = TagSchema(many=True)
 user_settings_schema = UserSettingsSchema()
 post_schema = PostSchema()
 posts_schema = PostSchema(many=True)
 ad_schema = AdSchema()
-feed_ad_schema = SimpleAdSchema()
-ads_schema = SimpleAdSchema(many=True)
+ads_schema = AdSchema(many=True)
 comments_schema = CommentSchema(many=True)
 adv_settings_schema = AdvSettingsSchema()
 campaigns_schema = AdCampaignsSchema(many=True)
