@@ -105,18 +105,19 @@ class AdvSettingsSchema(ma.SQLAlchemyAutoSchema):
 class AdCampaignsSchema(ma.SQLAlchemyAutoSchema):
 	class Meta:
 		model = AdCampaign
-		fields = ("id", "name", "budget", "start_date", "end_date", "tags")
+		fields = ("id", "name", "total_budget", "budget", "start_date", "end_date", "tags")
 
 	start_date = fields.DateTime(format=DATE_FORMAT)
 	end_date = fields.DateTime(format=DATE_FORMAT)
 	budget = fields.Float()
+	total_budget = fields.Float()
 	tags = fields.Method("get_campaign_tags")
 
 	def get_campaign_tags(self, campaign_instance):
 		tags = (db.session.query(Tag.id, Tag.tag)
-		  .join(CampaignTag, Tag.id == CampaignTag.tag_id)
-		  .where(CampaignTag.campaign_id == campaign_instance.id)
-		  .all())
+				.join(CampaignTag, Tag.id == CampaignTag.tag_id)
+				.where(CampaignTag.campaign_id == campaign_instance.id)
+				.all())
 		return [{"id": tag_id, "tag": tag_name} for tag_id, tag_name in tags]
 
 

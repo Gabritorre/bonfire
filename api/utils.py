@@ -132,7 +132,7 @@ def recommend_ad(user_id: int | None, epsilon: float=0.8) -> Ad | None:
 					else:
 						return None
 
-	res = db.session.query(Ad, AdCampaign).join(AdCampaign, Ad.campaign_id == AdCampaign.id).where(AdCampaign.budget >= IMPRESSION_FEE+CLICK_FEE).order_by(func.random()).first() # select a random ad
+	res = db.session.query(Ad, AdCampaign).join(AdCampaign, Ad.campaign_id == AdCampaign.id).where(AdCampaign.budget >= IMPRESSION_FEE+CLICK_FEE, AdCampaign.advertiser_id != user_id).order_by(func.random()).first() # select a random ad
 	if res:
 		recommended_ad, interested_campaign = res
 		interested_campaign.budget -= IMPRESSION_FEE

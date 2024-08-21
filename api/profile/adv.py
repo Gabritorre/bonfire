@@ -96,7 +96,11 @@ def add_budget():
 	adv = db.session.query(Advertiser).where(Advertiser.id == token.profile_id).first()
 	if not adv:
 		return jsonify({"error": "Not an advertiser profile"})
-	db.session.query(AdCampaign).where(AdCampaign.id == campaign_id, AdCampaign.advertiser_id == adv.id).update({AdCampaign.budget: AdCampaign.budget + added_funds})
+	campaign = db.session.query(AdCampaign).where(AdCampaign.id == campaign_id, AdCampaign.advertiser_id == adv.id).first()
+	if not campaign:
+		return jsonify({"error": "Campaign doesn't belong to this advertiser or doesn't exist"})
+	campaign.budget += added_funds
+	campaign.total_budget += added_funds
 	db.session.flush()
 	return jsonify({"error": None})
 
