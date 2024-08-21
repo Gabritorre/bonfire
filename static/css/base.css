@@ -85,6 +85,13 @@ textarea {
 	border-radius: 50%;
 }
 
+.btn.btn-static:hover, .btn.btn-static:active {
+	cursor: default;
+	color: var(--bs-btn-color);
+	background-color: var(--bs-btn-bg);
+	border-color: var(--bs-btn-border-color);
+}
+
 input[type="search"] + .dropdown-menu.show {
 	visibility: hidden;
 }
