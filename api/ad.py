@@ -2,7 +2,7 @@ from flask import Blueprint, json, jsonify, request
 from config import db, safeguard
 from models import AdCampaign, Advertiser, Ad, DailyStat
 from schemas import ad_schema, ad_stats_schema
-from api.utils import get_auth_token, save_file, delete_file, update_daily_stats
+from api.utils import get_auth_token, save_file, delete_file, update_daily_stats, CLICK_FEE, READ_FEE
 
 ad = Blueprint("ad", __name__, url_prefix="/ad")
 
@@ -51,7 +51,7 @@ def create_ad():
 	adv = db.session.query(Advertiser).where(Advertiser.id == token.profile_id).first()
 	if not adv:
 		return jsonify({"error": "Not an advertiser profile"})
-	
+
 	campaign = db.session.query(AdCampaign).where(AdCampaign.id == campaign_id, AdCampaign.advertiser_id == adv.id).first()
 	if not campaign:
 		return jsonify({"error": "Campaign doesn't belong to this advertiser or doesn't exist"})
@@ -130,7 +130,7 @@ def update_stats():
 	token = get_auth_token(request.cookies)
 	if not token:
 		return jsonify({"error": "Invalid token"})
-	
+
 	req = request.get_json()
 	ad_id = req["id"]
 	click = req["clicked"]
@@ -143,9 +143,15 @@ def update_stats():
 	campaign = db.session.query(AdCampaign).join(Ad, AdCampaign.id == Ad.campaign_id).where(AdCampaign.advertiser_id == token.profile_id, Ad.id == ad_id).first()
 	if not campaign:
 		return jsonify({"error": "Ad doesn't belong to this advertiser or doesn't exist"})
+
 	if click:
 		update_daily_stats(ad_id, click=1)
+		db.session.query(AdCampaign).join(Ad, AdCampaign.id == Ad.ad_campaign).where(Ad.id == ad_id).update({AdCampaign.budget: AdCampaign.budget - CLICK_FEE})
+		db.session.commit()
 	if read:
 		update_daily_stats(ad_id, read=1)
+		db.session.query(AdCampaign).join(Ad, AdCampaign.id == Ad.ad_campaign).where(Ad.id == ad_id).update({AdCampaign.budget: AdCampaign.budget - READ_FEE})
+		db.session.commit()
 	db.session.commit()
+
 	return jsonify({"error": None})

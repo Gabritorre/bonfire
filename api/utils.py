@@ -22,6 +22,7 @@ ALLOWED_MIME_TYPES = {
 
 IMPRESSION_FEE = 1
 CLICK_FEE = 2
+READ_FEE = 3
 
 def hash_secret(pwd: str) -> str:
 	return hashpw(pwd.encode("utf-8"), gensalt()).decode("utf-8")
@@ -81,8 +82,7 @@ def save_file(file, img_only = False) -> str:
 	extension = file.filename.rsplit('.', 1)[1].lower() if '.' in file.filename else ''
 	if extension in ALLOWED_MIME_TYPES[mime_type]:
 		sf = snowflake.generate()
-		hashed_sf = hash_sha1(f"{sf}")
-		new_filename = f"{hashed_sf}.{extension}"
+		new_filename = f"{sf}.{extension}"
 		new_path = os.path.join(app.config["UPLOAD_FOLDER"], new_filename)
 		file.save(new_path)
 		return os.path.join("/", new_path)

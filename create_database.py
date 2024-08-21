@@ -13,10 +13,18 @@ with engine.connect() as connection:
 		returns trigger as $$
 		declare cumulative_prob float;
 		begin
-			select sum(probability) + new.probability
-			into cumulative_prob
-			from ads
-			where campaign_id = new.campaign_id;
+			if TG_OP = 'INSERT' then
+				select sum(probability) + new.probability
+				into cumulative_prob
+				from ads
+				where campaign_id = new.campaign_id;
+			else
+				select sum(probability) + new.probability
+				into cumulative_prob
+				from ads
+				where campaign_id = new.campaign_id and id <> new.id;
+			end if;
+
 
 			if cumulative_prob < 0 or cumulative_prob > 1 then
 				raise exception 'Cumulative sum of probabilities is not between 0 and 1';
