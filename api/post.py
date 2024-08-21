@@ -1,6 +1,6 @@
 import json
 from flask import Blueprint, jsonify, request
-from config import db, safeguard
+from config import db, safeguard, MAX_FILE_SIZE
 from models import BODY_LENGTH, Comment, Post, PostTag, User, Like
 from schemas import post_schema, comments_schema
 from .utils import delete_file, get_auth_token, update_interests, save_file
@@ -25,6 +25,9 @@ def create_post():
 
 	filename = None
 	if media:
+		if len(media.read()) > MAX_FILE_SIZE:
+			return jsonify({"error": "File too large"})
+		media.seek(0)
 		filename = save_file(media)
 
 	try:

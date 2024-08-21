@@ -1,5 +1,5 @@
 from flask import Blueprint, json, jsonify, request
-from config import db, safeguard
+from config import db, safeguard, MAX_FILE_SIZE
 from models import AdCampaign, Advertiser, Ad, DailyStat
 from schemas import ad_schema, ad_stats_schema
 from api.utils import get_auth_token, save_file, delete_file, update_daily_stats, CLICK_FEE, READ_FEE
@@ -58,6 +58,9 @@ def create_ad():
 
 	filename = None
 	if media:
+		if len(media.read()) > MAX_FILE_SIZE:
+			return jsonify({"error": "File too large"})
+		media.seek(0)
 		filename = save_file(media)
 
 	try:

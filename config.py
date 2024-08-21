@@ -11,6 +11,8 @@ from functools import wraps
 
 load_dotenv()
 
+MAX_FILE_SIZE = 16 * 1024 * 1024	# 16 MB
+
 class Snowflake:
 	def __init__(self):
 		self.__generated_snowflakes = {}

@@ -1,6 +1,6 @@
 import json
 from flask import Blueprint, jsonify, request
-from config import db, safeguard
+from config import db, safeguard, MAX_FILE_SIZE
 from models import Profile, User, Advertiser, Interest, DATE_FORMAT
 from schemas import user_settings_schema, adv_settings_schema
 from datetime import datetime
@@ -73,6 +73,9 @@ def set_user_settings():
 			db.session.add(Interest(user_id=token.profile_id, tag_id=interest, interest=1.0))
 
 	if pfp:
+		if len(pfp.read()) > MAX_FILE_SIZE:
+			return jsonify({"error": "File too large"})
+		pfp.seek(0)
 		filename = save_file(pfp, img_only=True)
 		try:
 			db.session.query(User).where(User.id == token.profile_id).update({"pfp": filename})
