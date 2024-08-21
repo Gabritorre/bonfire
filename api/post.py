@@ -1,9 +1,9 @@
 import json
 from flask import Blueprint, jsonify, request
-from config import db, safeguard, MAX_FILE_SIZE
+from config import db, safeguard
 from models import BODY_LENGTH, Comment, Post, PostTag, User, Like
 from schemas import post_schema, comments_schema
-from .utils import delete_file, get_auth_token, update_interests, save_file
+from .utils import delete_file, get_auth_token, update_interests, save_file, MAX_FILE_SIZE
 
 post = Blueprint("post", __name__, url_prefix="/post")
 

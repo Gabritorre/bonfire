@@ -11,8 +11,6 @@ from functools import wraps
 
 load_dotenv()
 
-MAX_FILE_SIZE = 16 * 1024 * 1024	# 16 MB
-
 class Snowflake:
 	def __init__(self):
 		self.__generated_snowflakes = {}
@@ -50,7 +48,8 @@ def safeguard(func):
 	@wraps(func)
 	def wrapper():
 		try:
-			return func()
+			with db.session.begin():
+				return func()
 		except Exception as e:
 			print("-"*50 + f"\n\033[0;31mError on \033[4m{func.__name__}\033[0m: {e}\033[0m\n" + "-"*50)
 			db.session.rollback()

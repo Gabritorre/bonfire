@@ -1,10 +1,10 @@
 import json
 from flask import Blueprint, jsonify, request
-from config import db, safeguard, MAX_FILE_SIZE
+from config import db, safeguard
 from models import Profile, User, Advertiser, Interest, DATE_FORMAT
 from schemas import user_settings_schema, adv_settings_schema
 from datetime import datetime
-from .utils import hash_secret, get_auth_token, save_file, delete_file
+from .utils import hash_secret, get_auth_token, save_file, delete_file, MAX_FILE_SIZE
 
 settings = Blueprint("settings", __name__, url_prefix="/settings")
 

@@ -1,8 +1,8 @@
 from flask import Blueprint, json, jsonify, request
-from config import db, safeguard, MAX_FILE_SIZE
+from config import db, safeguard
 from models import AdCampaign, Advertiser, Ad, DailyStat
 from schemas import ad_schema, ad_stats_schema
-from api.utils import get_auth_token, save_file, delete_file, update_daily_stats, CLICK_FEE, READ_FEE
+from api.utils import get_auth_token, save_file, delete_file, update_daily_stats, CLICK_FEE, READ_FEE, MAX_FILE_SIZE
 
 ad = Blueprint("ad", __name__, url_prefix="/ad")
 

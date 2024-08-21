@@ -19,6 +19,8 @@ ALLOWED_MIME_TYPES = {
 	"video/ogg": {"ogg", "ogv"},
 	"video/webm": {"webm"},
 }
+MAX_FILE_SIZE = 16 * 1024 * 1024 # 16 MB
+
 
 IMPRESSION_FEE = 1
 CLICK_FEE = 2
