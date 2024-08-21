@@ -1,10 +1,16 @@
-const SCROLL_THRESHOLD = 1000;	// TODO: Reduce with a faster db connection
+const SCROLL_THRESHOLD = 800;	// TODO: Reduce with a faster db connection
+const INTERSECTION_UPDATE = 250;
+const READING_DELAY = 3000;
 
 document.addEventListener("alpine:init", () => {
 	Alpine.data("feed", () => ({
 		comments: {},
 		drafts: {},
+		interval: null,
 		fetching: false,
+		children: [],
+		readings: {},
+		read: [],
 
 		init() {
 			this.$watch("posts.length", () => {
@@ -16,23 +22,113 @@ document.addEventListener("alpine:init", () => {
 						this.blobify(post.media);
 					}
 				});
+				this.children = this.$refs.feed.querySelectorAll(":scope > div:has(> .row)");
+				this.readings.id = null;
 			});
 
 			const scroll_handler = () => {
 				const scroll = this.$refs.scroll;
 				const delta = (scroll.scrollHeight - scroll.clientHeight) - scroll.scrollTop;
-				if (delta <= SCROLL_THRESHOLD && !this.fetching) {
-					this.fetching = true;
-					this.continue_posts().then(() => this.fetching = false);
+				if (delta <= SCROLL_THRESHOLD) {
+					this.continue_posts();
 				}
-			}
-			this.$refs.scroll?.addEventListener("scroll", scroll_handler);
+			};
+			this.$refs.scroll.addEventListener("scroll", scroll_handler);
 			scroll_handler();
+
+			this.interval = setInterval(() => {
+				const parent_box = this.$refs.scroll.getBoundingClientRect();
+				const parent_center = {
+					x: parent_box.left + parent_box.width/2,
+					y: parent_box.top + parent_box.height/2
+				};
+
+				let found_visible = false;
+				let closest_ad = null;
+				let closest_distance = Infinity;
+				for (let i = 0; i < this.children.length; i++) {
+					if (this.posts[i].type != "ad") {
+						continue;
+					} else if (!this.children[i].offsetParent) {	// Ignore hidden elements
+						continue;
+					} else if (this.read.includes(this.posts[i].id)) {	// Ignore elements that were already seen
+						continue;
+					}
+
+					const child_box = this.children[i].getBoundingClientRect();
+					const child_center = {
+						x: child_box.left + child_box.width/2,
+						y: child_box.top + child_box.height/2
+					};
+
+					const visible = (
+						child_center.x >= parent_box.left &&
+						child_center.x <= parent_box.right &&
+						child_center.y >= parent_box.top &&
+						child_center.y <= parent_box.bottom
+					);
+					if (!visible && found_visible) {
+						break;
+					} else if (!visible) {
+						continue;
+					}
+
+					found_visible = true;
+					const distance = Math.sqrt((child_center.x - parent_center.x)**2 + (child_center.y - parent_center.y)**2);
+					if (distance < closest_distance) {
+						closest_distance = distance;
+						closest_ad = i;
+					}
+				}
+
+				if (!closest_ad) {
+					this.readings.id = null;	// Timer needs to restart next time the ad is visible
+					return;
+				}
+
+				const id = this.posts[closest_ad].id;
+				this.readings.end = Date.now();
+				if (this.readings.id !== id) {
+					this.readings.id = id;
+					this.readings.start = Date.now();
+
+					setTimeout(() => {
+						if (this.readings.id !== id) {
+							return;
+						}
+
+						const delta = this.readings.end - this.readings.start;
+						if (delta+INTERSECTION_UPDATE >= READING_DELAY) {
+							this.fetch("PUT", "/api/ad/stats", {
+								id: id,
+								clicked: 0,
+								read: 1
+							}).then((res) => {
+								if (res.error) {
+									return;
+								}
+								this.read.push(id);
+							});
+						}
+					}, READING_DELAY);
+				}
+			}, INTERSECTION_UPDATE);
+		},
+
+		click_ad(ad) {
+			this.fetch("PUT", "/api/ad/stats", {id: ad.id, clicked: 1, read: 0});
 		},
 
 		continue_posts() {
+			if (this.fetching) {
+				return;
+			}
+
+			this.fetching = true;
 			const user_posts = this.posts.filter((post) => post.type === "post");
-			return this.fetch_feed(user_posts[user_posts.length-1]?.id ?? null, this.posts);
+			return this.fetch_feed(user_posts[user_posts.length-1]?.id ?? null, this.posts).then(() => {
+				this.fetching = false;
+			});
 		},
 
 		update_comments(post) {

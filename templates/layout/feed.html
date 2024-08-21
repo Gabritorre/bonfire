@@ -109,9 +109,9 @@
 							<i class="bi bi-badge-ad fs-5"></i>
 							<div class="fw-bold" x-text="post.name"></div>
 						</div>
-						<a class="d-block" :href="post.link" target="_blank">
+						<a class="d-block" :href="post.link" target="_blank" @click="click_ad(post)">
 							<img class="card-img" :src="blobs[post.media]?.type == 'image' && blobs[post.media]?.url" x-show="blobs[post.media]?.type == 'image'" />
-							<video class="card-img" :src="blobs[post.media]?.type == 'video' && blobs[post.media]?.url" x-show="blobs[post.media]?.type == 'video'" loop muted autoplay></video>
+							<video class="card-img" :src="post.type === 'ad' && blobs[post.media]?.type == 'video' && blobs[post.media]?.url" x-show="blobs[post.media]?.type == 'video'" @canplay="$el.muted = true" loop muted autoplay></video>
 						</a>
 					</div>
 				</div>
