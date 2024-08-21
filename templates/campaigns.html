@@ -76,7 +76,7 @@
 				<template x-for="campaign in campaigns">
 					<div class="card mb-3">
 						<div class="card-body">
-							<div class="card-title d-flex justify-content-between align-items-stretch ms-1">
+							<div class="card-title d-flex justify-content-between align-items-center ms-1">
 								<a class="fs-5 fw-bold text-reset text-decoration-none" x-text="campaign.name" :href="'/ads?id=' + campaign.id"></a>
 								<div>
 									<button class="btn btn-dark btn-round text-body" type="button" @click="delete_campaign(campaign)">

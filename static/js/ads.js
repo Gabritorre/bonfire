@@ -7,28 +7,80 @@ document.addEventListener("alpine:init", () => {
 			probability: null
 		},
 		stats: {},
+		charts: [],
 		ads: null,
 		error: null,
 
 		init() {
+			Chart.defaults.color = "#7e7e7e";
+			Chart.defaults.borderColor = "#333";
+
 			const params = new URLSearchParams(window.location.search);
 			this.id = +params.get("id");
 
-			this.fetch("POST", "/api/profile/adv/ads", {id: this.id}).then((res) => {
-				this.ads = (res.ads ?? []).reverse();
-				this.ads.forEach((ad) => {
-					if (this.stats.hasOwnProperty(ad.id)) {
-						return;
-					}
-
-					this.fetch("POST", "/api/ad/stats", {id: ad.id}).then((res) => {
-						if (res.error) {
-							return;
-						}
-						this.stats[ad.id] = res.stats;
-					});
-				});
+			this.$watch("ads?.length", () => {
+				this.charts.forEach((chart) => chart.destroy());
+				this.charts.splice(0);
+				this.ads.forEach((ad) => this.create_chart(ad));
 			});
+
+			this.fetch("POST", "/api/profile/adv/ads", {id: this.id}).then((res) => {
+				this.ads = (res.ads ?? []).sort((a, b) => b.id - a.id);
+			});
+		},
+
+		fetch_stats(ad) {
+			if (this.stats.hasOwnProperty(ad.id)) {
+				return new Promise((resolve) => resolve());
+			}
+
+			return this.fetch("POST", "/api/ad/stats", {id: ad.id}).then((res) => {
+				const stats = (res.stats ?? []).slice(-40);
+
+				const labels = stats.map((stat) => {
+					const date = new Date(stat.date);
+					const month = date.toLocaleString([], {month: "short"});
+					const day = date.getDate();
+					return month + " " + day;
+				});
+
+				this.stats[ad.id] = {
+					labels: labels,
+					datasets: [
+						{
+							label: "Clicks",
+							data: stats.map((stat) => stat.clicks)
+						},
+						{
+							label: "Impressions",
+							data: stats.map((stat) => stat.impressions)
+						},
+						{
+							label: "Readings",
+							data: stats.map((stat) => stat.readings)
+						}
+					]
+				};
+			});
+		},
+
+		create_chart(ad) {
+			const i = this.ads.indexOf(ad);
+			if (i < 0) {
+				return;
+			}
+
+			this.fetch_stats(ad).then(() => {
+				if (this.ads[i] !== ad) {
+					return;
+				}
+
+				const canvas = document.querySelectorAll(".card canvas")[i];
+				this.charts.push(new Chart(canvas, {
+					type: "line",
+					data: this.stats[ad.id]
+				}));
+			})
 		},
 
 		submit_ad() {

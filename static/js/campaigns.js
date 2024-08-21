@@ -12,7 +12,7 @@ document.addEventListener("alpine:init", () => {
 
 		init() {
 			this.fetch("POST", "/api/profile/adv/campaigns").then((res) => {
-				this.campaigns = (res.campaigns ?? []).reverse();
+				this.campaigns = (res.campaigns ?? []).sort((a, b) => b.id - a.id);
 			});
 		},
 
