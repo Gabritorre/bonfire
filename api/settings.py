@@ -83,7 +83,7 @@ def set_user_settings():
 			delete_file(filename)
 			raise
 
-	db.session.commit()
+	db.session.flush()
 	return jsonify({"error": None})
 
 
@@ -125,5 +125,5 @@ def set_adv_settings():
 	if new_password:
 		db.session.query(Profile).where(Profile.id == token.profile_id).update({"password": hash_secret(new_password)})
 
-	db.session.commit()
+	db.session.flush()
 	return jsonify({"error": None})

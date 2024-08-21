@@ -35,7 +35,7 @@ def explore():
 			recommended_ad = recommend_ad(user_id=None)
 
 		if recommended_ad:
-			db.session.commit()
+			db.session.flush()
 			recommended_ad = ad_schema.dump(recommended_ad)
 	return jsonify({"error": None, "posts": posts_data, "ad": recommended_ad})
 

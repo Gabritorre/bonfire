@@ -36,7 +36,7 @@ def create_post():
 		db.session.flush()
 		for tag in tags:
 			db.session.add(PostTag(post_id=post.id, tag_id=tag))
-		db.session.commit()
+		db.session.flush()
 	except:
 		if filename:
 			delete_file(filename)
@@ -67,7 +67,7 @@ def delete_post():
 	db.session.delete(post)
 	if post.media:
 		delete_file(post.media)
-	db.session.commit()
+	db.session.flush()
 	return jsonify({"error": None})
 
 
@@ -86,7 +86,7 @@ def like():
 	if user:
 		db.session.add(Like(user_id=user.id, post_id=post_id))
 		update_interests(token.profile_id, post_id, inc=0.2, dec=-0.1)
-		db.session.commit()
+		db.session.flush()
 		return jsonify({"error": None})
 	else:
 		return jsonify({"error": "User not found"})
@@ -106,7 +106,7 @@ def remove_like():
 	if user:
 		db.session.query(Like).where(Like.user_id == user.id, Like.post_id == post_id).delete()
 		update_interests(token.profile_id, post_id, inc=-0.2, dec=0.1)
-		db.session.commit()
+		db.session.flush()
 		return jsonify({"error": None})
 	else:
 		return jsonify({"error": "User not found"})
@@ -128,7 +128,7 @@ def add_comment():
 	if user:
 		db.session.add(Comment(user_id=user.id, post_id=post_id, body=comment_body))
 		update_interests(token.profile_id, post_id, inc=0.4, dec=-0.1)
-		db.session.commit()
+		db.session.flush()
 		return jsonify({"error": None})
 	else:
 		return jsonify({"error": "User not found"})
@@ -150,7 +150,7 @@ def delete_comment():
 		return jsonify({"error": "Comment doesn't belong to this user"})
 	db.session.delete(comment)
 	update_interests(token.profile_id, comment.post_id, inc=-0.4, dec=0.1)
-	db.session.commit()
+	db.session.flush()
 	return jsonify({"error": None})
 
 

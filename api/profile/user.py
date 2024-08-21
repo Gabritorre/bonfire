@@ -58,7 +58,7 @@ def follow():
 		user = db.session.query(User).where(User.id == token.profile_id).first()
 		if user and user.id != to_follow_id:
 			db.session.add(Following(follower=user.id, followed=to_follow_id))
-			db.session.commit()
+			db.session.flush()
 			return jsonify({"error": None})
 		else:
 			return jsonify({"error": "Cannot self follow"})
@@ -81,7 +81,7 @@ def unfollow():
 		user = db.session.query(User).where(User.id == token.profile_id).first()
 		if user:
 			db.session.query(Following).where(Following.follower==user.id, Following.followed==to_unfollow_id).delete()
-			db.session.commit()
+			db.session.flush()
 			return jsonify({"error": None})
 		else:
 			return jsonify({"error": "User not found"})

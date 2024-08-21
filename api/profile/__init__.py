@@ -33,7 +33,7 @@ def signup():
 	else:
 		new_user = User(id=new_profile.id)
 		db.session.add(new_user)
-	db.session.commit()
+	db.session.flush()
 	res = jsonify({"error": None})
 	set_auth_token(new_profile, res)
 	return res
@@ -52,7 +52,7 @@ def login():
 		res = jsonify({"error": None})
 		set_auth_token(profile, res)
 		db.session.query(AuthToken).where(AuthToken.profile_id == profile.id, AuthToken.expiration_date < datetime.now(timezone.utc)).delete()
-		db.session.commit()
+		db.session.flush()
 		return res
 	return jsonify({"error": "Invalid credentials"})
 
@@ -66,7 +66,7 @@ def logout():
 		return jsonify({"error": "Invalid token"})
 
 	db.session.query(AuthToken).where(AuthToken.value == hash_sha1(str(request.cookies.get("auth_token")))).delete()
-	db.session.commit()
+	db.session.flush()
 	res = jsonify({"error": None})
 	res.set_cookie("auth_token", "", expires=0)
 	return res
@@ -96,7 +96,7 @@ def delete_profile():
 	profile = db.session.get(Profile, token.profile_id)
 	if profile:
 		db.session.query(Profile).where(Profile.id == token.profile_id).delete()
-		db.session.commit()
+		db.session.flush()
 	res = jsonify({"error": None})
 	res.set_cookie("auth_token", "", expires=0)
 	return res

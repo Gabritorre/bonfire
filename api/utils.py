@@ -43,7 +43,7 @@ def set_auth_token(profile: Profile, res: Response) -> None:
 	expiration_date = snowflake.creation_date(sf) + timedelta(weeks=1)
 
 	db.session.add(AuthToken(value=hashed_sf, profile_id=profile.id, expiration_date=expiration_date))
-	db.session.commit()
+	db.session.flush()
 
 	res.set_cookie("auth_token", str(sf), expires=expiration_date)
 

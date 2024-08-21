@@ -66,7 +66,7 @@ def create_ad():
 	try:
 		ad = Ad(campaign_id=campaign_id, name=name, media=filename, link=link, probability=prob)
 		db.session.add(ad)
-		db.session.commit()
+		db.session.flush()
 	except:
 		if filename:
 			delete_file(filename)
@@ -98,7 +98,7 @@ def delete_ad():
 	db.session.delete(ad)
 	if ad.media:
 		delete_file(ad.media)
-	db.session.commit()
+	db.session.flush()
 	return jsonify({"error": None})
 
 
@@ -150,11 +150,11 @@ def update_stats():
 	if click:
 		update_daily_stats(ad_id, click=1)
 		db.session.query(AdCampaign).join(Ad, AdCampaign.id == Ad.ad_campaign).where(Ad.id == ad_id).update({AdCampaign.budget: AdCampaign.budget - CLICK_FEE})
-		db.session.commit()
+		db.session.flush()
 	if read:
 		update_daily_stats(ad_id, read=1)
 		db.session.query(AdCampaign).join(Ad, AdCampaign.id == Ad.ad_campaign).where(Ad.id == ad_id).update({AdCampaign.budget: AdCampaign.budget - READ_FEE})
-		db.session.commit()
-	db.session.commit()
+		db.session.flush()
+	db.session.flush()
 
 	return jsonify({"error": None})

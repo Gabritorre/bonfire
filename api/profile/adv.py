@@ -33,7 +33,7 @@ def create_campaign():
 		db.session.flush()
 		for tag in tags:
 			db.session.add(CampaignTag(campaign_id=ad_campaign.id, tag_id=tag))
-		db.session.commit()
+		db.session.flush()
 
 		return jsonify({"error": None, "campaign": campaign_schema.dump(ad_campaign)})
 	else:
@@ -58,7 +58,7 @@ def delete_campaign():
 	if not campaign:
 		return jsonify({"error": "Campaign doesn't belong to this advertiser or doesn't exist"})
 	db.session.delete(campaign)
-	db.session.commit()
+	db.session.flush()
 	return jsonify({"error": None})
 
 
@@ -97,7 +97,7 @@ def add_budget():
 	if not adv:
 		return jsonify({"error": "Not an advertiser profile"})
 	db.session.query(AdCampaign).where(AdCampaign.id == campaign_id, AdCampaign.advertiser_id == adv.id).update({AdCampaign.budget: AdCampaign.budget + added_funds})
-	db.session.commit()
+	db.session.flush()
 	return jsonify({"error": None})
 
 
