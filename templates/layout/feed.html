@@ -7,7 +7,7 @@
 						<div class="card-body">
 							<div class="card-title d-flex justify-content-between">
 								<a class="d-flex align-items-center text-reset text-decoration-none" :href="'/profile?id=' + post.user_id">
-									<img class="profile-picture profile-picture-3 me-2" :src="post.user_pfp" />
+									<img class="profile-picture profile-picture-3 me-2" :src="post.user_pfp ?? PFP_EMPTY" />
 									<div>
 										<div class="fw-bold" x-text="post.user_name ?? post.user_handle"></div>
 										<div class="text-secondary">
