@@ -2,7 +2,7 @@ from flask import Blueprint, jsonify, request
 from config import db, safeguard
 from models import DATE_FORMAT, Ad, AdCampaign, Advertiser, CampaignTag
 from schemas import campaigns_schema, campaign_schema, ads_schema
-from datetime import datetime
+from datetime import datetime, timezone
 from api.utils import get_auth_token
 
 adv = Blueprint("adv", __name__, url_prefix="/adv")
@@ -22,9 +22,9 @@ def create_campaign():
 	tags = req["tags"]
 	adv = db.session.query(Advertiser).where(Advertiser.id == token.profile_id).first()
 	if adv:
-		start = datetime.strptime(start, DATE_FORMAT)
-		end = datetime.strptime(end, DATE_FORMAT)
-		if start.date() < datetime.now().date():
+		start = datetime.strptime(start, DATE_FORMAT).replace(tzinfo=timezone.utc)
+		end = datetime.strptime(end, DATE_FORMAT).replace(tzinfo=timezone.utc)
+		if start.date() < datetime.now(timezone.utc).date():
 			return jsonify({"error": "Start date is previous to current date"})
 		if end <= start:
 			return jsonify({"error": "End date is previous or equal to start date"})

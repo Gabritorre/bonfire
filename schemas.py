@@ -9,7 +9,7 @@ class UserSchema(ma.SQLAlchemyAutoSchema):
 
 	handle = fields.String(attribute="profile.handle", data_key="handle")
 	name = fields.String(attribute="profile.name", data_key="name")
-	creation_date = fields.DateTime(format=DATE_TIME_FORMAT, attribute="profile.creation_date", data_key="creation_date")
+	creation_date = fields.DateTime(attribute="profile.creation_date", data_key="creation_date")
 	follower = fields.Method("get_follower_count_field")
 	following = fields.Method("get_following_count_field")
 	interests = fields.Method("get_interests_list")
@@ -71,7 +71,6 @@ class PostSchema(ma.SQLAlchemyAutoSchema):
 	likes = fields.Integer()
 	comments = fields.Integer()
 	user_like = fields.Boolean()
-	date = fields.DateTime(format=DATE_TIME_FORMAT)
 
 
 class AdSchema(ma.SQLAlchemyAutoSchema):
@@ -79,15 +78,12 @@ class AdSchema(ma.SQLAlchemyAutoSchema):
 		model = Ad
 		fields = ("id", "campaign_id", "name", "media", "link", "probability", "date")
 
-	date = fields.DateTime(format=DATE_TIME_FORMAT)
-
 
 class CommentSchema(ma.SQLAlchemyAutoSchema):
 	class Meta:
 		model = Comment
 		fields = ("id", "user_id", "user_handle", "user_name", "user_pfp", "body", "date")
 
-	date = fields.DateTime(format=DATE_TIME_FORMAT)
 	user_handle = fields.String(attribute="user.profile.handle", data_key="user_handle")
 	user_name = fields.String(attribute="user.profile.name", data_key="user_name")
 	user_pfp = fields.String(attribute="user.pfp", data_key="user_pfp")
@@ -107,8 +103,6 @@ class AdCampaignsSchema(ma.SQLAlchemyAutoSchema):
 		model = AdCampaign
 		fields = ("id", "name", "total_budget", "budget", "start_date", "end_date", "tags")
 
-	start_date = fields.DateTime(format=DATE_FORMAT)
-	end_date = fields.DateTime(format=DATE_FORMAT)
 	budget = fields.Float()
 	total_budget = fields.Float()
 	tags = fields.Method("get_campaign_tags")
@@ -126,7 +120,6 @@ class AdStatsSchema(ma.SQLAlchemyAutoSchema):
 		model = DailyStat
 		fields = ("id", "impressions", "readings", "clicks", "date")
 
-	date = fields.DateTime(format=DATE_FORMAT)
 
 
 

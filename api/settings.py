@@ -3,7 +3,7 @@ from flask import Blueprint, jsonify, request
 from config import db, safeguard
 from models import Profile, User, Advertiser, Interest, DATE_FORMAT
 from schemas import user_settings_schema, adv_settings_schema
-from datetime import datetime
+from datetime import datetime, timezone
 from .utils import hash_secret, get_auth_token, save_file, delete_file, MAX_FILE_SIZE
 
 settings = Blueprint("settings", __name__, url_prefix="/settings")
@@ -48,8 +48,9 @@ def set_user_settings():
 
 	date = None
 	if new_birthday:
-		if datetime.strptime(new_birthday, DATE_FORMAT) < datetime.now():
-			date = datetime.strptime(new_birthday, DATE_FORMAT)
+		new_birthday = datetime.strptime(new_birthday, DATE_FORMAT).replace(tzinfo=timezone.utc)
+		if new_birthday < datetime.now(timezone.utc):
+			date = new_birthday
 		else:
 			return jsonify({"error": "Invalid birthday date"})
 
