@@ -60,7 +60,7 @@ textarea {
 }
 
 .multiline {
-	white-space: pre;
+	white-space: pre-wrap;
 }
 
 .dropdown-many {
