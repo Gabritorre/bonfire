@@ -41,6 +41,8 @@ document.addEventListener("alpine:init", () => {
 			this.fetch("GET", "/api/profile").then((res) => {
 				this.account.authenticated = res.error == null;
 				if (res.error) {
+					this.account.id = null;
+					this.account.pfp = PFP_EMPTY;
 					return;
 				}
 
@@ -85,6 +87,7 @@ document.addEventListener("alpine:init", () => {
 		logout() {
 			this.fetch("GET", "/api/profile/logout").then((_) => {
 				this.account.authenticated = null;
+				this.account.id = null;
 				this.account.pfp = PFP_EMPTY;
 				window.location.href = "/";
 			});
