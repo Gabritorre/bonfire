@@ -3,7 +3,7 @@ from datetime import datetime
 from sqlalchemy import Enum, Float, Integer, Numeric, String, DateTime, ForeignKey, Text, func, CheckConstraint, Index
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship, backref
 
-NAME_LENGTH = 32
+NAME_LENGTH = 64
 TOKEN_LENGTH = 40
 SECRET_LENGTH = 60
 BODY_LENGTH = 420
