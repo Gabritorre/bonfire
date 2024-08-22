@@ -26,15 +26,18 @@ document.addEventListener("alpine:init", () => {
 				this.readings.id = null;
 			});
 
-			const scroll_handler = () => {
+			const scroll_handler = (allow_hidden) => {
+				if (!allow_hidden && !this.$refs.feed.offsetParent) {
+					return;
+				}
 				const scroll = this.$refs.scroll;
 				const delta = (scroll.scrollHeight - scroll.clientHeight) - scroll.scrollTop;
 				if (delta <= SCROLL_THRESHOLD) {
 					this.continue_posts();
 				}
 			};
-			this.$refs.scroll.addEventListener("scroll", scroll_handler);
-			scroll_handler();
+			this.$refs.scroll.addEventListener("scroll", () => scroll_handler(false));
+			scroll_handler(true);
 
 			this.interval = setInterval(() => {
 				const parent_box = this.$refs.scroll.getBoundingClientRect();
