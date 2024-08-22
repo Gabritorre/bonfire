@@ -93,7 +93,7 @@ document.addEventListener("alpine:init", () => {
 		},
 
 		pfp_update() {
-			if (!this.pfp_.type.startsWith("image/")) {
+			if (!this.file.type.startsWith("image/")) {
 				this.error = "Couldn't load profile picture";
 				return;
 			}
