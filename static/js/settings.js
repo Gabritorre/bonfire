@@ -12,18 +12,26 @@ document.addEventListener("alpine:init", () => {
 			this.$watch("password", () => this.score_update());
 			this.$watch("file", () => this.pfp_update());
 
-			if (this.account.is_adv) {
-				this.fetch("GET", "/api/settings/adv").then((res) => {
-					this.info = res.adv;
-				});
-			} else {
-				this.fetch("GET", "/api/settings/user").then((res) => {
-					this.info = res.user;
-					this.interests = res.user.interests ?? [];
-					this.info.pfp ??= PFP_EMPTY;
-					this.info.birthday &&= new Date(new Date(this.info.birthday) + "UTC").toISOString().split("T")[0];;
-				});
-			}
+			const auth_handler = () => {
+				if (!this.account.authenticated) {
+					return;
+				}
+
+				if (this.account.is_adv) {
+					this.fetch("GET", "/api/settings/adv").then((res) => {
+						this.info = res.adv;
+					});
+				} else {
+					this.fetch("GET", "/api/settings/user").then((res) => {
+						this.info = res.user;
+						this.interests = res.user.interests ?? [];
+						this.info.pfp ??= PFP_EMPTY;
+						this.info.birthday &&= new Date(new Date(this.info.birthday) + "UTC").toISOString().split("T")[0];;
+					});
+				}
+			};
+			this.$watch("account.authenticated", auth_handler);
+			auth_handler();
 		},
 
 		submit() {
