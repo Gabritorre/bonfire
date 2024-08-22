@@ -26,7 +26,7 @@ def explore():
 	set_likes_count(posts, posts_data) # set the number of likes for each post
 	set_comments_count(posts, posts_data) # set the number of comments for each post
 
-	recommended_ad = None
+	ad_data = None
 	if posts_data:
 		if token:
 			set_user_like(posts, posts_data, token.profile_id) # for each post check if the current user liked it or not
@@ -36,8 +36,8 @@ def explore():
 
 		if recommended_ad:
 			db.session.flush()
-			recommended_ad = ad_schema.dump(recommended_ad)
-	return jsonify({"error": None, "posts": posts_data, "ad": recommended_ad})
+			ad_data = ad_schema.dump(recommended_ad)
+	return jsonify({"error": None, "posts": posts_data, "ad": ad_data})
 
 
 # Get a list of posts from the user's friends
@@ -60,11 +60,16 @@ def friends_posts():
 	posts = posts.limit(POSTS_PER_CHUNK)
 	posts_data = posts_schema.dump(posts)
 
+	ad_data = None
+	recommended_ad = recommend_ad(user_id=token.profile_id)
+	if recommended_ad:
+		ad_data = ad_schema.dump(recommended_ad)
+
 	set_user_like(posts, posts_data, token.profile_id)	# for each post check if the current user liked it or not
 	set_likes_count(posts, posts_data)	# set the number of likes for each post
 	set_comments_count(posts, posts_data)	# set the number of comments for each post
 
-	return jsonify({"error": None, "posts": posts_data})
+	return jsonify({"error": None, "posts": posts_data, "ad": ad_data})
 
 
 # Get a list of posts from a specific user
