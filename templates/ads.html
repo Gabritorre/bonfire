@@ -81,7 +81,7 @@
 									<div>
 										<div class="d-flex align-items-baseline gap-2 mb-2">
 											<div class="fs-5 fw-bold" x-text="ad.name"></div>
-											<div class="text-secondary" x-text="new Date(ad.date).toLocaleDateString()"></div>
+											<div class="text-secondary" x-text="datify(ad.date)"></div>
 										</div>
 										<div class="text-secondary">
 											Probability: <span class="text-body" x-text="ad.probability*100 + '%'">12%</span>

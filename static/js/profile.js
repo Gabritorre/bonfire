@@ -15,8 +15,6 @@ document.addEventListener("alpine:init", () => {
 				this.user = res.user;
 				this.user.pfp ??= PFP_EMPTY;
 				this.user.gender &&= this.user.gender.charAt(0).toUpperCase() + this.user.gender.slice(1);
-				this.user.birthday &&= new Date(this.user.birthday).toLocaleDateString();
-				this.user.creation_date = new Date(this.user.creation_date).toLocaleDateString();
 			});
 		},
 

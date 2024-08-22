@@ -11,7 +11,7 @@
 									<div>
 										<div class="fw-bold" x-text="post.user_name ?? post.user_handle"></div>
 										<div class="text-secondary">
-											@<span x-text="post.user_handle"></span> &middot; <span x-text="new Date(post.date).toLocaleDateString()"></span>
+											@<span x-text="post.user_handle"></span> &middot; <span x-text="datify(post.date)"></span>
 										</div>
 									</div>
 								</a>
@@ -73,9 +73,11 @@
 										<div class="col d-flex justify-content-between">
 											<a class="d-flex align-items-center text-reset text-decoration-none" :href="'/profile?id=' + comment.user_id">
 												<img class="profile-picture profile-picture-1 me-2" :src="comment.user_pfp ?? PFP_EMPTY" />
-												<div class="fw-bold me-2" x-text="comment.user_name ?? comment.user_handle"></div>
-												<div class="text-secondary">
-													@<span x-text="comment.user_handle"></span> &middot; <span x-text="new Date(comment.date).toLocaleDateString()"></span>
+												<div class="d-flex flex-column flex-sm-row">
+													<div class="fw-bold me-2" x-text="comment.user_name ?? comment.user_handle"></div>
+													<div class="text-secondary">
+														@<span x-text="comment.user_handle"></span> &middot; <span x-text="datify(comment.date)"></span>
+													</div>
 												</div>
 											</a>
 											<div x-show="comment.user_id === account.id">

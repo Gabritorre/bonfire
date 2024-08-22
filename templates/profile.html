@@ -23,8 +23,8 @@
 				<div class="text-secondary">
 					@<span x-text="user.handle"></span> &middot;
 					<span x-show="user.gender"><span x-text="user.gender"></span> &middot;</span>
-					<span x-show="user.birthday">Born <span x-text="user.birthday"></span> &middot;</span>
-					Joined <span x-text="user.creation_date"></span>
+					<span x-show="user.birthday">Born <span x-text="new Date(user.birthday).toLocaleDateString()"></span> &middot;</span>
+					Joined <span x-text="new Date(user.creation_date).toLocaleDateString()"></span>
 				</div>
 				<div class="d-flex gap-3 my-2">
 					<a class="text-secondary text-decoration-none" :href="'/follows?type=s&id=' + id">

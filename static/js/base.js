@@ -122,6 +122,16 @@ document.addEventListener("alpine:init", () => {
 			});
 		},
 
+		datify(datetime) {
+			let object = new Date(datetime);
+			let time = object.toLocaleTimeString().split(":").slice(0, 2).join(":");
+			let date = object.toLocaleDateString();
+			if (date === (new Date()).toLocaleDateString()) {
+				return time;
+			}
+			return date + " " + time;
+		},
+
 		view(url) {
 			const request = ++this.viewer.request;
 			this.blobify(url).then((blob) => {
