@@ -8,9 +8,10 @@
 	--profile-picture-4: 150px;
 	--profile-picture-5: 225px;
 	--ad-image-size: 120px;
+	--ad-play-size: 2rem;
 	--dropdown-many-height: 250px;
 	--post-play-size: 4rem;
-	--ad-play-size: 2rem;
+	--error-size: 6rem;
 	--transition: .15s ease-in-out;
 }
 
@@ -134,6 +135,20 @@ textarea {
 	position: absolute;
 	top: 0;
 	right: 0;
+}
+
+.error-page {
+	position: absolute;
+	top: 0;
+	right: 0;
+	left: 0;
+	bottom: 0;
+	z-index: -1;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	font-size: var(--error-size);
+	font-weight: bold;
 }
 
 /* Hide search results when out of focus */
