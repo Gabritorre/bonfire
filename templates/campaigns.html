@@ -91,9 +91,11 @@
 									</div>
 								</template>
 							</div>
-							<div class="d-flex flex-column flex-sm-row justify-content-sm-between align-items-sm-end gap-2 me-2">
-								<div>
-									<button class="btn btn-dark rounded-3 fs-4" title="Update budget" type="button" x-text="'€' + campaign.budget?.toFixed(2)" @click="update_budget(campaign)"></button>
+							<div class="d-flex flex-column flex-md-row justify-content-md-between align-items-md-baseline gap-2 me-2">
+								<div class="d-flex align-items-baseline gap-2">
+									<button class="btn btn-dark rounded-3 border fs-4" title="Update budget" type="button" x-text="'€' + campaign.budget?.toFixed(2)" @click="update_budget(campaign)"></button>
+									<div class="text-secondary">out of</div>
+									<div class="text-secondary" x-text="'€' + campaign.total_budget?.toFixed(2)"></div>
 								</div>
 								<div class="text-secondary text-end mb-1">
 									From <span class="text-body" x-text="new Date(campaign.start_date).toLocaleDateString()"></span> to <span class="text-body" x-text="new Date(campaign.end_date).toLocaleDateString()"></span>
