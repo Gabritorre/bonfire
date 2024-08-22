@@ -73,6 +73,7 @@ document.addEventListener("alpine:init", () => {
 						return;
 					}
 					campaign.budget += addition;
+					campaign.total_budget += addition;
 				});
 			});
 		}

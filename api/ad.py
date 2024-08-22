@@ -61,7 +61,7 @@ def create_ad():
 		if len(media.read()) > MAX_FILE_SIZE:
 			return jsonify({"error": "File too large"})
 		media.seek(0)
-		filename = save_file(media)
+		filename = save_file(media, img_only=True)
 
 	try:
 		ad = Ad(campaign_id=campaign_id, name=name, media=filename, link=link, probability=prob)
