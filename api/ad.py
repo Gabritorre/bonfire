@@ -121,7 +121,7 @@ def get_stats():
 	campaign = db.session.query(AdCampaign).join(Ad, AdCampaign.id == Ad.campaign_id).where(AdCampaign.advertiser_id == token.profile_id, Ad.id == ad_id).first()
 	if not campaign:
 		return jsonify({"error": "Ad doesn't belong to this advertiser or doesn't exist"})
-	stats = db.session.query(DailyStat).join(Ad, DailyStat.ad_id == Ad.id).where(DailyStat.ad_id == ad_id).all()
+	stats = db.session.query(DailyStat).join(Ad, DailyStat.ad_id == Ad.id).where(DailyStat.ad_id == ad_id).order_by(DailyStat.date).all()
 	return jsonify({"error": None, "stats": ad_stats_schema.dump(stats)})
 
 
