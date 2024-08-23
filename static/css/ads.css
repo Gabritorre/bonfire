@@ -11,7 +11,7 @@
 	background-color: var(--bs-dark-bg-subtle);
 }
 
-.ad-link {
+.ad-url {
 	word-break: break-all;
 	display: -webkit-box;
 	-webkit-box-orient: vertical;
