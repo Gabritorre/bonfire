@@ -45,7 +45,8 @@ def set_auth_token(profile: Profile, res: Response) -> None:
 	db.session.add(AuthToken(value=hashed_sf, profile_id=profile.id, expiration_date=expiration_date))
 	db.session.flush()
 
-	res.set_cookie("auth_token", str(sf), expires=expiration_date)
+	# TODO: set secure=True if the connection uses https
+	res.set_cookie("auth_token", str(sf), expires=expiration_date, httponly=True, samesite="strict")
 
 # Get the token object from the cookies of the request
 def get_auth_token(cookies: ImmutableMultiDict[str, str]) -> AuthToken | None:
