@@ -150,6 +150,7 @@ def set_user_like(posts, post_data, profile_id):
 	for count, post in enumerate(posts):
 		post_data[count]["user_like"] = post.id in liked_post_ids
 
+# for each post set the number of likes
 def set_likes_count(posts, posts_data):
 	post_ids = [post.id for post in posts]
 	like_counts = (db.session.query(Like.post_id, func.count().label("like_count"))
@@ -160,6 +161,7 @@ def set_likes_count(posts, posts_data):
 	for post_data in posts_data:
 		post_data["likes"] = like_count_dict.get(post_data["id"], 0)
 
+# for each post set the number of comments
 def set_comments_count(posts, posts_data):
 	post_ids = [post.id for post in posts]
 	comment_counts = (db.session.query(Comment.post_id, func.count().label("comment_count"))
