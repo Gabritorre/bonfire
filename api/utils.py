@@ -118,7 +118,11 @@ def recommend_ad(user_id: int | None, epsilon: float=0.8) -> Ad | None:
 		if hi_interest:
 			interested_campaign = (db.session.query(AdCampaign) # campaign with highest budget that matches hi_interest
 							.join(CampaignTag, AdCampaign.id == CampaignTag.campaign_id)
-							.where(CampaignTag.tag_id == hi_interest.tag_id, AdCampaign.end_date > datetime.now(timezone.utc), AdCampaign.budget >= fees)
+							.where(CampaignTag.tag_id == hi_interest.tag_id,
+								AdCampaign.start_date < datetime.now(timezone.utc),
+								AdCampaign.end_date > datetime.now(timezone.utc),
+								AdCampaign.budget >= fees,
+								AdCampaign.advertiser_id != user_id)
 							.order_by(AdCampaign.budget.desc())
 							.first())
 
@@ -134,7 +138,14 @@ def recommend_ad(user_id: int | None, epsilon: float=0.8) -> Ad | None:
 					else:
 						return None
 
-	res = db.session.query(Ad, AdCampaign).join(AdCampaign, Ad.campaign_id == AdCampaign.id).where(AdCampaign.budget >= fees, AdCampaign.advertiser_id != user_id).order_by(func.random()).first() # select a random ad
+	res = (db.session.query(Ad, AdCampaign)
+		.join(AdCampaign, Ad.campaign_id == AdCampaign.id)
+		.where(AdCampaign.start_date < datetime.now(timezone.utc),
+			AdCampaign.end_date > datetime.now(timezone.utc),
+			AdCampaign.budget >= fees,
+			AdCampaign.advertiser_id != user_id)
+		.order_by(func.random())
+		.first()) # select a random ad
 	if res:
 		recommended_ad, interested_campaign = res
 		interested_campaign.budget -= IMPRESSION_FEE

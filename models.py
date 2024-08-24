@@ -132,7 +132,7 @@ class Interest(Base):
 	tag: Mapped[Tag] = relationship(backref=backref("tags", cascade="all, delete"), passive_deletes=True)
 
 	__table_args__ = (
-		CheckConstraint("interest >= 0", name="check_interest_range"),
+		CheckConstraint("interest > 0", name="check_interest_range"),
 	)
 
 
