@@ -20,7 +20,7 @@ def create_post():
 	tags = req["tags"]
 	media = request.files.get("media")
 
-	if len(body) > BODY_LENGTH:
+	if body and len(body) > BODY_LENGTH:
 		return jsonify({"error": "Post body is too long"})
 
 	filename = None
