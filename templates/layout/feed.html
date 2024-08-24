@@ -11,7 +11,7 @@
 									<div>
 										<div class="fw-bold" x-text="post.user_name ?? post.user_handle"></div>
 										<div class="text-secondary">
-											@<span x-text="post.user_handle"></span> &middot; <span x-text="datify(post.date)"></span>
+											@<span x-text="post.user_handle"></span> &middot; <span class="text-nowrap" x-text="datify(post.date)"></span>
 										</div>
 									</div>
 								</a>
@@ -76,7 +76,7 @@
 												<div class="d-flex flex-column flex-sm-row">
 													<div class="fw-bold me-2" x-text="comment.user_name ?? comment.user_handle"></div>
 													<div class="text-secondary">
-														@<span x-text="comment.user_handle"></span> &middot; <span x-text="datify(comment.date)"></span>
+														@<span x-text="comment.user_handle"></span> &middot; <span class="text-nowrap" x-text="datify(comment.date)"></span>
 													</div>
 												</div>
 											</a>
