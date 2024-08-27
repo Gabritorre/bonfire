@@ -56,13 +56,19 @@ def safeguard(func):
 			return jsonify({"error": "Something went wrong"})
 	return wrapper
 
+
+debug = int(environ.get("DB_DEBUG", "0"))
+query = {}
+if debug == 0:
+	query["sslmode"] = "require"
+
 connection_string = URL.create(
 	str(environ["DB_DRIVER_NAME"]),
 	username = environ["DB_USERNAME"],
 	password = environ["DB_PASSWORD"],
 	host = environ["DB_HOST"],
 	database = environ["DB_DATABASE"],
-	query = {"sslmode": "require"}
+	query = query
 )
 
 engine = create_engine(connection_string)
