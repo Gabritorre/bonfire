@@ -67,6 +67,7 @@ connection_string = URL.create(
 	username = environ["DB_USERNAME"],
 	password = environ["DB_PASSWORD"],
 	host = environ["DB_HOST"],
+	port = environ["DB_PORT"],
 	database = environ["DB_DATABASE"],
 	query = query
 )
