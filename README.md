@@ -1,11 +1,65 @@
-﻿# Bonfire
+﻿
+<p align="center">
+	<img src="./static/favicon.png" width="250"><br/>
+</p>
+
+# Bonfire
+
+A RESTful social network prototype made in Flask and SQLAlchemy
+
+## Table of Contents
+
+- 📝 [About](#about)
+- ⭐ [Features](#features)
+- 🖼️ [Screenshots](#screenshots)
+- ⚙️ [Local Execution](#local-execution)
+
+## About
+
+This was a project for a university course focused on the backend side of a web app.
+We were mostly free to design the frontend as we liked, but we had to follow the project guidelines for the backend, which also included the basic features that our app needed to implement.
+
+## Features
+
+You can register for the app under two roles: **user** and **advertiser**.
+
+As a user, you can:
+- Explore content posted by anyone on the platform.
+- Explore content posted by your friends on the platform.
+- Interact with posts through likes and comments.
+- Create posts that support text-only, images (+text), and videos (+text).
+- Customize your profile.
+- Search for specific users on the platform.
+- Follow others and get followed.
+
+As an advertiser, you can:
+- Explore content posted by anyone on the platform.
+- Search for specific users on the platform.
+- Customize your profile.
+- Manage your advertising campaigns (create new ones, increase the budget, set the target audience for each campaign).
+- Manage the ads within a specific campaign (create new ads by specifying the image or video and the referral link).
+- Keep track of the statistics of the ads you’ve created (impressions, clicks, readings).
+
+## Screenshots
+
+### User view
+
+<p align="center">
+	<img src="./assets/user_side.png"><br/>
+</p>
+
+### Advertiser view
+
+<p align="center">
+	<img src="./assets/adv_side.png"><br/>
+</p>
 
 ## Local execution
 
-1. Install the dependencies
-2. Setup environment variables file
-3. Setup the database
-4. Run the server
+1. [Install the dependencies](#1-install-the-dependencies)
+2. [Setup environment variables file](#2-setup-environment-variables-file)
+3. [Setup the database](#3-setup-the-database)
+4. [Run the server](#4-run-the-server)
 
 ### 1. Install the dependencies
 
