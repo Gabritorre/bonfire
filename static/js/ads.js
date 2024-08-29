@@ -1,3 +1,5 @@
+const STATS_MAX_DAYS = 40;
+
 document.addEventListener("alpine:init", () => {
 	Alpine.data("ads", () => ({
 		id: null,
@@ -38,7 +40,18 @@ document.addEventListener("alpine:init", () => {
 			}
 
 			return this.fetch("POST", "/api/ad/stats", {id: ad.id}).then((res) => {
-				const stats = (res.stats ?? []).slice(-40);
+				const fetched_stats = new Map((res.stats ?? []).map((stat) => [new Date(stat.date).getTime(), stat]));
+
+				const first_day = Math.min(...fetched_stats.keys()), last_day = Math.max(...fetched_stats.keys());
+				const stats = Array.from({length: Math.min(STATS_MAX_DAYS, (last_day-first_day)/(24*60*60*1000)+1)}).map((_, i) => {
+					const date = last_day - i*24*60*60*1000;
+					return fetched_stats.get(date) ?? {
+						date: date,
+						clicks: 0,
+						impressions: 0,
+						readings: 0
+					};
+				}).reverse();
 
 				const labels = stats.map((stat) => {
 					const date = new Date(stat.date);
