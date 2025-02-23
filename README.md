@@ -1,9 +1,11 @@
-﻿
+﻿﻿
 <p align="center">
 	<img src="./static/favicon.png" width="250"><br/>
 </p>
 
 # Bonfire
+
+
 
 A RESTful social network prototype made in Flask and SQLAlchemy
 
@@ -12,7 +14,8 @@ A RESTful social network prototype made in Flask and SQLAlchemy
 - 📝 [About](#about)
 - ⭐ [Features](#features)
 - 🖼️ [Screenshots](#screenshots)
-- ⚙️ [Local Execution](#local-execution)
+- 🐋 [Docker execution](#docker-execution)
+- ⚙️  [Local execution](#local-execution)
 
 ## About
 
@@ -54,6 +57,16 @@ As an advertiser, you can:
 	<img src="./assets/adv_side.png"><br/>
 </p>
 
+## Docker execution
+
+In the root project folder run the following commands:
+
+	$ docker compose up -d db
+
+ 	$ docker compose up flask
+
+Open a browser and visit http://127.0.0.1:5000/
+
 ## Local execution
 
 1. [Install the dependencies](#1-install-the-dependencies)
@@ -65,7 +78,13 @@ As an advertiser, you can:
 
 After cloning the repository, you need to install all the required dependencies. This project has been developed using a PostgreSQL database, so I'll demonstrate how to set it up. However, since we used SQLAlchemy ORM, it should work with most DBMSs, with only minor modifications needed, such as removing or rewriting triggers.
 
+
+<details>
+
+<summary>
+
 #### Fedora
+</summary>
 
 Install python
 
@@ -90,7 +109,14 @@ Install the python packages needed. Go in the root of the project and run
 
 	$ pip3 install -r requirements.txt
 
+</details>
+
+<details>
+<summary>
+
 #### Debian-based
+</summary>
+
 
 Install python
 
@@ -116,6 +142,7 @@ Install the python packages needed. Go in the root of the project and run
 
 	$ pip3 install -r requirements.txt
 
+</details>
 
 ### 2 Setup environment variables file
 
@@ -128,8 +155,8 @@ DB_PASSWORD="<password>"
 DB_HOST="127.0.0.1"
 DB_PORT="5432"
 DB_DATABASE="<database_name>"
-DB_SECRET_KEY = "random_generated_string"
-DB_DEBUG = "1"
+DB_SECRET_KEY="random_generated_string"
+DB_DEBUG="1"
 ```
 Compile the fields indicated by `<>` with your data.
 Remember: the data you enter must match the ones used in the database configuration in the next step.
@@ -137,7 +164,11 @@ Remember: the data you enter must match the ones used in the database configurat
 
 ### 3 Setup the database
 
+<details>
+<summary>
+
 #### Fedora
+</summary>
 
 Initialize the database
 
@@ -169,15 +200,15 @@ Run the postgres interactive shell to create user and database
 
 
 	You can check the user creation with the following command:
-		
+
 		postgres=# \du
-		
+
 - Create the database (remember to match the fields entered in the `.env` file)
-	
+
 		postgres=# CREATE DATABASE <database_name> OWNER <username>;
 
 	You can check the database creation with the following command:
-	
+
 		postgres=# \l
 
 Now you can grant all the priviledges to the created user for that database:
@@ -188,7 +219,7 @@ Now you can grant all the priviledges to the created user for that database:
 Before you can log in using the created user, you need to enable password authentication in the PostgreSQL configuration file. Open this file using your favorite text editor:
 
 	$ sudo vim /var/lib/pgsql/data/pg_hba.conf
- 
+
 Add the following line just below the mention of `"local" is for Unix domain socket connections only` near the bottom of the file:
 
 ```
@@ -220,13 +251,18 @@ Opt. 2
 And now you should be able to connect with the following command
 
 	$ psql -U <username> -d <database_name>
-	
+
 Lastly you need to create the database tables, so exit from the postgres shell and run the following script:
 
 	$ python3 create_database.py
 
-#### Debian-based
+</details>
 
+<details>
+<summary>
+
+#### Debian-based
+</summary>
 
 Initialize the database
 
@@ -260,15 +296,15 @@ Run the postgres interactive shell to create user and database
 
 
 	You can check the user creation with the following command:
-		
+
 		postgres=# \du
-		
+
 - Create the database (remember to match the fields entered in the `.env` file)
-	
+
 		postgres=# CREATE DATABASE <database_name> OWNER <username>;
 
 	You can check the database creation with the following command:
-	
+
 		postgres=# \l
 
 Now you can grant all the priviledges to the created user for that database:
@@ -319,10 +355,11 @@ Lastly you need to create the database tables, so exit from the postgres shell a
 
 	$ python3 create_database.py
 
-
+</details>
 
 ### 4 Run the server
 
 If everything has worked, you should now be able to run the server:
 
 	$ flask run --debug
+
